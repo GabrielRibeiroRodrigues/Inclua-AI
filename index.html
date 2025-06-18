@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste do Widget de Acessibilidade</title>
+
+    <link rel="stylesheet" href="widget.css">
+
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 2rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Bem-vindo à Página de Teste</h1>
+        <p>Esta página serve para demonstrar o funcionamento do widget de acessibilidade. Use o ícone no canto inferior esquerdo para abrir o painel de controle.</p>
+
+        <h2>Teste as Funcionalidades</h2>
+        <p>Você pode testar o <strong>Modo Escuro</strong>, que deve alterar as cores da página mas não da imagem abaixo. Você também pode <strong>Aumentar a Fonte</strong> para ver todo o texto da página crescer.</p>
+        
+        <a href="#">Este é um link de exemplo.</a>
+        
+        <p>A funcionalidade de <strong>Leitor</strong> foi ativada. Clique no botão e depois passe o mouse sobre qualquer texto para que ele seja lido em voz alta.</p>
+
+       <img src="https://www.petz.com.br/blog/wp-content/uploads/2021/04/raca-de-cachorro-docil-2.jpg" alt="">
+    </div>
+
+    <script src="widget.js"></script>
+
+</body>
+</html>
