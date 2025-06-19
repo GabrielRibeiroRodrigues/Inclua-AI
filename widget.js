@@ -299,7 +299,7 @@ function handleImageDescribeClick(event) {
 async function describeSingleImageAI(imgElement) {
     showImageDescriptionModal(imgElement.src, '<em>Descrevendo imagem, por favor aguarde...</em>');
     try {
-        const response = await fetch('http://localhost:3000/describe-image', {
+        const response = await fetch('https://inclua-ai-servidor.onrender.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageUrl: imgElement.src }),
@@ -379,7 +379,7 @@ function handleSimplifierClick(event) {
 async function simplifyTextAI(text) {
     showSimplifierResultModal(text, '<em>Simplificando, por favor aguarde...</em>');
     try {
-        const response = await fetch('http://localhost:3000/simplify-text', {
+        const response = await fetch('https://inclua-ai-servidor.onrender.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ textToSimplify: text }),
