@@ -1,19 +1,24 @@
 // widget.js (VERSÃO FINAL E COMPLETA)
-// MODIFICADO: Função "Descrever Imagem" agora é interativa com Áudio e Modal.
+// Inclui: Persistência de Configurações, Modo Escuro, Fonte, Leitor, Destacar Links, Daltonismo e Funções de IA.
 
-// --- Variáveis Globais ---
+// --- Variáveis Globais de Estado ---
 let isReaderActive = false;
 let isHighlightLinksActive = false;
 let isSimplifierActive = false;
-let isImageDescriberActive = false; // Nova variável de estado para o descritor de imagem
+let isImageDescriberActive = false;
+let fontSizeLevel = 0; // Controla o nível de zoom da fonte
+const MAX_FONT_LEVEL = 5; // Limite para não aumentar a fonte infinitamente
+const MIN_FONT_LEVEL = -2; // Limite para não diminuir a fonte infinitamente
 const utterance = new SpeechSynthesisUtterance();
 utterance.lang = 'pt-BR';
 
 // --- Função Principal de Inicialização ---
 window.addEventListener('DOMContentLoaded', () => {
     console.log('Widget de Acessibilidade Carregado!');
+    loadAndApplySavedSettings(); // Carrega as configurações salvas do localStorage
     injectSVGFilters();
     createWidgetUI();
+    updateUIFromState(); // Garante que os botões reflitam o estado carregado
 });
 
 
@@ -33,13 +38,17 @@ function createWidgetUI() {
     controlPanel.id = 'accessibility-widget-panel';
     controlPanel.innerHTML = `
         <h2>Acessibilidade</h2>
+        <div class="button-group">
+            <button id="increaseFontBtn" title="Aumentar Fonte">A+</button>
+            <button id="decreaseFontBtn" title="Diminuir Fonte">A-</button>
+        </div>
         <button id="darkModeBtn">Modo Escuro</button>
-        <button id="increaseFontBtn">Aumentar Fonte</button>
-        <button id="readTextBtn">Ativar Leitor</button>
         <button id="highlightLinksBtn">Destacar Links</button>
+        <button id="readTextBtn">Ativar Leitor</button>
         <div class="widget-separator"></div>
         <strong>Funcionalidades com IA:</strong>
-        <button id="describeImagesBtn">Descrever Imagem</button> <button id="simplifyTextBtn">Simplificar Texto</button>
+        <button id="describeImagesBtn">Descrever Imagem</button>
+        <button id="simplifyTextBtn">Simplificar Texto</button>
         <div class="widget-separator"></div>
         <label for="colorblind-select">Filtro para Daltonismo:</label>
         <select id="colorblind-select">
@@ -49,6 +58,8 @@ function createWidgetUI() {
             <option value="tritanopia">Tritanopia</option>
             <option value="achromatopsia">Acromatopsia</option>
         </select>
+        <div class="widget-separator"></div>
+        <button id="resetSettingsBtn">Resetar Configurações</button>
     `;
     document.body.appendChild(controlPanel);
 
@@ -59,11 +70,13 @@ function createWidgetUI() {
     // Conectar todos os botões e controles às suas funções
     document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
     document.getElementById('increaseFontBtn').addEventListener('click', increaseFontSize);
+    document.getElementById('decreaseFontBtn').addEventListener('click', decreaseFontSize);
     document.getElementById('readTextBtn').addEventListener('click', toggleReader);
     document.getElementById('highlightLinksBtn').addEventListener('click', toggleHighlightLinks);
-    document.getElementById('describeImagesBtn').addEventListener('click', toggleImageDescriber); // Lógica alterada para a nova função
+    document.getElementById('describeImagesBtn').addEventListener('click', toggleImageDescriber);
     document.getElementById('simplifyTextBtn').addEventListener('click', toggleTextSimplifier);
     document.getElementById('colorblind-select').addEventListener('change', (event) => applyColorblindFilter(event.target.value));
+    document.getElementById('resetSettingsBtn').addEventListener('click', resetAllSettings);
 }
 
 /**
@@ -83,22 +96,96 @@ function injectSVGFilters() {
     document.body.insertAdjacentHTML('beforeend', svgFilters);
 }
 
-// --- Funções de Acessibilidade Visual ---
+// --- Funções de Persistência de Configurações ---
+
+/**
+ * Carrega e aplica todas as configurações salvas no localStorage ao iniciar.
+ */
+function loadAndApplySavedSettings() {
+    const savedFontSizeLevel = localStorage.getItem('widget_fontSizeLevel');
+    if (savedFontSizeLevel) {
+        fontSizeLevel = parseInt(savedFontSizeLevel, 10);
+        applyFontSize(fontSizeLevel);
+    }
+    if (localStorage.getItem('widget_darkMode') === 'true') {
+        document.documentElement.classList.add('widget-dark-mode');
+    }
+    if (localStorage.getItem('widget_highlightLinks') === 'true') {
+        isHighlightLinksActive = true;
+        document.documentElement.classList.add('widget-highlight-links');
+    }
+    const savedFilter = localStorage.getItem('widget_colorblindFilter');
+    if (savedFilter && savedFilter !== 'none') {
+        applyColorblindFilter(savedFilter);
+    }
+}
+
+/**
+ * Garante que a UI do widget (botões, selects) reflita o estado carregado do localStorage.
+ */
+function updateUIFromState() {
+    if (isHighlightLinksActive) {
+        const btn = document.getElementById('highlightLinksBtn');
+        btn.textContent = 'Remover Destaque';
+        btn.style.backgroundColor = '#a3e4a3';
+    }
+    const savedFilter = localStorage.getItem('widget_colorblindFilter');
+    if (savedFilter) {
+        document.getElementById('colorblind-select').value = savedFilter;
+    }
+}
+
+/**
+ * Limpa todas as configurações salvas e recarrega a página.
+ */
+function resetAllSettings() {
+    if (confirm('Tem certeza que deseja resetar todas as configurações de acessibilidade?')) {
+        localStorage.clear();
+        window.location.reload();
+    }
+}
+
+// --- Funções de Acessibilidade Visual (MODIFICADAS PARA PERSISTÊNCIA) ---
+
 function toggleDarkMode() {
     applyColorblindFilter('none');
     document.getElementById('colorblind-select').value = 'none';
-    document.documentElement.classList.toggle('widget-dark-mode');
+    const isActive = document.documentElement.classList.toggle('widget-dark-mode');
+    localStorage.setItem('widget_darkMode', isActive);
 }
+
 function increaseFontSize() {
+    if (fontSizeLevel < MAX_FONT_LEVEL) {
+        fontSizeLevel++;
+        applyFontSize(fontSizeLevel);
+        localStorage.setItem('widget_fontSizeLevel', fontSizeLevel);
+    }
+}
+
+function decreaseFontSize() {
+    if (fontSizeLevel > MIN_FONT_LEVEL) {
+        fontSizeLevel--;
+        applyFontSize(fontSizeLevel);
+        localStorage.setItem('widget_fontSizeLevel', fontSizeLevel);
+    }
+}
+
+function applyFontSize(level) {
+    const scale = 1 + (level * 0.1);
     const elements = document.querySelectorAll('p, a, h1, h2, h3, li, span, button');
     elements.forEach(el => {
         if (!el.closest('#accessibility-widget-button') && !el.closest('#accessibility-widget-panel')) {
-            const currentSize = window.getComputedStyle(el, null).getPropertyValue('font-size');
-            const newSize = parseFloat(currentSize) * 1.1;
+            const baseSize = el.getAttribute('data-widget-base-font-size');
+            if (!baseSize) {
+                const originalSize = window.getComputedStyle(el).fontSize;
+                el.setAttribute('data-widget-base-font-size', originalSize);
+            }
+            const newSize = parseFloat(el.getAttribute('data-widget-base-font-size')) * scale;
             el.style.fontSize = `${newSize}px`;
         }
     });
 }
+
 function toggleHighlightLinks() {
     isHighlightLinksActive = !isHighlightLinksActive;
     const btn = document.getElementById('highlightLinksBtn');
@@ -110,20 +197,25 @@ function toggleHighlightLinks() {
         btn.textContent = 'Destacar Links';
         btn.style.backgroundColor = '';
     }
+    localStorage.setItem('widget_highlightLinks', isHighlightLinksActive);
 }
+
 function applyColorblindFilter(filterType) {
     const rootElement = document.documentElement;
     if (rootElement.classList.contains('widget-dark-mode')) {
         rootElement.classList.remove('widget-dark-mode');
+        localStorage.setItem('widget_darkMode', 'false');
     }
     const filterClasses = ['protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'];
     filterClasses.forEach(cls => rootElement.classList.remove(`filter-${cls}`));
     if (filterType !== 'none') {
         rootElement.classList.add(`filter-${filterType}`);
     }
+    localStorage.setItem('widget_colorblindFilter', filterType);
 }
 
 // --- Funções de Leitura de Tela ---
+
 function toggleReader() {
     isReaderActive = !isReaderActive;
     const readTextBtn = document.getElementById('readTextBtn');
@@ -138,30 +230,30 @@ function toggleReader() {
         document.body.removeEventListener('mouseover', readTextOnHover);
     }
 }
+
 function readTextOnHover(event) {
     const targetElement = event.target;
     if (targetElement.innerText && !targetElement.closest('#accessibility-widget-panel')) {
         speakText(targetElement.innerText);
     }
 }
+
 function speakText(text) {
-    window.speechSynthesis.cancel(); // Para qualquer fala anterior
+    window.speechSynthesis.cancel();
     utterance.text = text;
     window.speechSynthesis.speak(utterance);
 }
 
 // --- Funções de Inteligência Artificial ---
 
-// *** LÓGICA DE DESCREVER IMAGENS TOTALMENTE REFEITA ***
 function toggleImageDescriber() {
     isImageDescriberActive = !isImageDescriberActive;
     const btn = document.getElementById('describeImagesBtn');
     const rootElement = document.documentElement;
-
     if (isImageDescriberActive) {
         btn.textContent = 'Sair da Descrição';
         btn.style.backgroundColor = '#a3e4a3';
-        rootElement.classList.add('widget-describer-active'); // Ativa o cursor especial
+        rootElement.classList.add('widget-describer-active');
         document.body.addEventListener('click', handleImageDescribeClick, true);
     } else {
         btn.textContent = 'Descrever Imagem';
@@ -173,12 +265,11 @@ function toggleImageDescriber() {
 
 function handleImageDescribeClick(event) {
     if (event.target.closest('#accessibility-widget-panel')) return;
-
     if (event.target.tagName === 'IMG') {
         event.preventDefault();
         event.stopPropagation();
         describeSingleImageAI(event.target);
-        toggleImageDescriber(); // Desativa o modo após o clique para não descrever outras imagens sem querer
+        toggleImageDescriber();
     } else {
         alert('Por favor, clique em uma imagem para que ela seja descrita.');
     }
@@ -196,7 +287,6 @@ async function describeSingleImageAI(imgElement) {
         const data = await response.json();
         if (data.description) {
             imgElement.alt = data.description;
-            // Atualiza o modal com a descrição e inicia o áudio
             showImageDescriptionModal(imgElement.src, data.description);
             speakText(data.description);
         }
@@ -209,7 +299,6 @@ async function describeSingleImageAI(imgElement) {
 function showImageDescriptionModal(imageSrc, descriptionHtml) {
     const oldModal = document.getElementById('widget-image-desc-modal');
     if (oldModal) oldModal.remove();
-
     const modal = document.createElement('div');
     modal.id = 'widget-image-desc-modal';
     modal.className = 'widget-modal-overlay';
@@ -224,12 +313,10 @@ function showImageDescriptionModal(imageSrc, descriptionHtml) {
         </div>
     `;
     document.body.appendChild(modal);
-
     const closeAndStop = () => {
-        window.speechSynthesis.cancel(); // Para o áudio ao fechar
+        window.speechSynthesis.cancel();
         modal.remove();
     };
-
     modal.querySelector('.modal-close-btn').addEventListener('click', closeAndStop);
     modal.addEventListener('click', (event) => {
         if (event.target.id === 'widget-image-desc-modal') {
@@ -238,7 +325,6 @@ function showImageDescriptionModal(imageSrc, descriptionHtml) {
     });
 }
 
-// *** LÓGICA DE SIMPLIFICAR TEXTO (sem alterações) ***
 function toggleTextSimplifier() {
     isSimplifierActive = !isSimplifierActive;
     const btn = document.getElementById('simplifyTextBtn');
@@ -255,6 +341,7 @@ function toggleTextSimplifier() {
         document.body.removeEventListener('click', handleSimplifierClick, true);
     }
 }
+
 function handleSimplifierClick(event) {
     if (event.target.closest('#accessibility-widget-panel')) return;
     event.preventDefault();
@@ -267,6 +354,7 @@ function handleSimplifierClick(event) {
     }
     toggleTextSimplifier();
 }
+
 async function simplifyTextAI(text) {
     showSimplifierResultModal(text, '<em>Simplificando, por favor aguarde...</em>');
     try {
@@ -285,6 +373,7 @@ async function simplifyTextAI(text) {
         showSimplifierResultModal(text, '<strong>Desculpe, ocorreu um erro ao tentar simplificar o texto.</strong>');
     }
 }
+
 function showSimplifierResultModal(originalHtml, simplifiedHtml) {
     const oldModal = document.getElementById('widget-simplifier-modal');
     if (oldModal) oldModal.remove();
