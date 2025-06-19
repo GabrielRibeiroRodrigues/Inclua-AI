@@ -1,6 +1,6 @@
 // widget.js (VERSÃO FINAL E COMPLETA)
 // Inclui: Persistência de Configurações, Modo Escuro, Fonte, Leitor, Destacar Links, Daltonismo e Funções de IA.
-
+console.log('Ponto #1: Arquivo widget.js INICIADO e PARSEADO pelo navegador.');
 // --- Variáveis Globais de Estado ---
 let isReaderActive = false;
 let isHighlightLinksActive = false;
@@ -14,11 +14,17 @@ utterance.lang = 'pt-BR';
 
 // --- Função Principal de Inicialização ---
 window.addEventListener('DOMContentLoaded', () => {
+    console.log('Ponto #2: Evento DOMContentLoaded DISPARADO. O DOM está pronto.');
+    try {
     console.log('Widget de Acessibilidade Carregado!');
     loadAndApplySavedSettings(); // Carrega as configurações salvas do localStorage
     injectSVGFilters();
     createWidgetUI();
     updateUIFromState(); // Garante que os botões reflitam o estado carregado
+    console.log('Ponto #3: Funções de inicialização dentro do DOMContentLoaded foram chamadas.');}
+    catch(error) {
+        console.error('ERRO CRÍTICO durante a inicialização do widget:', error);
+    }
 });
 
 
@@ -28,6 +34,7 @@ window.addEventListener('DOMContentLoaded', () => {
  * Cria e insere a interface do widget (botão e painel) no documento.
  */
 function createWidgetUI() {
+      console.log('Ponto #4: Função createWidgetUI() EXECUTANDO...');
     const floatingButton = document.createElement('button');
     floatingButton.id = 'accessibility-widget-button';
     floatingButton.innerText = '♿';
