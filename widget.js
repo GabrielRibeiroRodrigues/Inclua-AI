@@ -13,20 +13,34 @@ const utterance = new SpeechSynthesisUtterance();
 utterance.lang = 'pt-BR';
 
 // --- Função Principal de Inicialização ---
-window.addEventListener('DOMContentLoaded', () => {
-    console.log('Ponto #2: Evento DOMContentLoaded DISPARADO. O DOM está pronto.');
+// NOVO CÓDIGO - A SOLUÇÃO
+
+/**
+ * Esta é a função que realmente inicia o widget.
+ * Nós a separamos para poder chamá-la em diferentes cenários.
+ */
+function initializeWidget() {
+    console.log('Ponto #2: A inicialização do widget está sendo executada.');
     try {
-    console.log('Widget de Acessibilidade Carregado!');
-    loadAndApplySavedSettings(); // Carrega as configurações salvas do localStorage
-    injectSVGFilters();
-    createWidgetUI();
-    updateUIFromState(); // Garante que os botões reflitam o estado carregado
-    console.log('Ponto #3: Funções de inicialização dentro do DOMContentLoaded foram chamadas.');}
-    catch(error) {
+        injectSVGFilters();
+        createWidgetUI();
+        loadAndApplySavedSettings();
+        console.log('Ponto #3: Funções de inicialização foram chamadas.');
+    } catch (error) {
         console.error('ERRO CRÍTICO durante a inicialização do widget:', error);
     }
-});
+}
 
+// Verifica o estado da página.
+if (document.readyState === 'loading') {
+    // A página ainda está carregando, então esperamos pelo evento.
+    console.log('Estado da página: loading. Aguardando DOMContentLoaded.');
+    document.addEventListener('DOMContentLoaded', initializeWidget);
+} else {
+    // A página já carregou, então executamos a função imediatamente.
+    console.log('Estado da página: interactive ou complete. Executando imediatamente.');
+    initializeWidget();
+}
 
 // --- Funções de Criação da Interface ---
 
