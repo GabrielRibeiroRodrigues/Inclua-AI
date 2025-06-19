@@ -1,5 +1,3 @@
-/* Seu código original com pequenos aprimoramentos */
-
 #accessibility-widget-button {
     position: fixed;
     bottom: 20px;
@@ -11,7 +9,7 @@
     color: white;
     border: none;
     border-radius: 50%;
-    z-index: 10000; /* Aumentado para garantir que fique no topo */
+    z-index: 10000;
     cursor: pointer;
     box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
     transition: transform 0.2s ease-in-out;
@@ -22,14 +20,14 @@
 
 #accessibility-widget-panel {
     display: none;
-    flex-direction: column; /* Organiza os botões em coluna */
-    gap: 10px; /* Espaçamento entre os botões */
+    flex-direction: column;
+    gap: 10px;
     position: fixed;
-    bottom: 85px; /* Ajustado para não sobrepor o botão */
+    bottom: 85px;
     left: 20px;
     background: white;
     border: 1px solid #ccc;
-    border-radius: 8px; /* Bordas arredondadas */
+    border-radius: 8px;
     padding: 20px;
     z-index: 9999;
     box-shadow: 0px 4px 15px rgba(0,0,0,0.15);
@@ -39,7 +37,7 @@
 }
 
 #accessibility-widget-panel.visible {
-    display: flex; /* Mudado para flex para usar o gap */
+    display: flex;
     opacity: 1;
     transform: translateY(0);
 }
@@ -57,35 +55,27 @@
     background-color: #eee;
 }
 
-/* Estilos para o Modo Escuro */
 body.widget-dark-mode {
     background-color: #121212 !important;
     color: #e0e0e0 !important;
 }
 
-/* NÃO inverter imagens e vídeos no modo escuro */
 body.widget-dark-mode img,
 body.widget-dark-mode video {
     filter: none !important;
 }
 
-/* Crucial: Evita inverter mídias no modo escuro */
 body.widget-dark-mode img,
 body.widget-dark-mode video {
     filter: invert(1) hue-rotate(180deg);
 }
-/* ================================== */
-/* NOVOS ESTILOS PARA O WIDGET        */
-/* ================================== */
 
-/* Um separador visual dentro do painel */
 .widget-separator {
     height: 1px;
     background-color: #ddd;
     margin: 15px 0;
 }
 
-/* Estilo para o label e select do daltonismo */
 #colorblind-select {
     width: 100%;
     padding: 8px;
@@ -94,19 +84,12 @@ body.widget-dark-mode video {
     border: 1px solid #ccc;
 }
 
-
-/* ================================== */
-/* NOVOS ESTILOS PARA FILTROS DE COR  */
-/* ================================== */
-
-/* Aplica o filtro na página inteira e adiciona uma transição suave */
 html[class*="filter-"] {
     -webkit-filter: var(--filter);
     filter: var(--filter);
     transition: filter 0.5s ease;
 }
 
-/* Define a variável --filter para cada classe, usando a ID do filtro SVG */
 html.filter-protanopia {
     --filter: url(#protanopia);
 }
@@ -118,27 +101,23 @@ html.filter-tritanopia {
 }
 html.filter-achromatopsia {
     --filter: url(#achromatopsia);
-}html.widget-highlight-links a {
-    background-color: #ffeb3b !important; /* Um amarelo bem chamativo */
-    color: #000000 !important; /* Garante que o texto seja legível sobre o fundo amarelo */
-    text-decoration: underline !important; /* Força o sublinhado */
-    border: 1px dashed #333 !important; /* Adiciona uma borda para mais destaque */
+}
+html.widget-highlight-links a {
+    background-color: #ffeb3b !important;
+    color: #000000 !important;
+    text-decoration: underline !important;
+    border: 1px dashed #333 !important;
     padding: 2px;
     border-radius: 3px;
 }
-/* ================================== */
-/* NOVOS ESTILOS PARA SIMPLIFICADOR DE TEXTO */
-/* ================================== */
 
-/* Muda o cursor do mouse quando o modo de simplificação está ativo */
 html.widget-simplifier-active,
 html.widget-simplifier-active body,
 html.widget-simplifier-active p,
 html.widget-simplifier-active li {
-    cursor: help !important; 
+    cursor: help !important;
 }
 
-/* Estilo para o overlay do modal (fundo escurecido) */
 #widget-simplifier-modal {
     position: fixed;
     top: 0;
@@ -149,12 +128,11 @@ html.widget-simplifier-active li {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10001; /* Acima de tudo, até do botão do widget */
+    z-index: 10001;
     padding: 20px;
     box-sizing: border-box;
 }
 
-/* Estilo para o conteúdo do modal */
 #widget-simplifier-modal .modal-content {
     background: white;
     padding: 25px;
@@ -197,4 +175,51 @@ html.widget-simplifier-active li {
     overflow-y: auto;
     line-height: 1.6;
     color: #333;
+}
+
+html.widget-describer-active,
+html.widget-describer-active body,
+html.widget-describer-active img {
+    cursor: crosshair !important;
+}
+
+.widget-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.image-desc-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+}
+
+.image-desc-container .image-preview {
+    max-width: 100%;
+    max-height: 40vh;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.image-desc-container .image-description {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    line-height: 1.6;
 }
