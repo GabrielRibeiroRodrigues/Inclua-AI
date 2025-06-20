@@ -56,6 +56,32 @@ app.post('/describe-image', async (req, res) => {
     res.status(500).json({ error: 'Falha ao gerar descrição da imagem.' });
   }
 });
+// Adicione este novo endpoint ao seu arquivo servidor/server.js
+
+app.post('/summarize-text', async (req, res) => {
+  console.log('Recebida requisição para resumir texto...');
+  
+  try {
+    const { textToSummarize } = req.body;
+    if (!textToSummarize) {
+      return res.status(400).json({ error: 'Nenhum texto fornecido.' });
+    }
+
+    // Este prompt é a instrução chave para a IA.
+    const prompt = `Você é um especialista em comunicação e síntese. Sua tarefa é criar um resumo conciso e objetivo do texto a seguir, em português. Extraia apenas as informações mais importantes e essenciais. O resumo deve ter no máximo 3 ou 4 sentenças. Texto a ser resumido: "${textToSummarize}"`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const summarizedText = response.text();
+
+    console.log('Resumo gerado com sucesso.');
+    res.json({ summarizedText });
+
+  } catch (error) {
+    console.error('Erro ao resumir o texto:', error);
+    res.status(500).json({ error: 'Falha ao gerar o resumo do texto.' });
+  }
+});
 
 // 6. Inicia o servidor
 const PORT = process.env.PORT || 3000;
