@@ -1,4 +1,4 @@
-// Arquivo: servidor/server.js
+// Arquivo: servidor/server.js (CORRIGIDO)
 
 // 1. Importa as bibliotecas
 const express = require('express');
@@ -11,12 +11,12 @@ dotenv.config();
 
 // 3. Inicializa o Express e o CORS
 const app = express();
-app.use(cors()); // Permite requisições de outras origens (seu widget)
-app.use(express.json()); // Permite que o servidor entenda JSON
+app.use(cors());
+app.use(express.json());
 
 // 4. Inicializa o cliente do Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); // Usamos o modelo mais recente e rápido
+const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
 // Função auxiliar para converter uma URL de imagem em dados que a IA entende
 async function urlToGenerativePart(url) {
@@ -30,88 +30,65 @@ async function urlToGenerativePart(url) {
   };
 }
 
-// 5. Cria o endpoint que vai receber a imagem e retornar a descrição
+// 5. Define TODOS os endpoints da API
+
 app.post('/describe-image', async (req, res) => {
   console.log('Recebida requisição para descrever imagem...');
-  
   try {
     const { imageUrl } = req.body;
-    if (!imageUrl) {
-      return res.status(400).json({ error: 'URL da imagem não fornecida.' });
-    }
+    if (!imageUrl) return res.status(400).json({ error: 'URL da imagem não fornecida.' });
 
     const imageParts = [await urlToGenerativePart(imageUrl)];
-
     const prompt = 'Descreva esta imagem de forma concisa para fins de acessibilidade (texto alternativo). Seja objetivo e direto. Responda em português.';
-
     const result = await model.generateContent([prompt, ...imageParts]);
-    const response = await result.response;
-    const description = response.text();
+    const description = result.response.text();
 
     console.log('Descrição gerada:', description);
     res.json({ description });
-
   } catch (error) {
     console.error('Erro ao processar a imagem:', error);
     res.status(500).json({ error: 'Falha ao gerar descrição da imagem.' });
   }
 });
-// Adicione este novo endpoint ao seu arquivo servidor/server.js
 
 app.post('/summarize-text', async (req, res) => {
   console.log('Recebida requisição para resumir texto...');
-  
   try {
     const { textToSummarize } = req.body;
-    if (!textToSummarize) {
-      return res.status(400).json({ error: 'Nenhum texto fornecido.' });
-    }
+    if (!textToSummarize) return res.status(400).json({ error: 'Nenhum texto fornecido.' });
 
-    // Este prompt é a instrução chave para a IA.
     const prompt = `Você é um especialista em comunicação e síntese. Sua tarefa é criar um resumo conciso e objetivo do texto a seguir, em português. Extraia apenas as informações mais importantes e essenciais. O resumo deve ter no máximo 3 ou 4 sentenças. Texto a ser resumido: "${textToSummarize}"`;
-
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const summarizedText = response.text();
+    const summarizedText = result.response.text();
 
     console.log('Resumo gerado com sucesso.');
     res.json({ summarizedText });
-
   } catch (error) {
     console.error('Erro ao resumir o texto:', error);
     res.status(500).json({ error: 'Falha ao gerar o resumo do texto.' });
   }
 });
 
-// 6. Inicia o servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta http://localhost:${PORT}`);
-});
-// Adicione este novo endpoint ao seu arquivo servidor/server.js
-
 app.post('/simplify-text', async (req, res) => {
   console.log('Recebida requisição para simplificar texto...');
-  
   try {
     const { textToSimplify } = req.body;
-    if (!textToSimplify) {
-      return res.status(400).json({ error: 'Nenhum texto fornecido.' });
-    }
+    if (!textToSimplify) return res.status(400).json({ error: 'Nenhum texto fornecido.' });
 
-    // O prompt é a chave para a IA. Pedimos a ela para atuar como um simplificador.
     const prompt = `Reescreva o texto a seguir em uma linguagem muito simples, como se estivesse explicando para uma criança de 12 anos. Use frases curtas e palavras comuns. Não adicione opiniões, apenas simplifique o conteúdo. O texto é: "${textToSimplify}"`;
-
-    // Usa o mesmo modelo do Gemini que já está configurado
     const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const simplifiedText = response.text();
+    const simplifiedText = result.response.text();
 
     console.log('Texto simplificado gerado.');
     res.json({ simplifiedText });
-
   } catch (error) {
     console.error('Erro ao simplificar o texto:', error);
     res.status(500).json({ error: 'Falha ao simplificar o texto.' });
   }
+});
+
+// 6. Inicia o servidor (SEMPRE NO FINAL DO ARQUIVO)
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta http://localhost:${PORT} ou na porta do Render`);
 });
