@@ -6,6 +6,7 @@ let isReaderActive = false;
 let isHighlightLinksActive = false;
 let isSimplifierActive = false;
 let isImageDescriberActive = false;
+let isSummarizerActive = false; // NOVO: Estado do resumidor
 let fontSizeLevel = 0;
 const MAX_FONT_LEVEL = 5;
 const MIN_FONT_LEVEL = -2;
@@ -43,6 +44,7 @@ function createWidgetUI() {
 
     const controlPanel = document.createElement('div');
     controlPanel.id = 'accessibility-widget-panel';
+    // MODIFICADO: Adicionado botão do resumidor
     controlPanel.innerHTML = `
         <h2>Acessibilidade</h2>
         <div class="button-group">
@@ -62,7 +64,7 @@ function createWidgetUI() {
         <strong>Funcionalidades com IA:</strong>
         <button id="describeImagesBtn">Descrever Imagem</button>
         <button id="simplifyTextBtn">Simplificar Texto</button>
-        <div class="widget-separator"></div>
+        <button id="summarizeTextBtn">Resumir Texto</button> <div class="widget-separator"></div>
         <label for="colorblind-select">Filtro para Daltonismo:</label>
         <select id="colorblind-select">
             <option value="none">Nenhum</option>
@@ -80,6 +82,7 @@ function createWidgetUI() {
         controlPanel.classList.toggle('visible');
     });
 
+    // Conectar todos os botões e controles às suas funções
     document.getElementById('darkModeBtn').addEventListener('click', () => toggleDarkMode());
     document.getElementById('increaseFontBtn').addEventListener('click', increaseFontSize);
     document.getElementById('decreaseFontBtn').addEventListener('click', decreaseFontSize);
@@ -87,6 +90,7 @@ function createWidgetUI() {
     document.getElementById('highlightLinksBtn').addEventListener('click', () => toggleHighlightLinks());
     document.getElementById('describeImagesBtn').addEventListener('click', toggleImageDescriber);
     document.getElementById('simplifyTextBtn').addEventListener('click', toggleTextSimplifier);
+    document.getElementById('summarizeTextBtn').addEventListener('click', toggleSummarizer); // NOVO EVENTO
     document.getElementById('colorblind-select').addEventListener('change', (event) => applyColorblindFilter(event.target.value));
     document.getElementById('resetSettingsBtn').addEventListener('click', resetAllSettings);
     document.getElementById('voice-select').addEventListener('change', setVoice);
@@ -388,8 +392,70 @@ async function simplifyTextAI(text) {
         const errorContent = `<h3>Texto Simplificado pela IA</h3><div class="text-box simplified-text"><strong>Desculpe, ocorreu um erro ao tentar simplificar o texto.</strong></div>`;
         showModal('Erro na Simplificação', originalContent + errorContent, 'simplifier-modal');
     }
+}function toggleSummarizer() {
+    isSummarizerActive = !isSummarizerActive;
+    const btn = document.getElementById('summarizeTextBtn');
+    
+    if (isSummarizerActive) {
+        btn.textContent = 'Desativar Resumo';
+        btn.style.backgroundColor = '#a3e4a3';
+        document.addEventListener('mouseup', handleTextSelectionForSummarize);
+    } else {
+        btn.textContent = 'Resumir Texto';
+        btn.style.backgroundColor = '';
+        document.removeEventListener('mouseup', handleTextSelectionForSummarize);
+        const floatingBtn = document.getElementById('widget-summarize-button');
+        if (floatingBtn) floatingBtn.remove();
+    }
 }
 
+function handleTextSelectionForSummarize(event) {
+    // Remove qualquer botão flutuante anterior
+    const oldFloatingBtn = document.getElementById('widget-summarize-button');
+    if (oldFloatingBtn) oldFloatingBtn.remove();
+
+    const selection = window.getSelection();
+    const selectedText = selection.toString().trim();
+
+    if (selectedText.length > 50) { // Só mostra o botão se o texto for longo o suficiente
+        const range = selection.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+
+        const floatingBtn = document.createElement('button');
+        floatingBtn.id = 'widget-summarize-button';
+        floatingBtn.textContent = 'Resumir Texto Selecionado';
+        document.body.appendChild(floatingBtn);
+        
+        // Posiciona o botão perto do texto selecionado
+        floatingBtn.style.position = 'absolute';
+        floatingBtn.style.top = `${window.scrollY + rect.bottom + 5}px`;
+        floatingBtn.style.left = `${window.scrollX + rect.left}px`;
+
+        floatingBtn.onclick = () => {
+            summarizeTextAI(selectedText);
+            floatingBtn.remove();
+        };
+    }
+}
+async function summarizeTextAI(text) {
+    showModal('Resumo do Texto', '<em>Resumindo o texto, por favor aguarde...</em>', 'summarizer-modal');
+    try {
+        const response = await fetch('https://inclua-ai-servidor.onrender.com/summarize-text', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ textToSummarize: text }),
+        });
+        if (!response.ok) throw new Error('Falha na resposta do servidor de IA.');
+        const data = await response.json();
+        if (data.summarizedText) {
+            const content = `<div class="text-box simplified-text">${data.summarizedText.replace(/\n/g, '<br>')}</div>`;
+            showModal('Resumo Gerado pela IA', content, 'summarizer-modal');
+        }
+    } catch (error) {
+        console.error('Erro ao chamar a API de resumo:', error);
+        showModal('Erro no Resumo', '<strong>Desculpe, ocorreu um erro ao tentar resumir o texto.</strong>', 'summarizer-modal');
+    }
+}
 // --- Funções de Modal ---
 
 function showModal(title, contentHtml, modalId) {
