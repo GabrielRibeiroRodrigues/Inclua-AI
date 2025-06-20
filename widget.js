@@ -1,54 +1,40 @@
-// widget.js (VERSÃO FINAL E COMPLETA)
-// Inclui: Persistência de Configurações, Modo Escuro, Fonte, Leitor, Destacar Links, Daltonismo e Funções de IA.
-console.log('Ponto #1: Arquivo widget.js INICIADO e PARSEADO pelo navegador.');
+// widget.js (VERSÃO FINAL, COMPLETA E REATORADA)
+// Inclui: Persistência, Seleção de Voz, Modo Escuro, Fonte, Leitor, Links, Daltonismo e Funções de IA.
+
 // --- Variáveis Globais de Estado ---
 let isReaderActive = false;
 let isHighlightLinksActive = false;
 let isSimplifierActive = false;
 let isImageDescriberActive = false;
-let fontSizeLevel = 0; // Controla o nível de zoom da fonte
-const MAX_FONT_LEVEL = 5; // Limite para não aumentar a fonte infinitamente
-const MIN_FONT_LEVEL = -2; // Limite para não diminuir a fonte infinitamente
+let fontSizeLevel = 0;
+const MAX_FONT_LEVEL = 5;
+const MIN_FONT_LEVEL = -2;
 const utterance = new SpeechSynthesisUtterance();
 utterance.lang = 'pt-BR';
+let debounceTimeout;
+let availableVoices = [];
 
 // --- Função Principal de Inicialização ---
-// NOVO CÓDIGO - A SOLUÇÃO
-
-/**
- * Esta é a função que realmente inicia o widget.
- * Nós a separamos para poder chamá-la em diferentes cenários.
- */
 function initializeWidget() {
-    console.log('Ponto #2: A inicialização do widget está sendo executada.');
     try {
         injectSVGFilters();
         createWidgetUI();
         loadAndApplySavedSettings();
-        console.log('Ponto #3: Funções de inicialização foram chamadas.');
+        setupVoiceSelection();
     } catch (error) {
         console.error('ERRO CRÍTICO durante a inicialização do widget:', error);
     }
 }
 
-// Verifica o estado da página.
 if (document.readyState === 'loading') {
-    // A página ainda está carregando, então esperamos pelo evento.
-    console.log('Estado da página: loading. Aguardando DOMContentLoaded.');
     document.addEventListener('DOMContentLoaded', initializeWidget);
 } else {
-    // A página já carregou, então executamos a função imediatamente.
-    console.log('Estado da página: interactive ou complete. Executando imediatamente.');
     initializeWidget();
 }
 
 // --- Funções de Criação da Interface ---
 
-/**
- * Cria e insere a interface do widget (botão e painel) no documento.
- */
 function createWidgetUI() {
-      console.log('Ponto #4: Função createWidgetUI() EXECUTANDO...');
     const floatingButton = document.createElement('button');
     floatingButton.id = 'accessibility-widget-button';
     floatingButton.innerText = '♿';
@@ -66,6 +52,12 @@ function createWidgetUI() {
         <button id="darkModeBtn">Modo Escuro</button>
         <button id="highlightLinksBtn">Destacar Links</button>
         <button id="readTextBtn">Ativar Leitor</button>
+        
+        <label for="voice-select" style="margin-top: 10px; display: block;">Voz do Leitor:</label>
+        <select id="voice-select">
+            <option value="">Padrão do Navegador</option>
+        </select>
+
         <div class="widget-separator"></div>
         <strong>Funcionalidades com IA:</strong>
         <button id="describeImagesBtn">Descrever Imagem</button>
@@ -88,21 +80,18 @@ function createWidgetUI() {
         controlPanel.classList.toggle('visible');
     });
 
-    // Conectar todos os botões e controles às suas funções
-    document.getElementById('darkModeBtn').addEventListener('click', toggleDarkMode);
+    document.getElementById('darkModeBtn').addEventListener('click', () => toggleDarkMode());
     document.getElementById('increaseFontBtn').addEventListener('click', increaseFontSize);
     document.getElementById('decreaseFontBtn').addEventListener('click', decreaseFontSize);
     document.getElementById('readTextBtn').addEventListener('click', toggleReader);
-    document.getElementById('highlightLinksBtn').addEventListener('click', toggleHighlightLinks);
+    document.getElementById('highlightLinksBtn').addEventListener('click', () => toggleHighlightLinks());
     document.getElementById('describeImagesBtn').addEventListener('click', toggleImageDescriber);
     document.getElementById('simplifyTextBtn').addEventListener('click', toggleTextSimplifier);
     document.getElementById('colorblind-select').addEventListener('change', (event) => applyColorblindFilter(event.target.value));
     document.getElementById('resetSettingsBtn').addEventListener('click', resetAllSettings);
+    document.getElementById('voice-select').addEventListener('change', setVoice);
 }
 
-/**
- * Injeta um container SVG oculto com todas as definições de filtros de cor.
- */
 function injectSVGFilters() {
     const svgFilters = `
         <svg id="colorblind-filters" style="display: none;">
@@ -119,46 +108,25 @@ function injectSVGFilters() {
 
 // --- Funções de Persistência de Configurações ---
 
-/**
- * Carrega e aplica todas as configurações salvas no localStorage ao iniciar.
- */
 function loadAndApplySavedSettings() {
+    if (localStorage.getItem('widget_darkMode') === 'true') {
+        toggleDarkMode(false);
+    }
+    if (localStorage.getItem('widget_highlightLinks') === 'true') {
+        toggleHighlightLinks(false);
+    }
+    const savedFilter = localStorage.getItem('widget_colorblindFilter');
+    if (savedFilter) {
+        document.getElementById('colorblind-select').value = savedFilter;
+        applyColorblindFilter(savedFilter, false);
+    }
     const savedFontSizeLevel = localStorage.getItem('widget_fontSizeLevel');
     if (savedFontSizeLevel) {
         fontSizeLevel = parseInt(savedFontSizeLevel, 10);
         applyFontSize(fontSizeLevel);
     }
-    if (localStorage.getItem('widget_darkMode') === 'true') {
-        document.documentElement.classList.add('widget-dark-mode');
-    }
-    if (localStorage.getItem('widget_highlightLinks') === 'true') {
-        isHighlightLinksActive = true;
-        document.documentElement.classList.add('widget-highlight-links');
-    }
-    const savedFilter = localStorage.getItem('widget_colorblindFilter');
-    if (savedFilter && savedFilter !== 'none') {
-        applyColorblindFilter(savedFilter);
-    }
 }
 
-/**
- * Garante que a UI do widget (botões, selects) reflita o estado carregado do localStorage.
- */
-function updateUIFromState() {
-    if (isHighlightLinksActive) {
-        const btn = document.getElementById('highlightLinksBtn');
-        btn.textContent = 'Remover Destaque';
-        btn.style.backgroundColor = '#a3e4a3';
-    }
-    const savedFilter = localStorage.getItem('widget_colorblindFilter');
-    if (savedFilter) {
-        document.getElementById('colorblind-select').value = savedFilter;
-    }
-}
-
-/**
- * Limpa todas as configurações salvas e recarrega a página.
- */
 function resetAllSettings() {
     if (confirm('Tem certeza que deseja resetar todas as configurações de acessibilidade?')) {
         localStorage.clear();
@@ -166,13 +134,19 @@ function resetAllSettings() {
     }
 }
 
-// --- Funções de Acessibilidade Visual (MODIFICADAS PARA PERSISTÊNCIA) ---
 
-function toggleDarkMode() {
-    applyColorblindFilter('none');
-    document.getElementById('colorblind-select').value = 'none';
-    const isActive = document.documentElement.classList.toggle('widget-dark-mode');
-    localStorage.setItem('widget_darkMode', isActive);
+// --- Funções de Acessibilidade Visual ---
+
+function toggleDarkMode(save = true) {
+    const root = document.documentElement;
+    const isActive = root.classList.toggle('widget-dark-mode');
+    
+    if (isActive) {
+        applyColorblindFilter('none', false);
+        document.getElementById('colorblind-select').value = 'none';
+    }
+    
+    if (save) localStorage.setItem('widget_darkMode', isActive);
 }
 
 function increaseFontSize() {
@@ -192,22 +166,12 @@ function decreaseFontSize() {
 }
 
 function applyFontSize(level) {
-    const scale = 1 + (level * 0.1);
-    const elements = document.querySelectorAll('p, a, h1, h2, h3, li, span, button');
-    elements.forEach(el => {
-        if (!el.closest('#accessibility-widget-button') && !el.closest('#accessibility-widget-panel')) {
-            const baseSize = el.getAttribute('data-widget-base-font-size');
-            if (!baseSize) {
-                const originalSize = window.getComputedStyle(el).fontSize;
-                el.setAttribute('data-widget-base-font-size', originalSize);
-            }
-            const newSize = parseFloat(el.getAttribute('data-widget-base-font-size')) * scale;
-            el.style.fontSize = `${newSize}px`;
-        }
-    });
+    const base = 100;
+    const step = 12.5;
+    document.documentElement.style.fontSize = `${base + (level * step)}%`;
 }
 
-function toggleHighlightLinks() {
+function toggleHighlightLinks(save = true) {
     isHighlightLinksActive = !isHighlightLinksActive;
     const btn = document.getElementById('highlightLinksBtn');
     document.documentElement.classList.toggle('widget-highlight-links');
@@ -218,24 +182,74 @@ function toggleHighlightLinks() {
         btn.textContent = 'Destacar Links';
         btn.style.backgroundColor = '';
     }
-    localStorage.setItem('widget_highlightLinks', isHighlightLinksActive);
+    if (save) localStorage.setItem('widget_highlightLinks', isHighlightLinksActive);
 }
 
-function applyColorblindFilter(filterType) {
-    const rootElement = document.documentElement;
-    if (rootElement.classList.contains('widget-dark-mode')) {
-        rootElement.classList.remove('widget-dark-mode');
-        localStorage.setItem('widget_darkMode', 'false');
+function applyColorblindFilter(filterType, save = true) {
+    const root = document.documentElement;
+    if (filterType !== 'none' && root.classList.contains('widget-dark-mode')) {
+        root.classList.remove('widget-dark-mode');
+        if (save) localStorage.setItem('widget_darkMode', 'false');
     }
     const filterClasses = ['protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'];
-    filterClasses.forEach(cls => rootElement.classList.remove(`filter-${cls}`));
+    filterClasses.forEach(cls => root.classList.remove(`filter-${cls}`));
     if (filterType !== 'none') {
-        rootElement.classList.add(`filter-${filterType}`);
+        root.classList.add(`filter-${filterType}`);
     }
-    localStorage.setItem('widget_colorblindFilter', filterType);
+    if (save) localStorage.setItem('widget_colorblindFilter', filterType);
 }
 
+
 // --- Funções de Leitura de Tela ---
+
+function setupVoiceSelection() {
+    function populateVoiceList() {
+        availableVoices = speechSynthesis.getVoices().filter(voice => voice.lang === 'pt-BR');
+        const voiceSelect = document.getElementById('voice-select');
+        
+        while (voiceSelect.options.length > 1) {
+            voiceSelect.remove(1);
+        }
+
+        availableVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.textContent = voice.name;
+            option.setAttribute('data-name', voice.name);
+            voiceSelect.appendChild(option);
+        });
+
+        const savedVoiceName = localStorage.getItem('widget_selectedVoice');
+        if (savedVoiceName) {
+            const savedVoice = availableVoices.find(voice => voice.name === savedVoiceName);
+            if (savedVoice) {
+                utterance.voice = savedVoice;
+                for (let i = 0; i < voiceSelect.options.length; i++) {
+                    if (voiceSelect.options[i].getAttribute('data-name') === savedVoiceName) {
+                        voiceSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    speechSynthesis.onvoiceschanged = populateVoiceList;
+    populateVoiceList();
+}
+
+function setVoice() {
+    const voiceSelect = document.getElementById('voice-select');
+    const selectedVoiceName = voiceSelect.selectedOptions[0].getAttribute('data-name');
+    const selectedVoice = availableVoices.find(voice => voice.name === selectedVoiceName);
+
+    if (selectedVoice) {
+        utterance.voice = selectedVoice;
+        localStorage.setItem('widget_selectedVoice', selectedVoice.name);
+        speakText("Voz alterada.");
+    } else {
+        utterance.voice = null;
+        localStorage.removeItem('widget_selectedVoice');
+    }
+}
 
 function toggleReader() {
     isReaderActive = !isReaderActive;
@@ -243,20 +257,23 @@ function toggleReader() {
     if (isReaderActive) {
         readTextBtn.textContent = 'Desativar Leitor';
         readTextBtn.style.backgroundColor = '#a3e4a3';
-        document.body.addEventListener('mouseover', readTextOnHover);
+        document.body.addEventListener('mouseover', debouncedReadTextOnHover);
     } else {
         readTextBtn.textContent = 'Ativar Leitor';
         readTextBtn.style.backgroundColor = '';
         window.speechSynthesis.cancel();
-        document.body.removeEventListener('mouseover', readTextOnHover);
+        document.body.removeEventListener('mouseover', debouncedReadTextOnHover);
     }
 }
 
-function readTextOnHover(event) {
-    const targetElement = event.target;
-    if (targetElement.innerText && !targetElement.closest('#accessibility-widget-panel')) {
-        speakText(targetElement.innerText);
-    }
+function debouncedReadTextOnHover(event) {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        const targetElement = event.target;
+        if (targetElement.innerText && !targetElement.closest('#accessibility-widget-panel')) {
+            speakText(targetElement.innerText);
+        }
+    }, 300);
 }
 
 function speakText(text) {
@@ -264,6 +281,7 @@ function speakText(text) {
     utterance.text = text;
     window.speechSynthesis.speak(utterance);
 }
+
 
 // --- Funções de Inteligência Artificial ---
 
@@ -297,7 +315,7 @@ function handleImageDescribeClick(event) {
 }
 
 async function describeSingleImageAI(imgElement) {
-    showImageDescriptionModal(imgElement.src, '<em>Descrevendo imagem, por favor aguarde...</em>');
+    showModal('Descrição da Imagem', `<em>Descrevendo imagem, por favor aguarde...</em>`, `desc-modal-${imgElement.src}`);
     try {
         const response = await fetch('https://inclua-ai-servidor.onrender.com/describe-image', {
             method: 'POST',
@@ -308,42 +326,15 @@ async function describeSingleImageAI(imgElement) {
         const data = await response.json();
         if (data.description) {
             imgElement.alt = data.description;
-            showImageDescriptionModal(imgElement.src, data.description);
+            const finalContent = `<div class="image-desc-container"><img src="${imgElement.src}" alt="Imagem analisada" class="image-preview"><p class="image-description">${data.description.replace(/\n/g, '<br>')}</p></div>`;
+            showModal('Descrição da Imagem', finalContent, `desc-modal-${imgElement.src}`);
             speakText(data.description);
         }
     } catch (error) {
         console.error(`Erro ao descrever a imagem ${imgElement.src}:`, error);
-        showImageDescriptionModal(imgElement.src, '<strong>Desculpe, ocorreu um erro ao tentar descrever a imagem.</strong>');
+        const errorContent = `<strong>Desculpe, ocorreu um erro ao tentar descrever a imagem.</strong>`;
+        showModal('Erro na Descrição', errorContent, `desc-modal-${imgElement.src}`);
     }
-}
-
-function showImageDescriptionModal(imageSrc, descriptionHtml) {
-    const oldModal = document.getElementById('widget-image-desc-modal');
-    if (oldModal) oldModal.remove();
-    const modal = document.createElement('div');
-    modal.id = 'widget-image-desc-modal';
-    modal.className = 'widget-modal-overlay';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <button class="modal-close-btn">&times;</button>
-            <h3>Descrição da Imagem</h3>
-            <div class="image-desc-container">
-                <img src="${imageSrc}" alt="Imagem analisada" class="image-preview">
-                <p class="image-description">${descriptionHtml.replace(/\n/g, '<br>')}</p>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    const closeAndStop = () => {
-        window.speechSynthesis.cancel();
-        modal.remove();
-    };
-    modal.querySelector('.modal-close-btn').addEventListener('click', closeAndStop);
-    modal.addEventListener('click', (event) => {
-        if (event.target.id === 'widget-image-desc-modal') {
-            closeAndStop();
-        }
-    });
 }
 
 function toggleTextSimplifier() {
@@ -377,7 +368,9 @@ function handleSimplifierClick(event) {
 }
 
 async function simplifyTextAI(text) {
-    showSimplifierResultModal(text, '<em>Simplificando, por favor aguarde...</em>');
+    const originalContent = `<div class="text-box original-text">${text}</div>`;
+    const loadingContent = `<h3>Texto Simplificado pela IA</h3><div class="text-box simplified-text"><em>Simplificando, por favor aguarde...</em></div>`;
+    showModal('Texto Original', originalContent + loadingContent, 'simplifier-modal');
     try {
         const response = await fetch('https://inclua-ai-servidor.onrender.com/simplify-text', {
             method: 'POST',
@@ -387,32 +380,43 @@ async function simplifyTextAI(text) {
         if (!response.ok) throw new Error('Falha na resposta do servidor de IA.');
         const data = await response.json();
         if (data.simplifiedText) {
-            showSimplifierResultModal(text, data.simplifiedText);
+            const finalContent = `<h3>Texto Simplificado pela IA</h3><div class="text-box simplified-text">${data.simplifiedText.replace(/\n/g, '<br>')}</div>`;
+            showModal('Texto Original e Simplificado', originalContent + finalContent, 'simplifier-modal');
         }
     } catch (error) {
         console.error('Erro ao chamar a API de simplificação:', error);
-        showSimplifierResultModal(text, '<strong>Desculpe, ocorreu um erro ao tentar simplificar o texto.</strong>');
+        const errorContent = `<h3>Texto Simplificado pela IA</h3><div class="text-box simplified-text"><strong>Desculpe, ocorreu um erro ao tentar simplificar o texto.</strong></div>`;
+        showModal('Erro na Simplificação', originalContent + errorContent, 'simplifier-modal');
     }
 }
 
-function showSimplifierResultModal(originalHtml, simplifiedHtml) {
-    const oldModal = document.getElementById('widget-simplifier-modal');
+// --- Funções de Modal ---
+
+function showModal(title, contentHtml, modalId) {
+    const oldModal = document.getElementById(modalId);
     if (oldModal) oldModal.remove();
+
     const modal = document.createElement('div');
-    modal.id = 'widget-simplifier-modal';
+    modal.id = modalId;
     modal.className = 'widget-modal-overlay';
     modal.innerHTML = `
         <div class="modal-content">
             <button class="modal-close-btn">&times;</button>
-            <h3>Texto Original</h3>
-            <div class="text-box original-text">${originalHtml}</div>
-            <h3>Texto Simplificado pela IA</h3>
-            <div class="text-box simplified-text">${simplifiedHtml.replace(/\n/g, '<br>')}</div>
+            <h3>${title}</h3>
+            ${contentHtml}
         </div>
     `;
     document.body.appendChild(modal);
-    modal.querySelector('.modal-close-btn').addEventListener('click', () => modal.remove());
+
+    const closeAndStop = () => {
+        window.speechSynthesis.cancel();
+        modal.remove();
+    };
+
+    modal.querySelector('.modal-close-btn').addEventListener('click', closeAndStop);
     modal.addEventListener('click', (event) => {
-        if (event.target.id === 'widget-simplifier-modal') modal.remove();
+        if (event.target.id === modalId) {
+            closeAndStop();
+        }
     });
 }
