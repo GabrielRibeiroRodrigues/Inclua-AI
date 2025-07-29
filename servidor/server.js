@@ -21,7 +21,14 @@ if (!process.env.GEMINI_API_KEY) {
 const app = express();
 // path já foi importado acima
 
-app.use(cors());
+// Configurar CORS para permitir bookmarklet
+app.use(cors({
+  origin: ['*'], // Permitir qualquer origem para bookmarklet
+  credentials: false,
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json({ limit: '10mb' })); // Aumenta limite para imagens
 
 // Middleware para log de requisições
