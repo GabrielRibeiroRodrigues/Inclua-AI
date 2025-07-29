@@ -18,8 +18,18 @@ if (!process.env.GEMINI_API_KEY) {
 
 // 4. Inicializa o Express e middlewares
 const app = express();
+const path = require('path');
+
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Aumenta limite para imagens
+
+// Servir arquivos estáticos do diretório pai (onde estão index.html, widget.js, etc.)
+app.use(express.static(path.join(__dirname, '..')));
+
+// Rota principal para servir o index.html
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
 
 // 5. Inicializa o cliente do Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
