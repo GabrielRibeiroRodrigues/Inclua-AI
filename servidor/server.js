@@ -50,7 +50,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
-// 5. Inicializa o cliente do Gemini com configuração otimizada
+// 5. Inicializa o cliente do Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
   model: 'gemini-1.5-flash',
@@ -60,37 +60,6 @@ const model = genAI.getGenerativeModel({
     maxOutputTokens: 1000,
   },
 });
-
-// 5.1. Função para chamar a API do Gemini com retry automático
-async function callGeminiWithRetry(generateFunction, maxRetries = 3) {
-  const baseDelay = 1000; // 1 segundo
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`🤖 Tentativa ${attempt}/${maxRetries} - Chamando Gemini API...`);
-      const result = await generateFunction();
-      console.log(`✅ Sucesso na tentativa ${attempt}`);
-      return result;
-    } catch (error) {
-      const isLastAttempt = attempt === maxRetries;
-      const isRetriableError = error.message.includes('overloaded') || 
-                              error.message.includes('503') ||
-                              error.message.includes('429') ||
-                              error.message.includes('quota');
-      
-      console.warn(`⚠️ Tentativa ${attempt} falhou: ${error.message}`);
-      
-      if (!isRetriableError || isLastAttempt) {
-        throw error;
-      }
-      
-      // Exponential backoff: 1s, 2s, 4s...
-      const delay = baseDelay * Math.pow(2, attempt - 1);
-      console.log(`⏳ Aguardando ${delay}ms antes da próxima tentativa...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-}
 
 // 6. Função auxiliar melhorada para imagens com validação de segurança
 async function urlToGenerativePart(url) {
@@ -210,35 +179,15 @@ function rateLimitMiddleware(req, res, next) {
 
 // 9. ENDPOINTS DA API
 
-// Health check com teste da API Gemini
-app.get('/health', async (req, res) => {
-  try {
-    // Teste básico da API Gemini
-    const testPrompt = "Responda apenas: OK";
-    const testResult = await callGeminiWithRetry(() => 
-      model.generateContent(testPrompt), 1 // Apenas 1 tentativa para health check
-    );
-    
-    res.json({ 
-      status: 'ok', 
-      service: 'Inclua-AI Server',
-      api: 'Google Gemini 1.5 Flash',
-      geminiStatus: 'available',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
-  } catch (error) {
-    // API indisponível, mas servidor está funcionando
-    res.status(200).json({ 
-      status: 'degraded', 
-      service: 'Inclua-AI Server',
-      api: 'Google Gemini 1.5 Flash',
-      geminiStatus: 'unavailable',
-      geminiError: error.message.includes('overloaded') ? 'overloaded' : 'error',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
-  }
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    service: 'Inclua-AI Server',
+    api: 'Google Gemini 1.5 Flash',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // Descrição de imagens
@@ -272,9 +221,7 @@ Diretrizes:
 
 Responda apenas com a descrição, sem explicações adicionais.`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent([prompt, ...imageParts])
-    );
+    const result = await model.generateContent([prompt, ...imageParts]);
     const description = result.response.text().trim();
 
     const responseTime = Date.now() - startTime;
@@ -286,19 +233,10 @@ Responda apenas com a descrição, sem explicações adicionais.`;
     const responseTime = Date.now() - startTime;
     console.error(`❌ Erro após ${responseTime}ms:`, error.message);
     
-    // Tratamento específico de erros da API Gemini
-    if (error.message.includes('overloaded') || error.message.includes('503')) {
-      res.status(503).json({ 
-        error: 'Serviço de IA temporariamente sobrecarregado. Tente novamente em alguns segundos.',
-        retryAfter: 5
-      });
-    } else if (error.message.includes('SAFETY')) {
+    if (error.message.includes('SAFETY')) {
       res.status(400).json({ error: 'Imagem rejeitada por questões de segurança.' });
-    } else if (error.message.includes('quota') || error.message.includes('429')) {
-      res.status(429).json({ 
-        error: 'Quota da API excedida. Tente novamente mais tarde.',
-        retryAfter: 60
-      });
+    } else if (error.message.includes('quota')) {
+      res.status(429).json({ error: 'Quota da API excedida. Tente novamente mais tarde.' });
     } else {
       res.status(500).json({ error: 'Falha ao gerar descrição da imagem.' });
     }
@@ -337,9 +275,7 @@ INSTRUÇÕES:
 
 RESUMO:`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent(prompt)
-    );
+    const result = await model.generateContent(prompt);
     const summarizedText = result.response.text().trim();
 
     console.log('✅ Resumo gerado com sucesso');
@@ -347,21 +283,7 @@ RESUMO:`;
     
   } catch (error) {
     console.error('❌ Erro ao resumir texto:', error.message);
-    
-    // Tratamento específico de erros da API Gemini
-    if (error.message.includes('overloaded') || error.message.includes('503')) {
-      res.status(503).json({ 
-        error: 'Serviço de IA temporariamente sobrecarregado. Tente novamente em alguns segundos.',
-        retryAfter: 5
-      });
-    } else if (error.message.includes('quota') || error.message.includes('429')) {
-      res.status(429).json({ 
-        error: 'Quota da API excedida. Tente novamente mais tarde.',
-        retryAfter: 60
-      });
-    } else {
-      res.status(500).json({ error: 'Falha ao gerar resumo do texto.' });
-    }
+    res.status(500).json({ error: 'Falha ao gerar resumo do texto.' });
   }
 });
 
@@ -394,9 +316,7 @@ INSTRUÇÕES:
 
 TEXTO SIMPLIFICADO:`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent(prompt)
-    );
+    const result = await model.generateContent(prompt);
     const simplifiedText = result.response.text().trim();
 
     console.log('✅ Texto simplificado gerado');
@@ -434,9 +354,7 @@ Forneça uma análise completa incluindo:
 
 Responda em formato JSON com as chaves: ratio, wcagCompliance, suggestions, alternativeColors`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent(prompt)
-    );
+    const result = await model.generateContent(prompt);
     const analysis = result.response.text().trim();
 
     console.log('✅ Análise de contraste gerada');
@@ -480,9 +398,7 @@ DIRETRIZES PARA ALT-TEXT:
 
 Responda apenas com o alt-text, sem aspas ou explicações.`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent([prompt, ...imageParts])
-    );
+    const result = await model.generateContent([prompt, ...imageParts]);
     const altText = result.response.text().trim();
 
     console.log('✅ Alt-text gerado');
@@ -539,9 +455,7 @@ Identifique e liste problemas de acessibilidade seguindo as diretrizes WCAG 2.1:
 
 Forneça resposta em formato JSON com: problems (array), severity (high/medium/low), suggestions (array)`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent(prompt)
-    );
+    const result = await model.generateContent(prompt);
     const analysis = result.response.text().trim();
 
     console.log('✅ Análise de acessibilidade gerada');
@@ -577,9 +491,7 @@ Forneça:
 
 Use linguagem adequada ao nível ${level} e seja muito claro para pessoas com deficiência visual.`;
 
-    const result = await callGeminiWithRetry(() => 
-      model.generateContent(prompt)
-    );
+    const result = await model.generateContent(prompt);
     const explanation = result.response.text().trim();
 
     console.log('✅ Explicação matemática gerada');
