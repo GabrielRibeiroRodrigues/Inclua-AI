@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inclua-AI Bookmarklet - Instalação</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --error-color: #dc2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+            text-align: center;
+            padding: 3rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .bookmarklet-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.125rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            cursor: move;
+        }
+
+        .bookmarklet-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -8px rgba(0,0,0,0.25);
+        }
+
+        .instructions {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .instructions h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .step {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .step strong {
+            color: var(--primary-color);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .alert-icon {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🚀 Inclua-AI Bookmarklet</h1>
+            <p>Adicione acessibilidade inteligente a qualquer site!</p>
+        </div>
+
+        <div class="card">
+            <h2>📌 Como Instalar</h2>
+            
+            <div class="instructions">
+                <h3>🎯 PASSO A PASSO SIMPLES:</h3>
+                
+                <div class="step">
+                    <strong>1️⃣ Mostrar barra de favoritos:</strong> 
+                    Pressione <code>Ctrl + Shift + B</code> (Windows) ou <code>Cmd + Shift + B</code> (Mac)
+                </div>
+                
+                <div class="step">
+                    <strong>2️⃣ Arrastar o botão:</strong> 
+                    Clique e arraste o botão azul abaixo para sua barra de favoritos
+                </div>
+                
+                <div style="text-align: center; margin: 2rem 0; padding: 2rem; background: #f0f9ff; border-radius: 12px; border: 2px dashed var(--primary-color);">
+                    <p style="margin-bottom: 1rem; font-weight: 600; color: var(--primary-color);">
+                        👇 ARRASTE ESTE BOTÃO PARA SUA BARRA DE FAVORITOS 👇
+                    </p>
+                    <a href="javascript:(function(){if(document.getElementById('inclua-ai-widget')){alert('Inclua-AI já está ativo nesta página!');return;}var css=document.createElement('link');css.rel='stylesheet';css.href='https://inclua-ai-servidor.onrender.com/widget.css';document.head.appendChild(css);var script=document.createElement('script');script.src='https://inclua-ai-servidor.onrender.com/widget.js';script.onload=function(){console.log('✅ Inclua-AI Widget carregado com sucesso!');};script.onerror=function(){alert('❌ Erro ao carregar Inclua-AI. Verifique sua conexão.');};document.head.appendChild(script);})();" 
+                       class="bookmarklet-button"
+                       title="Arraste este botão para a barra de favoritos">
+                        🚀 Inclua-AI Widget
+                    </a>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--secondary-color);">
+                        (Clique, segure e arraste para cima, na barra de favoritos)
+                    </p>
+                </div>
+                
+                <div class="step">
+                    <strong>3️⃣ Testar:</strong> 
+                    Vá para qualquer site (ex: google.com) e clique no bookmark que você salvou
+                </div>
+                
+                <div class="step">
+                    <strong>4️⃣ Usar:</strong> 
+                    O widget aparecerá no canto inferior direito - clique para explorar as funcionalidades!
+                </div>
+            </div>
+
+            <div class="alert">
+                <span class="alert-icon">💡</span>
+                <strong>Dica:</strong> Se o arrastar não funcionar, role para baixo e use o método manual de cópia do código.
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🎥 Tutorial Visual</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                
+                <div style="text-align: center; padding: 1.5rem; background: #f8fafc; border-radius: 12px;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">1️⃣</div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Mostrar Favoritos</h4>
+                    <p style="margin-bottom: 1rem;">Pressione as teclas:</p>
+                    <code style="font-size: 1.1rem; padding: 0.5rem 1rem; background: white; border: 2px solid var(--primary-color); border-radius: 8px;">Ctrl + Shift + B</code>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--secondary-color);">
+                        Isso vai mostrar/esconder sua barra de favoritos
+                    </p>
+                </div>
+                
+                <div style="text-align: center; padding: 1.5rem; background: #f8fafc; border-radius: 12px;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">2️⃣</div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Arrastar Botão</h4>
+                    <p style="margin-bottom: 1rem;">Clique no botão azul e:</p>
+                    <div style="font-size: 2rem; margin: 1rem 0;">🖱️ ➡️ 📌</div>
+                    <p style="font-size: 0.9rem; color: var(--secondary-color);">
+                        Arraste para a barra de favoritos no topo do navegador
+                    </p>
+                </div>
+                
+                <div style="text-align: center; padding: 1.5rem; background: #f8fafc; border-radius: 12px;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">3️⃣</div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 1rem;">Testar Widget</h4>
+                    <p style="margin-bottom: 1rem;">Vá para qualquer site e clique:</p>
+                    <div style="background: var(--primary-color); color: white; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; margin: 1rem 0;">
+                        🚀 Inclua-AI Widget
+                    </div>
+                    <p style="font-size: 0.9rem; color: var(--secondary-color);">
+                        O widget aparece no canto inferior direito
+                    </p>
+                </div>
+                
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #fef3c7, #fbbf24); border-radius: 12px; text-align: center;">
+                <h4 style="margin-bottom: 1rem;">🎯 Sites para Testar:</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+                    <code>google.com</code>
+                    <code>wikipedia.org</code>
+                    <code>github.com</code>
+                    <code>youtube.com</code>
+                    <code>stackoverflow.com</code>
+                </div>
+            </div>
+        </div>
+            
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🎨</div>
+                    <h4>Ajustes Visuais</h4>
+                    <p>Fonte, modo escuro, destaque de links</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🔊</div>
+                    <h4>Leitor de Texto</h4>
+                    <p>Narração em português com vozes</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🤖</div>
+                    <h4>IA Inteligente</h4>
+                    <p>Descrição de imagens, simplificação de texto</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">📊</div>
+                    <h4>Análise de Acessibilidade</h4>
+                    <p>Contraste, WCAG, relatórios detalhados</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🧮</div>
+                    <h4>Matemática Acessível</h4>
+                    <p>Explicação de fórmulas matemáticas</p>
+                </div>
+                
+                <div class="feature">
+                    <div class="feature-icon">🎭</div>
+                    <h4>Filtros Daltonismo</h4>
+                    <p>4 tipos de filtros para deficiência visual</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔧 Método Manual (Se o Arrastar Não Funcionar)</h2>
+            
+            <div class="alert" style="background: #fef3c7; border-color: var(--warning-color); margin-bottom: 2rem;">
+                <span class="alert-icon" style="color: var(--warning-color);">📋</span>
+                <strong>Use este método se o arrastar não funcionou:</strong>
+            </div>
+            
+            <div class="step">
+                <strong>Passo 1 - Copiar o código:</strong>
+                <p>Clique no botão abaixo para copiar automaticamente:</p>
+                <div style="margin: 1rem 0;">
+                    <button onclick="copyBookmarkletCode()" style="background: var(--success-color); color: white; border: none; padding: 1rem 2rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        📋 Copiar Código do Bookmarklet
+                    </button>
+                </div>
+                <textarea id="bookmarklet-code" readonly style="width: 100%; height: 100px; margin: 1rem 0; padding: 1rem; border: 1px solid #ccc; border-radius: 8px; font-family: monospace; font-size: 0.8rem; background: #f8fafc;">javascript:(function(){if(document.getElementById('inclua-ai-widget')){alert('Inclua-AI já está ativo nesta página!');return;}var css=document.createElement('link');css.rel='stylesheet';css.href='https://inclua-ai-servidor.onrender.com/widget.css';document.head.appendChild(css);var script=document.createElement('script');script.src='https://inclua-ai-servidor.onrender.com/widget.js';script.onload=function(){console.log('✅ Inclua-AI Widget carregado com sucesso!');};script.onerror=function(){alert('❌ Erro ao carregar Inclua-AI. Verifique sua conexão.');};document.head.appendChild(script);})();</textarea>
+            </div>
+            
+            <div class="step">
+                <strong>Passo 2 - Criar bookmark no seu navegador:</strong>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                    
+                    <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 1rem;">
+                        <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">🌐 Chrome:</h5>
+                        <p style="font-size: 0.9rem;">Ctrl+Shift+O → Adicionar novo favorito → Cole o código na URL</p>
+                    </div>
+                    
+                    <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 1rem;">
+                        <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">🦊 Firefox:</h5>
+                        <p style="font-size: 0.9rem;">Ctrl+Shift+O → Novo favorito → Cole o código na Localização</p>
+                    </div>
+                    
+                    <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 1rem;">
+                        <h5 style="color: var(--primary-color); margin-bottom: 0.5rem;">🔷 Edge:</h5>
+                        <p style="font-size: 0.9rem;">Ctrl+Shift+I → Novo favorito → Cole o código na URL</p>
+                    </div>
+                    
+                </div>
+            </div>
+            
+            <div class="step">
+                <strong>Passo 3 - Nome sugerido:</strong>
+                <code>Inclua-AI Widget</code>
+            </div>
+            
+            <script>
+                function copyBookmarkletCode() {
+                    const textarea = document.getElementById('bookmarklet-code');
+                    textarea.select();
+                    textarea.setSelectionRange(0, 99999);
+                    document.execCommand('copy');
+                    
+                    // Feedback visual
+                    const button = event.target;
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '✅ Copiado!';
+                    button.style.background = '#059669';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '#059669';
+                    }, 2000);
+                }
+            </script>
+        </div>
+
+        <div class="card">
+            <h2>🔧 Versão de Desenvolvimento Local</h2>
+            
+            <p>Para testar com servidor local (localhost:3000):</p>
+            
+            <div style="text-align: center; margin: 2rem 0;">
+                <a href="javascript:(function(){if(document.getElementById('inclua-ai-widget')){alert('Inclua-AI já está ativo nesta página!');return;}var css=document.createElement('link');css.rel='stylesheet';css.href='http://localhost:3000/widget.css';document.head.appendChild(css);var script=document.createElement('script');script.src='http://localhost:3000/widget.js';script.onload=function(){console.log('✅ Inclua-AI Widget carregado com sucesso!');};script.onerror=function(){alert('❌ Erro ao carregar Inclua-AI. Verifique se o servidor local está rodando.');};document.head.appendChild(script);})();" 
+                   class="bookmarklet-button" style="background: linear-gradient(135deg, var(--success-color), #047857);">
+                    🔧 Inclua-AI Local
+                </a>
+            </div>
+            
+            <div class="alert" style="background: #f0fdf4; border-color: var(--success-color);">
+                <span class="alert-icon" style="color: var(--success-color);">ℹ️</span>
+                <strong>Para desenvolvimento:</strong> Use este bookmarklet quando estiver rodando o servidor localmente com <code>npm start</code>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🛠️ Como Saber Se Funcionou</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+                
+                <div style="background: #f0fdf4; border: 1px solid #22c55e; border-radius: 12px; padding: 1.5rem;">
+                    <h4 style="color: #16a34a; margin-bottom: 1rem;">✅ Funcionou!</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 0.5rem 0;">🎯 Widget aparece no canto inferior direito</li>
+                        <li style="margin: 0.5rem 0;">🔵 Botão circular azul com ícone de acessibilidade</li>
+                        <li style="margin: 0.5rem 0;">⚡ Ao clicar, abre painel com opções</li>
+                        <li style="margin: 0.5rem 0;">🎨 Você pode testar as funcionalidades</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #fef2f2; border: 1px solid #ef4444; border-radius: 12px; padding: 1.5rem;">
+                    <h4 style="color: #dc2626; margin-bottom: 1rem;">❌ Não Funcionou</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin: 0.5rem 0;">🚫 Nada aparece na página</li>
+                        <li style="margin: 0.5rem 0;">⚠️ Mensagem de erro aparece</li>
+                        <li style="margin: 0.5rem 0;">🔒 Site bloqueia o script</li>
+                        <li style="margin: 0.5rem 0;">🌐 Servidor está offline</li>
+                    </ul>
+                </div>
+                
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 1.5rem; background: #f0f9ff; border: 1px solid #3b82f6; border-radius: 12px;">
+                <h4 style="color: var(--primary-color); margin-bottom: 1rem;">🔍 Para Debug (Avançado):</h4>
+                <div class="step">
+                    <strong>1.</strong> Pressione <code>F12</code> para abrir Developer Tools
+                </div>
+                <div class="step">
+                    <strong>2.</strong> Vá na aba <code>Console</code>
+                </div>
+                <div class="step">
+                    <strong>3.</strong> Clique no bookmarklet
+                </div>
+                <div class="step">
+                    <strong>4.</strong> Procure por mensagens:
+                    <br>✅ <code>Inclua-AI Widget carregado com sucesso!</code>
+                    <br>❌ <code>Erro ao carregar Inclua-AI</code>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🆘 Solução de Problemas</h2>
+            
+            <div style="display: grid; gap: 1.5rem;">
+                
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
+                    <h4 style="color: #92400e; margin-bottom: 1rem;">🚫 Widget não aparece</h4>
+                    <p><strong>Possíveis causas:</strong></p>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        <li>Servidor está offline</li>
+                        <li>Conexão com internet instável</li>
+                        <li>Bookmark não foi criado corretamente</li>
+                    </ul>
+                    <p><strong>Solução:</strong> Verifique se <code>https://inclua-ai-servidor.onrender.com</code> está acessível</p>
+                </div>
+                
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
+                    <h4 style="color: #92400e; margin-bottom: 1rem;">🔒 Erro de CORS/Segurança</h4>
+                    <p><strong>Alguns sites bloqueiam scripts externos por segurança</strong></p>
+                    <p><strong>Sites que geralmente bloqueiam:</strong> Bancos, redes sociais, e-mail</p>
+                    <p><strong>Solução:</strong> Teste em sites como Google, Wikipedia, GitHub</p>
+                </div>
+                
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1.5rem; border-radius: 8px;">
+                    <h4 style="color: #92400e; margin-bottom: 1rem;">🤖 IA não funciona</h4>
+                    <p><strong>Se o widget aparece mas a IA não responde:</strong></p>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        <li>API Gemini pode estar com limite</li>
+                        <li>Problemas de conectividade</li>
+                        <li>Servidor sobrecarregado</li>
+                    </ul>
+                    <p><strong>Solução:</strong> Aguarde alguns minutos e tente novamente</p>
+                </div>
+                
+                <div style="background: #ecfdf5; border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 8px;">
+                    <h4 style="color: #047857; margin-bottom: 1rem;">🔄 Para remover o widget</h4>
+                    <p><strong>Simples:</strong> Recarregue a página (F5) ou Ctrl+R</p>
+                    <p><strong>O widget não é permanente</strong> - desaparece ao sair da página</p>
+                </div>
+                
+            </div>
+            
+            <div style="margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); border-radius: 16px; text-align: center;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">🎉 Pronto para Usar!</h3>
+                <p style="font-size: 1.1rem; margin-bottom: 1rem;">
+                    Agora você pode testar o Inclua-AI em qualquer site da internet!
+                </p>
+                <p style="color: var(--secondary-color);">
+                    Bookmark criado → Vai para um site → Clica no bookmark → Widget aparece!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Adicionar eventos de arrastar
+        document.querySelectorAll('.bookmarklet-button').forEach(button => {
+            button.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'copy';
+            });
+        });
+        
+        // Log para debug
+        console.log('📖 Página do Bookmarklet Inclua-AI carregada');
+        console.log('🎯 Arraste o botão para sua barra de favoritos para instalar');
+    </script>
+</body>
+</html>
