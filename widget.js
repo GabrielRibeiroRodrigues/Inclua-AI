@@ -15,6 +15,16 @@ utterance.lang = 'pt-BR';
 let debounceTimeout;
 let availableVoices = [];
 
+// --- Função para detectar URL da API ---
+function getApiBaseUrl() {
+    // Se estiver rodando em localhost, usa o servidor local
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:3000';
+    }
+    // Caso contrário, usa o servidor do Render
+    return 'https://inclua-ai-servidor.onrender.com';
+}
+
 // --- Função Principal de Inicialização ---
 function initializeWidget() {
     try {
@@ -321,7 +331,7 @@ function handleImageDescribeClick(event) {
 async function describeSingleImageAI(imgElement) {
     showModal('Descrição da Imagem', `<em>Descrevendo imagem, por favor aguarde...</em>`, `desc-modal-${imgElement.src}`);
     try {
-        const response = await fetch('https://inclua-ai-servidor.onrender.com/describe-image', {
+        const response = await fetch(`${getApiBaseUrl()}/describe-image`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageUrl: imgElement.src }),
@@ -376,7 +386,7 @@ async function simplifyTextAI(text) {
     const loadingContent = `<h3>Texto Simplificado pela IA</h3><div class="text-box simplified-text"><em>Simplificando, por favor aguarde...</em></div>`;
     showModal('Texto Original', originalContent + loadingContent, 'simplifier-modal');
     try {
-        const response = await fetch('https://inclua-ai-servidor.onrender.com/simplify-text', {
+        const response = await fetch(`${getApiBaseUrl()}/simplify-text`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ textToSimplify: text }),
@@ -440,7 +450,7 @@ function handleTextSelectionForSummarize(event) {
 async function summarizeTextAI(text) {
     showModal('Resumo do Texto', '<em>Resumindo o texto, por favor aguarde...</em>', 'summarizer-modal');
     try {
-        const response = await fetch('https://inclua-ai-servidor.onrender.com/summarize-text', {
+        const response = await fetch(`${getApiBaseUrl()}/summarize-text`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ textToSummarize: text }),
