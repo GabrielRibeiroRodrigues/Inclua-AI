@@ -100,15 +100,7 @@ class IncluaAIWidget {
             if (response.ok) {
                 const health = await response.json();
                 console.log('✅ API Status:', health.status);
-                
-                if (health.geminiStatus === 'available') {
-                    this.updateStatusBadge('online');
-                } else if (health.geminiStatus === 'unavailable') {
-                    this.updateStatusBadge('degraded');
-                    if (health.geminiError === 'overloaded') {
-                        console.warn('⚠️ API Gemini está sobrecarregada');
-                    }
-                }
+                this.updateStatusBadge('online');
             } else {
                 throw new Error(`API retornou status ${response.status}`);
             }
@@ -122,13 +114,7 @@ class IncluaAIWidget {
     updateStatusBadge(status) {
         const badge = document.querySelector('.status-badge');
         if (badge) {
-            const statusText = {
-                'online': '🟢 Online',
-                'degraded': '🟡 Degradado', 
-                'offline': '🔴 Offline'
-            };
-            
-            badge.textContent = statusText[status] || '⚪ Desconhecido';
+            badge.textContent = status === 'online' ? '🟢 Online' : '🔴 Offline';
             badge.className = `status-badge ${status}`;
         }
     }
@@ -478,8 +464,6 @@ class IncluaAIWidget {
                 errorMessage = 'Serviço temporariamente indisponível. Tente novamente em alguns minutos.';
             } else if (error.message.includes('429')) {
                 errorMessage = 'Muitas requisições. Aguarde um momento antes de tentar novamente.';
-            } else if (error.message.includes('503') || error.message.includes('sobrecarregado')) {
-                errorMessage = 'Serviço de IA temporariamente sobrecarregado. Tente novamente em alguns segundos.';
             } else if (error.message.includes('500')) {
                 errorMessage = 'Erro interno do servidor. Nossa equipe foi notificada.';
             }
