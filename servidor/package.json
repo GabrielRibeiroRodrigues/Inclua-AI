@@ -1,10 +1,11 @@
 {
-  "name": "servidor",
+  "name": "inclua-ai-servidor",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Servidor de API do Inclua-AI com Google Gemini",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "dev": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

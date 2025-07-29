@@ -1,6 +1,13 @@
 {
-  "dependencies": {
-    "@google-cloud/vision": "^5.2.0",
-    "express": "^5.1.0"
-  }
+  "name": "inclua-ai",
+  "version": "1.0.0",
+  "description": "Widget de acessibilidade inteligente com IA",
+  "main": "index.html",
+  "scripts": {
+    "dev": "cd servidor && npm start",
+    "start": "cd servidor && npm start"
+  },
+  "keywords": ["acessibilidade", "ai", "inclusao", "web"],
+  "author": "Gabriel Ribeiro Rodrigues",
+  "license": "MIT"
 }
