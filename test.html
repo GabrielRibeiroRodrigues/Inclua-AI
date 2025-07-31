@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Inclua-AI Widget - Funcionalidades de Acessibilidade</title>
+    <style>
+        /* Estilos para o widget */
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #10b981;
+            --background-color: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--background-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .test-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .test-section h3 {
+            color: var(--secondary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.3rem;
+        }
+
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .image-item {
+            text-align: center;
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .image-item img:hover {
+            transform: scale(1.05);
+        }
+
+        .image-item p {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .text-sample {
+            background: #f1f5f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            margin: 1rem 0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+
+        .long-text {
+            columns: 2;
+            column-gap: 2rem;
+            text-align: justify;
+        }
+
+        .links-section {
+            background: #fef7ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #e879f9;
+        }
+
+        .links-section a {
+            display: inline-block;
+            margin: 0.5rem 1rem 0.5rem 0;
+            padding: 0.5rem 1rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .links-section a:hover {
+            background: #3730a3;
+        }
+
+        .instructions {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .instructions h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .instructions ul {
+            margin-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .demo-card {
+            background: #fff;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .demo-card:hover {
+            border-color: var(--primary-color);
+        }
+
+        .demo-card h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .math-content {
+            background: #fefce8;
+            border: 1px solid #eab308;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        /* Estilos do Widget */
+        #inclua-ai-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        #inclua-ai-toggle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #inclua-ai-toggle:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        #inclua-ai-toggle svg {
+            width: 28px;
+            height: 28px;
+            fill: white;
+        }
+
+        #inclua-ai-panel {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            width: 380px;
+            max-height: 600px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e5e7eb;
+            transform: translateY(20px) scale(0.95);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        #inclua-ai-panel.show {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .panel-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .panel-header p {
+            margin: 0;
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .status-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .panel-content {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .feature-section {
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px 12px 20px;
+            background: #f9fafb;
+            border-bottom: 1px solid #f3f4f6;
+            font-weight: 600;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .section-icon {
+            width: 18px;
+            height: 18px;
+            fill: #6b7280;
+        }
+
+        .new-badge {
+            background: #10b981;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            margin-left: auto;
+        }
+
+        .feature-group {
+            padding: 12px 20px 16px 20px;
+        }
+
+        .feature-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+
+        .feature-button:hover {
+            background: #f8fafc;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        .feature-button:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-button.processing {
+            background: #f3f4f6;
+            pointer-events: none;
+        }
+
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            fill: #6b7280;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            flex: 1;
+        }
+
+        .feature-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .feature-description {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.3;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            color: #374151;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #047857;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+        }
+
+        .alert-warning {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            color: #d97706;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000001;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .modal-content {
+            padding: 24px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .modal-actions {
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary {
+            background: white;
+            border-color: #d1d5db;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        /* Loading */
+        .loading-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-progress {
+            margin: 16px 0;
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            animation: progress 2s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 60%; }
+            100% { width: 100%; }
+        }
+
+        .loading-text {
+            font-size: 13px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        /* Modo escuro */
+        body.widget-dark-mode {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+
+        body.widget-dark-mode .test-section {
+            background: #374151;
+            border-color: #4b5563;
+        }
+
+        body.widget-dark-mode .text-sample {
+            background: #4b5563;
+            color: #f9fafb;
+        }
+
+        /* Destaque de links */
+        html.widget-highlight-links a {
+            background: #fef3c7 !important;
+            padding: 2px 4px !important;
+            border-radius: 4px !important;
+            border: 2px solid #f59e0b !important;
+        }
+
+        /* Filtros para daltonismo */
+        html.filter-protanopia {
+            filter: url(#protanopia);
+        }
+
+        html.filter-deuteranopia {
+            filter: url(#deuteranopia);
+        }
+
+        html.filter-tritanopia {
+            filter: url(#tritanopia);
+        }
+
+        html.filter-achromatopsia {
+            filter: url(#achromatopsia);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            #inclua-ai-panel {
+                width: 320px;
+                right: -10px;
+            }
+
+            .long-text {
+                columns: 1;
+            }
+
+            .feature-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Teste Inclua-AI Widget</h1>
+            <p>Demonstração completa das funcionalidades de acessibilidade com IA</p>
+        </header>
+
+        <div class="instructions">
+            <h3>📋 Como Testar as Funcionalidades</h3>
+            <ul>
+                <li><strong>Widget de Acessibilidade:</strong> Clique no botão flutuante no canto inferior direito</li>
+                <li><strong>Leitor de Texto:</strong> Ative a função e selecione qualquer texto da página</li>
+                <li><strong>Descrição de Imagens:</strong> Ative a função e clique em qualquer imagem</li>
+                <li><strong>Resumo de Texto:</strong> Ative a função e selecione texto longo (mínimo 50 caracteres)</li>
+                <li><strong>Ajustes Visuais:</strong> Teste aumento/redução de fonte, modo escuro e destaque de links</li>
+                <li><strong>Filtros para Daltonismo:</strong> Experimente os diferentes filtros visuais</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h2>🖼️ Galeria de Imagens para Descrição com IA</h2>
+            <p>Ative a função "Descrever Imagem" no widget e clique nas imagens abaixo para receber descrições detalhadas:</p>
+            
+            <div class="image-gallery">
+                <div class="image-item">
+                    <img src="https://picsum.photos/300/200?random=1" alt="Imagem aleatória 1">
+                    <p>Paisagem Natural</p>
+                </div>
+                <div class="image-item">
+                    <img src="https://picsum.photos/300/200?random=2" alt="Imagem aleatória 2">
+                    <p>Arquitetura Urbana</p>
+                </div>
+                <div class="image-item">
+                    <img src="https://picsum.photos/300/200?random=3" alt="Imagem aleatória 3">
+                    <p>Arte e Cultura</p>
+                </div>
+                <div class="image-item">
+                    <img src="https://picsum.photos/300/200?random=4" alt="Imagem aleatória 4">
+                    <p>Natureza e Vida</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📖 Textos para Leitura e Resumo</h2>
+            
+            <h3>Texto Curto para Leitura</h3>
+            <div class="text-sample">
+                A inteligência artificial está revolucionando a forma como interagimos com a tecnologia. Sistemas de IA podem processar grandes volumes de dados, reconhecer padrões complexos e tomar decisões inteligentes em tempo real.
+            </div>
+
+            <h3>Texto Longo para Resumo Inteligente</h3>
+            <div class="text-sample long-text">
+                A acessibilidade digital é um direito fundamental que garante que todas as pessoas, independentemente de suas habilidades ou limitações, possam usar e se beneficiar da tecnologia. Isso inclui pessoas com deficiências visuais, auditivas, motoras ou cognitivas. 
+
+                Para criar experiências digitais verdadeiramente inclusivas, é essencial implementar recursos como leitores de tela compatíveis, navegação por teclado, contraste adequado de cores, legendas em vídeos e descrições alternativas para imagens. 
+
+                A tecnologia assistiva, combinada com design universal, pode transformar barreiras em oportunidades. Ferramentas de inteligência artificial, como descrição automática de imagens e resumo de textos, estão abrindo novas possibilidades para tornar o conteúdo digital mais acessível.
+
+                Além disso, a implementação de padrões como WCAG (Web Content Accessibility Guidelines) ajuda desenvolvedores a criar interfaces que funcionam para todos. Isso não apenas beneficia pessoas com deficiências, mas melhora a experiência geral do usuário.
+
+                A acessibilidade não deve ser vista como um requisito adicional, mas como parte integral do processo de desenvolvimento. Quando projetamos com acessibilidade em mente desde o início, criamos produtos melhores para todos os usuários.
+
+                É importante lembrar que a acessibilidade é um processo contínuo de melhoria, que requer testes regulares com usuários reais e feedback constante da comunidade. Somente assim podemos garantir que nossas soluções tecnológicas sejam verdadeiramente inclusivas.
+            </div>
+
+            <h3>Artigo Científico para Resumo</h3>
+            <div class="text-sample">
+                A neuroplasticidade é a capacidade do cérebro de se reorganizar e formar novas conexões neurais ao longo da vida. Esta propriedade fundamental do sistema nervoso permite que o cérebro se adapte a mudanças, aprenda novas habilidades e se recupere de lesões. 
+
+                Estudos recentes mostram que a neuroplasticidade não se limita apenas aos primeiros anos de vida, como se acreditava anteriormente, mas continua ativa durante toda a vida adulta. Fatores como exercício físico, aprendizado de novas habilidades, meditação e estímulos cognitivos podem promover a formação de novas sinapses e o fortalecimento de circuitos neurais existentes.
+
+                Esta descoberta tem implicações profundas para o tratamento de distúrbios neurológicos e para estratégias de reabilitação. Terapias baseadas em neuroplasticidade têm mostrado resultados promissores no tratamento de condições como acidente vascular cerebral, traumatismo craniano e distúrbios neurodegenerativos.
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 Links para Teste de Destaque</h2>
+            <div class="links-section">
+                <p>Ative a função "Destacar Links" para visualizar todos os links da página:</p>
+                <a href="#" onclick="return false;">Link de Exemplo 1</a>
+                <a href="#" onclick="return false;">Link de Exemplo 2</a>
+                <a href="#" onclick="return false;">Link de Exemplo 3</a>
+                <a href="#" onclick="return false;">Documentação</a>
+                <a href="#" onclick="return false;">Suporte</a>
+                <a href="#" onclick="return false;">Contato</a>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎨 Demonstração de Funcionalidades</h2>
+            
+            <div class="feature-demo">
+                <div class="demo-card">
+                    <h4>🎯 Leitor de Texto</h4>
+                    <p>Selecione qualquer texto nesta página após ativar o leitor. O sistema utilizará síntese de voz para ler o conteúdo em português brasileiro.</p>
+                </div>
+
+                <div class="demo-card">
+                    <h4>🖼️ Descrição de Imagens</h4>
+                    <p>Clique em qualquer imagem após ativar esta função. A IA analisará a imagem e fornecerá uma descrição detalhada do conteúdo visual.</p>
+                </div>
+
+                <div class="demo-card">
+                    <h4>📄 Resumo Inteligente</h4>
+                    <p>Selecione textos longos (mínimo 50 caracteres) para receber resumos concisos gerados por inteligência artificial.</p>
+                </div>
+
+                <div class="demo-card">
+                    <h4>🔧 Ajustes Visuais</h4>
+                    <p>Experimente aumentar/diminuir fontes, ativar modo escuro e destacar links para melhorar a acessibilidade visual.</p>
+                </div>
+
+                <div class="demo-card">
+                    <h4>🌈 Filtros para Daltonismo</h4>
+                    <p>Teste diferentes filtros de cor para simular e corrigir diferentes tipos de daltonismo (protanopia, deuteranopia, tritanopia).</p>
+                </div>
+
+                <div class="demo-card">
+                    <h4>⚙️ Configurações</h4>
+                    <p>Todas as configurações são salvas automaticamente e podem ser resetadas usando a função correspondente.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Conteúdo Diversificado</h2>
+            
+            <h3>Lista de Itens</h3>
+            <ul>
+                <li>Item de lista número um com texto para teste</li>
+                <li>Item de lista número dois com mais conteúdo</li>
+                <li>Item de lista número três para demonstração</li>
+                <li>Item final da lista com texto adicional</li>
+            </ul>
+
+            <h3>Tabela de Dados</h3>
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <thead>
+                    <tr style="background: #f3f4f6;">
+                        <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Funcionalidade</th>
+                        <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Descrição</th>
+                        <th style="border: 1px solid #d1d5db; padding: 12px; text-align: left;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">Leitor de Texto</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">Síntese de voz para textos selecionados</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">✅ Ativo</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">Descrição IA</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">Análise inteligente de imagens</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">✅ Ativo</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">Resumo de Texto</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">Resumos automáticos com IA</td>
+                        <td style="border: 1px solid #d1d5db; padding: 12px;">✅ Ativo</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Citação</h3>
+            <blockquote style="border-left: 4px solid var(--primary-color); padding-left: 1rem; margin: 1rem 0; font-style: italic; background: #f8fafc; padding: 1rem;">
+                "A tecnologia deve ser um facilitador da inclusão, não uma barreira. Quando projetamos com acessibilidade em mente, criamos um mundo digital melhor para todos."
+            </blockquote>
+        </div>
+    </div>
+
+    <!-- CSS do Widget -->
+    <link rel="stylesheet" href="widget.css">
+    
+    <!-- Script do Widget -->
+    <script>
+        // Expor o widget globalmente para testes
+        window.incluaAIWidget = null;
+        
+        // Log das ações para debug
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            // Opcional: mostrar logs na página para debug
+        };
+    </script>
+    <script src="widget.js"></script>
+    
+    <script>
+        // Aguardar o widget ser inicializado
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.incluaAIWidget) {
+                    console.log('✅ Widget Inclua-AI carregado com sucesso!');
+                    console.log('Funcionalidades disponíveis:', Object.keys(window.incluaAIWidget.features));
+                } else {
+                    console.error('❌ Erro ao carregar o widget');
+                }
+            }, 1000);
+        });
+
+        // Prevent default para links de exemplo
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A' && e.target.getAttribute('href') === '#') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

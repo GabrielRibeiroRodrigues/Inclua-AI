@@ -21,6 +21,8 @@ class IncluaAIWidget {
             colorFilter: 'none'
         };
         
+        this.currentSpeech = null;
+        
         this.init();
     }
 
@@ -534,16 +536,124 @@ class IncluaAIWidget {
             
             const data = await response.json();
             
-            this.showModal('Descrição da Imagem', `
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z"/>
-                        </svg>
-                        Descrição Gerada pela IA
+            this.showModal('🖼️ Descrição Inteligente', `
+                <div class="description-container">
+                    <div class="description-header">
+                        <div class="description-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                <circle cx="9" cy="9" r="2"/>
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                            </svg>
+                        </div>
+                        <div class="description-meta">
+                            <h3>Análise Visual Completa</h3>
+                            <span class="image-stats">Descrição gerada por IA</span>
+                        </div>
                     </div>
-                    <div class="result-content">${data.description}</div>
+                    
+                    <div class="description-content">
+                        <div class="description-text">
+                            ${data.description}
+                        </div>
+                        
+                        <div class="description-actions">
+                            <button onclick="window.incluaAIWidget.copyDescription(this)" 
+                                    data-description="${data.description.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                                    class="action-btn primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="m5 15-4-4 4-4"/>
+                                </svg>
+                                Copiar Descrição
+                            </button>
+                            <button onclick="window.incluaAIWidget.playDescription(this)" 
+                                    data-description="${data.description.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                                    class="action-btn secondary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                    <path d="m19.07 4.93-1.41 1.41A10 10 0 0 1 23 12a10 10 0 0 1-5.34 8.66L19.07 21.07"/>
+                                </svg>
+                                Ouvir Descrição
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                
+                <style>
+                .description-container {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
+                
+                .description-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+                    border-radius: 12px;
+                    color: white;
+                }
+                
+                .description-icon {
+                    background: rgba(255,255,255,0.2);
+                    padding: 12px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .description-meta h3 {
+                    margin: 0 0 4px 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+                
+                .image-stats {
+                    font-size: 13px;
+                    opacity: 0.9;
+                    font-weight: 400;
+                }
+                
+                .description-content {
+                    background: #f8fafc;
+                    border-radius: 12px;
+                    padding: 24px;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .description-text {
+                    font-size: 16px;
+                    line-height: 1.7;
+                    color: #2d3748;
+                    margin-bottom: 24px;
+                    padding: 20px;
+                    background: white;
+                    border-radius: 8px;
+                    border-left: 4px solid #4f46e5;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                
+                .description-actions {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                }
+                
+                /* Dark mode para descrição */
+                .widget-dark-mode .description-content {
+                    background: #2d3748 !important;
+                    border-color: #4a5568 !important;
+                }
+                
+                .widget-dark-mode .description-text {
+                    background: #1a202c !important;
+                    color: #e2e8f0 !important;
+                    border-left-color: #5b21b6 !important;
+                }
+                </style>
             `, false);
             
             // Adiciona alt-text à imagem se não existir
@@ -598,31 +708,351 @@ class IncluaAIWidget {
             
             const data = await response.json();
             
-            this.showModal('Resumo do Texto', `
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M3,3H21V5H3V3M3,7H15V9H3V7M3,11H21V13H3V11M3,15H15V17H3V15M3,19H21V21H3V19Z"/>
-                        </svg>
-                        Resumo Gerado pela IA
-                    </div>
-                    <div class="result-content">
-                        <div class="original-text">
-                            <strong>Texto Original:</strong><br>
-                            <em>${text.length > 200 ? text.substring(0, 200) + '...' : text}</em>
+            this.showModal('📄 Resumo Inteligente', `
+                <div class="summary-container">
+                    <div class="summary-header">
+                        <div class="summary-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14,2 14,8 20,8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10,9 9,9 8,9"/>
+                            </svg>
                         </div>
-                        <div class="summarized-text">
-                            <strong>Resumo:</strong><br>
+                        <div class="summary-meta">
+                            <h3>Resumo Gerado</h3>
+                            <span class="text-stats">${text.length} caracteres → Resumo conciso</span>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-content">
+                        <div class="summary-text">
                             ${data.summarizedText}
+                        </div>
+                        
+                        <div class="summary-actions">
+                            <button onclick="window.incluaAIWidget.copySummary(this)" 
+                                    data-summary="${data.summarizedText.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                                    class="action-btn primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="m5 15-4-4 4-4"/>
+                                </svg>
+                                Copiar Resumo
+                            </button>
+                            <button onclick="window.incluaAIWidget.playSummary(this)" 
+                                    data-summary="${data.summarizedText.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
+                                    class="action-btn secondary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                    <path d="m19.07 4.93-1.41 1.41A10 10 0 0 1 23 12a10 10 0 0 1-5.34 8.66L19.07 21.07"/>
+                                </svg>
+                                Ouvir Resumo
+                            </button>
                         </div>
                     </div>
                 </div>
+                
+                <style>
+                .summary-container {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                }
+                
+                .summary-header {
+                    display: flex;
+                    align-items: center;
+                    gap: 15px;
+                    margin-bottom: 20px;
+                    padding: 20px;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    border-radius: 12px;
+                    color: white;
+                }
+                
+                .summary-icon {
+                    background: rgba(255,255,255,0.2);
+                    padding: 12px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .summary-meta h3 {
+                    margin: 0 0 4px 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                }
+                
+                .text-stats {
+                    font-size: 13px;
+                    opacity: 0.9;
+                    font-weight: 400;
+                }
+                
+                .summary-content {
+                    background: #f8fafc;
+                    border-radius: 12px;
+                    padding: 24px;
+                    border: 1px solid #e2e8f0;
+                }
+                
+                .summary-text {
+                    font-size: 16px;
+                    line-height: 1.7;
+                    color: #2d3748;
+                    margin-bottom: 24px;
+                    padding: 20px;
+                    background: white;
+                    border-radius: 8px;
+                    border-left: 4px solid #667eea;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                
+                .summary-actions {
+                    display: flex;
+                    gap: 12px;
+                    justify-content: center;
+                }
+                
+                .action-btn {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 12px 20px;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    text-decoration: none;
+                }
+                
+                .action-btn.primary {
+                    background: #667eea;
+                    color: white;
+                }
+                
+                .action-btn.primary:hover {
+                    background: #5a67d8;
+                    transform: translateY(-1px);
+                }
+                
+                .action-btn.secondary {
+                    background: #e2e8f0;
+                    color: #4a5568;
+                }
+                
+                .action-btn.secondary:hover {
+                    background: #cbd5e0;
+                    transform: translateY(-1px);
+                }
+                
+                /* Dark mode */
+                .widget-dark-mode .summary-content {
+                    background: #2d3748 !important;
+                    border-color: #4a5568 !important;
+                }
+                
+                .widget-dark-mode .summary-text {
+                    background: #1a202c !important;
+                    color: #e2e8f0 !important;
+                    border-left-color: #4c51bf !important;
+                }
+                
+                .widget-dark-mode .action-btn.secondary {
+                    background: #4a5568 !important;
+                    color: #e2e8f0 !important;
+                }
+                
+                .widget-dark-mode .action-btn.secondary:hover {
+                    background: #2d3748 !important;
+                }
+                </style>
             `, false);
             
         } catch (error) {
             console.error('Erro ao resumir texto:', error);
             this.showModal('Erro', 'Não foi possível resumir o texto selecionado.', false);
         }
+    }
+
+    // Método para copiar resumo
+    copySummary(button) {
+        const summary = button.getAttribute('data-summary');
+        navigator.clipboard.writeText(summary).then(() => {
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+                Copiado!
+            `;
+            button.style.background = '#10b981';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '#667eea';
+            }, 2000);
+        }).catch(() => {
+            this.showAlert('Erro ao copiar resumo', 'error');
+        });
+    }
+
+    // Método para reproduzir áudio do resumo
+    playSummary(button) {
+        const summary = button.getAttribute('data-summary');
+        const originalText = button.innerHTML;
+        
+        // Verificar se Web Speech API está disponível
+        if (!('speechSynthesis' in window)) {
+            this.showAlert('Síntese de voz não suportada neste navegador', 'error');
+            return;
+        }
+        
+        // Parar qualquer reprodução anterior
+        if (this.currentSpeech) {
+            speechSynthesis.cancel();
+            this.currentSpeech = null;
+        }
+
+        if (button.classList.contains('playing')) {
+            // Parar reprodução
+            speechSynthesis.cancel();
+            button.classList.remove('playing');
+            button.innerHTML = originalText;
+            return;
+        }
+
+        button.classList.add('playing');
+        button.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="4" width="4" height="16"/>
+                <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+            Pausar
+        `;
+
+        const utterance = new SpeechSynthesisUtterance(summary);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+
+        utterance.onstart = () => {
+            console.log('🔊 Iniciando reprodução do resumo');
+        };
+
+        utterance.onend = () => {
+            console.log('🔇 Reprodução do resumo finalizada');
+            button.classList.remove('playing');
+            button.innerHTML = originalText;
+            this.currentSpeech = null;
+        };
+
+        utterance.onerror = (event) => {
+            console.error('❌ Erro na reprodução:', event.error);
+            button.classList.remove('playing');
+            button.innerHTML = originalText;
+            this.currentSpeech = null;
+            this.showAlert('Erro na síntese de voz: ' + event.error, 'error');
+        };
+
+        this.currentSpeech = utterance;
+        
+        // Aguardar um pouco antes de falar para garantir que está pronto
+        setTimeout(() => {
+            speechSynthesis.speak(utterance);
+        }, 100);
+    }
+
+    // Método para copiar descrição de imagem
+    copyDescription(button) {
+        const description = button.getAttribute('data-description');
+        navigator.clipboard.writeText(description).then(() => {
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20,6 9,17 4,12"/>
+                </svg>
+                Copiado!
+            `;
+            button.style.background = '#10b981';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.background = '#667eea';
+            }, 2000);
+        }).catch(() => {
+            this.showAlert('Erro ao copiar descrição', 'error');
+        });
+    }
+
+    // Método para reproduzir áudio da descrição
+    playDescription(button) {
+        const description = button.getAttribute('data-description');
+        const originalText = button.innerHTML;
+        
+        // Verificar se Web Speech API está disponível
+        if (!('speechSynthesis' in window)) {
+            this.showAlert('Síntese de voz não suportada neste navegador', 'error');
+            return;
+        }
+        
+        // Parar qualquer reprodução anterior
+        if (this.currentSpeech) {
+            speechSynthesis.cancel();
+            this.currentSpeech = null;
+        }
+
+        if (button.classList.contains('playing')) {
+            // Parar reprodução
+            speechSynthesis.cancel();
+            button.classList.remove('playing');
+            button.innerHTML = originalText;
+            return;
+        }
+
+        button.classList.add('playing');
+        button.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="4" width="4" height="16"/>
+                <rect x="14" y="4" width="4" height="16"/>
+            </svg>
+            Pausar
+        `;
+
+        const utterance = new SpeechSynthesisUtterance(description);
+        utterance.lang = 'pt-BR';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+
+        utterance.onstart = () => {
+            console.log('🔊 Iniciando reprodução da descrição');
+        };
+
+        utterance.onend = () => {
+            console.log('🔇 Reprodução da descrição finalizada');
+            button.classList.remove('playing');
+            button.innerHTML = originalText;
+            this.currentSpeech = null;
+        };
+
+        utterance.onerror = (event) => {
+            console.error('❌ Erro na reprodução:', event.error);
+            button.classList.remove('playing');
+            button.innerHTML = originalText;
+            this.currentSpeech = null;
+            this.showAlert('Erro na síntese de voz: ' + event.error, 'error');
+        };
+
+        this.currentSpeech = utterance;
+        
+        // Aguardar um pouco antes de falar para garantir que está pronto
+        setTimeout(() => {
+            speechSynthesis.speak(utterance);
+        }, 100);
     }
 
     applyColorblindFilter(filterType) {
@@ -749,11 +1179,29 @@ class IncluaAIWidget {
     }
 
     setupVoices() {
-        // Configuração básica de vozes (pode ser expandida)
-        speechSynthesis.addEventListener('voiceschanged', () => {
-            const voices = speechSynthesis.getVoices();
-            console.log('Vozes disponíveis:', voices.filter(v => v.lang.includes('pt')));
-        });
+        // Configuração de vozes melhorada
+        if ('speechSynthesis' in window) {
+            speechSynthesis.addEventListener('voiceschanged', () => {
+                const voices = speechSynthesis.getVoices();
+                const ptBrVoices = voices.filter(v => v.lang.includes('pt'));
+                
+                console.log('🔊 Vozes disponíveis em português:', ptBrVoices.length);
+                if (ptBrVoices.length > 0) {
+                    console.log('✅ Primeira voz PT-BR:', ptBrVoices[0].name);
+                } else {
+                    console.warn('⚠️ Nenhuma voz em português encontrada');
+                }
+            });
+            
+            // Aguardar vozes carregarem
+            setTimeout(() => {
+                if (speechSynthesis.getVoices().length === 0) {
+                    console.warn('⚠️ Vozes ainda não carregadas, tentando novamente...');
+                }
+            }, 1000);
+        } else {
+            console.error('❌ Web Speech API não suportada neste navegador');
+        }
     }
 
     loadSettings() {
@@ -832,7 +1280,9 @@ class IncluaAIWidget {
 
 // Inicializar o widget quando a página carregar
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new IncluaAIWidget());
+    document.addEventListener('DOMContentLoaded', () => {
+        window.incluaAIWidget = new IncluaAIWidget();
+    });
 } else {
-    new IncluaAIWidget();
+    window.incluaAIWidget = new IncluaAIWidget();
 }

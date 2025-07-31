@@ -3,20 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inclua-AI - Demonstração de Acessibilidade</title>
-    
-    <!-- Arquivos CSS e JS do widget -->
-    <link rel="stylesheet" href="widget.css">
-    
+    <title>Inclua-AI - Assistente de Acessibilidade</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #64748b;
-            --success-color: #059669;
-            --warning-color: #d97706;
-            --error-color: #dc2626;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -24,398 +12,194 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-            line-height: 1.7;
-            color: #1e293b;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            transition: all 0.3s ease;
-        }
-
-        .hero {
-            background: linear-gradient(135deg, var(--primary-color), #1d4ed8);
-            color: white;
-            text-align: center;
-            padding: 4rem 2rem;
-            margin-bottom: 3rem;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
-
-        .hero p {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-
-        .section {
-            background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-            border: 1px solid #e2e8f0;
-        }
-
-        .section h2 {
-            color: var(--primary-color);
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-            font-weight: 600;
-        }
-
-        .section h3 {
-            color: var(--secondary-color);
-            margin: 1.5rem 0 1rem 0;
-            font-size: 1.5rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-
-        .card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            transition: transform 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px -8px rgba(0,0,0,0.15);
-        }
-
-        .card h4 {
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .highlight-box {
-            background: #fef3c7;
-            border-left: 4px solid var(--warning-color);
-            padding: 1rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .highlight-box strong {
-            color: var(--warning-color);
-        }
-
-        .image-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin: 2rem 0;
-        }
-
-        .image-gallery img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            transition: transform 0.2s;
-        }
-
-        .image-gallery img:hover {
-            transform: scale(1.02);
-        }
-
-        .math-examples {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .math-formula {
-            font-family: 'Times New Roman', serif;
-            font-size: 1.2rem;
-            text-align: center;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: white;
-            border-radius: 6px;
-        }
-
-        .color-samples {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin: 1rem 0;
-        }
-
-        .color-sample {
-            height: 100px;
-            border-radius: 8px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 600;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
 
-        .color-1 { background: #3b82f6; }
-        .color-2 { background: #ef4444; }
-        .color-3 { background: #10b981; }
-        .color-4 { background: #f59e0b; }
-        .color-5 { background: #8b5cf6; }
-        .color-6 { background: #6b7280; color: #ffffff; } /* Baixo contraste */
-
-        .links-section a {
-            display: inline-block;
-            margin: 0.5rem 1rem 0.5rem 0;
-            padding: 0.5rem 1rem;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-
-        .link-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .link-secondary {
-            background: #e2e8f0;
-            color: var(--secondary-color);
-        }
-
-        .link-success {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .complex-text {
-            text-align: justify;
-            font-size: 0.95rem;
-            line-height: 1.8;
-        }
-
-        .accessibility-issues {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .accessibility-issues h4 {
-            color: var(--error-color);
-            margin-bottom: 1rem;
-        }
-
-        .bad-contrast {
-            color: #888; /* Contraste insuficiente */
-            background: #ddd;
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-
-        .no-alt-image {
-            border: 2px dashed #fbbf24;
-            padding: 0.5rem;
-        }
-
-        footer {
-            background: #1e293b;
-            color: #e2e8f0;
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             text-align: center;
-            padding: 3rem 2rem;
-            margin-top: 3rem;
         }
 
-        footer a {
-            color: #60a5fa;
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .feature {
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .feature-desc {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin: 1rem;
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+        }
+
+        .info {
+            background: #ecfdf5;
+            border: 1px solid #10b981;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 2rem;
+            color: #047857;
         }
 
         @media (max-width: 768px) {
-            .hero h1 {
+            .container {
+                padding: 2rem;
+            }
+            
+            h1 {
                 font-size: 2rem;
             }
             
-            .container {
-                padding: 0 1rem;
-            }
-            
-            .section {
-                padding: 1.5rem;
+            .features {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <h1>🚀 Inclua-AI</h1>
-        <p>Demonstração Completa do Assistente de Acessibilidade com Inteligência Artificial</p>
-    </div>
-
     <div class="container">
-        <div class="section">
-            <h2>🎯 Como Testar as Funcionalidades</h2>
-            <p>Use o <strong>botão azul</strong> no canto inferior direito para abrir o assistente de acessibilidade. Explore todas as funcionalidades avançadas:</p>
-            
-            <div class="grid">
-                <div class="card">
-                    <h4>🎨 Ajustes Visuais</h4>
-                    <p>Teste o aumento/diminuição de fonte, modo escuro e destaque de links para melhorar a legibilidade.</p>
-                </div>
-                <div class="card">
-                    <h4>🔊 Leitor de Texto</h4>
-                    <p>Ative o leitor e selecione qualquer texto para ouvir a narração em português.</p>
-                </div>
-                <div class="card">
-                    <h4>🤖 IA para Acessibilidade</h4>
-                    <p>Use as funcionalidades inteligentes para descrever imagens, simplificar textos e analisar acessibilidade.</p>
-                </div>
-                <div class="card">
-                    <h4>🔍 Verificações Automáticas</h4>
-                    <p>Analise contraste de cores e problemas de acessibilidade na página automaticamente.</p>
-                </div>
+        <h1>🚀 Inclua-AI</h1>
+        <p class="subtitle">Assistente Inteligente de Acessibilidade</p>
+        
+        <p class="description">
+            Uma ferramenta poderosa que utiliza inteligência artificial para tornar qualquer site mais acessível. 
+            Oferece recursos como leitura de texto, descrição de imagens e resumos inteligentes.
+        </p>
+
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🔊</div>
+                <div class="feature-title">Leitor de Texto</div>
+                <div class="feature-desc">Lê qualquer texto em voz alta</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🖼️</div>
+                <div class="feature-title">Descrição IA</div>
+                <div class="feature-desc">Descreve imagens automaticamente</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📄</div>
+                <div class="feature-title">Resumo Inteligente</div>
+                <div class="feature-desc">Resume textos longos</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🎨</div>
+                <div class="feature-title">Ajustes Visuais</div>
+                <div class="feature-desc">Personaliza a visualização</div>
             </div>
         </div>
 
-        <div class="section">
-            <h2>🖼️ Teste de Descrição de Imagens</h2>
-            <p>Ative o <strong>"Descrever Imagem"</strong> e clique nas imagens abaixo para receber descrições detalhadas geradas por IA:</p>
-            
-            <div class="image-gallery">
-                <img src="https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?w=400" alt="Pessoa usando computador" />
-                <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=400" alt="" class="no-alt-image" />
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400" alt="Pessoa lendo em braile" />
-                <img src="https://images.unsplash.com/photo-1581092921461-eab62e97a780?w=400" alt="" class="no-alt-image" />
-            </div>
-            
-            <div class="highlight-box">
-                <strong>💡 Dica:</strong> Algumas imagens propositalmente não possuem texto alternativo (alt-text) para demonstrar como a IA pode gerar descrições automáticas.
-            </div>
-        </div>
+        <button class="cta" onclick="window.open('test.html', '_blank')">
+            🧪 Testar Funcionalidades
+        </button>
+        
+        <button class="cta" onclick="copyBookmarklet()">
+            📌 Copiar Bookmarklet
+        </button>
 
-        <div class="section">
-            <h2>📝 Teste de Simplificação de Texto</h2>
-            <p>Ative o <strong>"Simplificar Texto"</strong> e selecione trechos do texto complexo abaixo:</p>
-            
-            <div class="complex-text">
-                <p>A implementação de tecnologias assistivas no contexto da acessibilidade digital representa um paradigma fundamental para a promoção da inclusão social e digital. As diretrizes estabelecidas pelo Web Content Accessibility Guidelines (WCAG) 2.1 delineiam critérios específicos de conformidade que abrangem quatro princípios fundamentais: perceptibilidade, operabilidade, compreensibilidade e robustez.</p>
-                
-                <p>A interoperabilidade entre diferentes tecnologias assistivas e os sistemas operacionais modernos requer uma arquitetura de software que contemple APIs padronizadas e protocolos de comunicação universais. A implementação de recursos como ARIA (Accessible Rich Internet Applications) labels, roles e properties constitui uma metodologia essencial para a criação de interfaces web semanticamente estruturadas.</p>
-                
-                <p>O processamento de linguagem natural através de algoritmos de machine learning possibilita a automatização de processos de geração de conteúdo acessível, incluindo a criação de descrições textuais para elementos visuais e a simplificação sintática de textos complexos.</p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>🧮 Teste de Explicação Matemática</h2>
-            <p>Ative o <strong>"Explicar Matemática"</strong> e clique nas fórmulas abaixo:</p>
-            
-            <div class="math-examples">
-                <div class="math-formula">E = mc²</div>
-                <div class="math-formula">∫ f(x)dx = F(x) + C</div>
-                <div class="math-formula">lim(x→0) (sin x)/x = 1</div>
-                <div class="math-formula">√(a² + b²) = c</div>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>🎨 Teste de Análise de Contraste</h2>
-            <p>Use a função <strong>"Analisar Contraste"</strong> para verificar a acessibilidade das cores:</p>
-            
-            <div class="color-samples">
-                <div class="color-sample color-1">Azul #3b82f6</div>
-                <div class="color-sample color-2">Vermelho #ef4444</div>
-                <div class="color-sample color-3">Verde #10b981</div>
-                <div class="color-sample color-4">Amarelo #f59e0b</div>
-                <div class="color-sample color-5">Roxo #8b5cf6</div>
-                <div class="color-sample color-6 bad-contrast">Cinza #6b7280</div>
-            </div>
-            
-            <div class="accessibility-issues">
-                <h4>⚠️ Problemas Intencionais de Acessibilidade</h4>
-                <p class="bad-contrast">Este texto tem contraste insuficiente e será detectado pela análise.</p>
-                <p>Links sem contexto: <a href="#">clique aqui</a> e <a href="#">leia mais</a></p>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>🔗 Teste de Destaque de Links</h2>
-            <p>Ative <strong>"Destacar Links"</strong> para visualizar todos os links da página:</p>
-            
-            <div class="links-section">
-                <a href="#" class="link-primary">Link Principal</a>
-                <a href="#" class="link-secondary">Link Secundário</a>
-                <a href="#" class="link-success">Link de Sucesso</a>
-                <a href="https://www.w3.org/WAI/" target="_blank">Diretrizes WCAG</a>
-                <a href="https://developer.mozilla.org/pt-BR/docs/Web/Accessibility" target="_blank">MDN Acessibilidade</a>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>✅ Teste de Verificação de Acessibilidade</h2>
-            <p>Use <strong>"Verificar Acessibilidade"</strong> para obter um relatório completo da página:</p>
-            
-            <div class="highlight-box">
-                <strong>🔍 O que será analisado:</strong>
-                <ul style="margin-top: 0.5rem;">
-                    <li>Estrutura de cabeçalhos (headings)</li>
-                    <li>Texto alternativo em imagens</li>
-                    <li>Contraste de cores</li>
-                    <li>Elementos focalizáveis</li>
-                    <li>Labels em formulários</li>
-                    <li>Landmarks ARIA</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="section">
-            <h2>📊 Estatísticas de Uso</h2>
-            <div class="grid">
-                <div class="card">
-                    <h4>1.3 bilhão</h4>
-                    <p>Pessoas com deficiência no mundo</p>
-                </div>
-                <div class="card">
-                    <h4>15-20%</h4>
-                    <p>Da população mundial tem alguma deficiência</p>
-                </div>
-                <div class="card">
-                    <h4>98%</h4>
-                    <p>Dos sites têm problemas de acessibilidade</p>
-                </div>
-                <div class="card">
-                    <h4>$13 trilhões</h4>
-                    <p>Poder de compra das pessoas com deficiência</p>
-                </div>
-            </div>
+        <div class="info">
+            <strong>📋 Como usar:</strong><br>
+            • Clique em "Testar Funcionalidades" para ver uma demonstração completa<br>
+            • Use o "Bookmarklet" para adicionar o widget a qualquer site<br>
+            • O widget aparecerá como um botão flutuante no canto da tela
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2024 Inclua-AI. Desenvolvido para um mundo mais acessível.</p>
-        <p>
-            <a href="https://github.com/GabrielRibeiroRodrigues/Inclua-AI" target="_blank">GitHub</a> | 
-            <a href="https://www.w3.org/WAI/WCAG21/quickref/" target="_blank">WCAG 2.1</a> | 
-            <a href="https://webaim.org/" target="_blank">WebAIM</a>
-        </p>
-    </footer>
-
-    <!-- Carregar o novo script -->
+    <!-- Widget CSS e JS -->
+    <link rel="stylesheet" href="widget.css">
     <script src="widget.js"></script>
+    
+    <script>
+        function copyBookmarklet() {
+            const bookmarklet = `javascript:(function(){
+                if(document.getElementById('inclua-ai-widget')) return;
+                const css = document.createElement('link');
+                css.rel = 'stylesheet';
+                css.href = '${window.location.origin}/widget.css';
+                document.head.appendChild(css);
+                const script = document.createElement('script');
+                script.src = '${window.location.origin}/widget.js';
+                document.head.appendChild(script);
+            })();`;
+            
+            navigator.clipboard.writeText(bookmarklet).then(() => {
+                alert('✅ Bookmarklet copiado! Cole na barra de favoritos do seu navegador.');
+            }).catch(() => {
+                prompt('📋 Copie este código:', bookmarklet);
+            });
+        }
+
+        // Expor widget globalmente
+        window.incluaAIWidget = null;
+    </script>
 </body>
 </html>
