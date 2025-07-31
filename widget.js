@@ -11,12 +11,7 @@ class IncluaAIWidget {
             reader: false,
             highlightLinks: false,
             imageDescriber: false,
-            textSimplifier: false,
-            textSummarizer: false,
-            mathExplainer: false,
-            altTextGenerator: false,
-            colorAnalyzer: false,
-            accessibilityChecker: false
+            textSummarizer: false
         };
         
         this.settings = {
@@ -266,15 +261,6 @@ class IncluaAIWidget {
                             <div class="feature-description">Clique em imagens para descrição detalhada</div>
                         </div>
                     </button>
-                    <button class="feature-button" data-action="simplify-text">
-                        <svg class="feature-icon" viewBox="0 0 24 24">
-                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                        </svg>
-                        <div class="feature-text">
-                            <div class="feature-title">Simplificar Texto</div>
-                            <div class="feature-description">Selecione texto para simplificação</div>
-                        </div>
-                    </button>
                     <button class="feature-button" data-action="summarize-text">
                         <svg class="feature-icon" viewBox="0 0 24 24">
                             <path d="M3,3H21V5H3V3M3,7H15V9H3V7M3,11H21V13H3V11M3,15H15V17H3V15M3,19H21V21H3V19Z"/>
@@ -282,42 +268,6 @@ class IncluaAIWidget {
                         <div class="feature-text">
                             <div class="feature-title">Resumir Texto</div>
                             <div class="feature-description">Selecione texto para resumo inteligente</div>
-                        </div>
-                    </button>
-                    <button class="feature-button" data-action="alt-text-generator">
-                        <svg class="feature-icon" viewBox="0 0 24 24">
-                            <path d="M12,3L2,12H5V20H19V12H22M7,18V10.19L12,5.69L17,10.19V18H15V12H9V18H7Z"/>
-                        </svg>
-                        <div class="feature-text">
-                            <div class="feature-title">Gerar Alt-Text</div>
-                            <div class="feature-description">Cria descrições automáticas para imagens</div>
-                        </div>
-                    </button>
-                    <button class="feature-button" data-action="math-explainer">
-                        <svg class="feature-icon" viewBox="0 0 24 24">
-                            <path d="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.03,7.06L14.09,6L16.06,7.94L18.03,6L19.09,7.06L17.12,9L19.09,10.94L18.03,12L16.06,10.06L14.09,12L13.03,10.94L15,9L13.03,7.06M6.25,6H10.5V7.5H9.25L7.75,10.5L9.25,13.5H10.5V15H6.25V13.5H7.5L6.5,11.5L5.5,13.5H6.75V15H2.5V13.5H3.75L5.25,10.5L3.75,7.5H2.5V6H6.75V7.5H5.5L6.5,9.5L7.5,7.5H6.25V6Z"/>
-                        </svg>
-                        <div class="feature-text">
-                            <div class="feature-title">Explicar Matemática</div>
-                            <div class="feature-description">Explica fórmulas matemáticas em português</div>
-                        </div>
-                    </button>
-                    <button class="feature-button" data-action="contrast-analyzer">
-                        <svg class="feature-icon" viewBox="0 0 24 24">
-                            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20V4Z"/>
-                        </svg>
-                        <div class="feature-text">
-                            <div class="feature-title">Analisar Contraste</div>
-                            <div class="feature-description">Verifica contraste de cores na página</div>
-                        </div>
-                    </button>
-                    <button class="feature-button" data-action="accessibility-checker">
-                        <svg class="feature-icon" viewBox="0 0 24 24">
-                            <path d="M17,9H7V7H17M17,13H7V11H17M14,17H7V15H14M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"/>
-                        </svg>
-                        <div class="feature-text">
-                            <div class="feature-title">Verificar Acessibilidade</div>
-                            <div class="feature-description">Analisa problemas de acessibilidade na página</div>
                         </div>
                     </button>
                 </div>
@@ -428,23 +378,8 @@ class IncluaAIWidget {
                 case 'describe-image':
                     this.toggleImageDescriber();
                     break;
-                case 'simplify-text':
-                    this.toggleTextSimplifier();
-                    break;
                 case 'summarize-text':
                     this.toggleTextSummarizer();
-                    break;
-                case 'alt-text-generator':
-                    this.toggleAltTextGenerator();
-                    break;
-                case 'math-explainer':
-                    this.toggleMathExplainer();
-                    break;
-                case 'contrast-analyzer':
-                    await this.analyzePageContrast();
-                    break;
-                case 'accessibility-checker':
-                    await this.checkPageAccessibility();
                     break;
                 case 'reset-settings':
                     this.resetSettings();
@@ -623,68 +558,6 @@ class IncluaAIWidget {
         }
     }
 
-    toggleTextSimplifier() {
-        this.features.textSimplifier = !this.features.textSimplifier;
-        
-        if (this.features.textSimplifier) {
-            document.addEventListener('mouseup', this.handleTextSimplification.bind(this));
-            this.showAlert('Selecione texto para simplificar', 'success');
-        } else {
-            document.removeEventListener('mouseup', this.handleTextSimplification.bind(this));
-            this.showAlert('Simplificador de texto desativado', 'success');
-        }
-    }
-
-    async handleTextSimplification() {
-        const selection = window.getSelection();
-        const text = selection.toString().trim();
-        
-        if (text.length > 20) {
-            await this.simplifyText(text);
-        }
-    }
-
-    async simplifyText(text) {
-        try {
-            this.showModal('Simplificando Texto', 'Processando com IA...', true);
-            
-            const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/simplify-text`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ textToSimplify: text })
-            });
-
-            if (!response.ok) throw new Error('Falha na API');
-            
-            const data = await response.json();
-            
-            this.showModal('Texto Simplificado', `
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-                        </svg>
-                        Texto Original
-                    </div>
-                    <div class="result-content" style="background: #fffbeb; border-left: 4px solid #f59e0b;">${text}</div>
-                </div>
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M9,3V4H4V6H5L6,10V14H5V16H9V14H8V10L9,6H14V4H9M12.5,7A0.5,0.5 0 0,0 12,7.5A0.5,0.5 0 0,0 12.5,8A0.5,0.5 0 0,0 13,7.5A0.5,0.5 0 0,0 12.5,7M17.5,7A0.5,0.5 0 0,0 17,7.5A0.5,0.5 0 0,0 17.5,8A0.5,0.5 0 0,0 18,7.5A0.5,0.5 0 0,0 17.5,7M12.5,9A0.5,0.5 0 0,0 12,9.5A0.5,0.5 0 0,0 12.5,10A0.5,0.5 0 0,0 13,9.5A0.5,0.5 0 0,0 12.5,9M17.5,9A0.5,0.5 0 0,0 17,9.5A0.5,0.5 0 0,0 17.5,10A0.5,0.5 0 0,0 18,9.5A0.5,0.5 0 0,0 17.5,9Z"/>
-                        </svg>
-                        Texto Simplificado
-                    </div>
-                    <div class="result-content" style="background: #ecfdf5; border-left: 4px solid #10b981;">${data.simplifiedText}</div>
-                </div>
-            `, false);
-            
-        } catch (error) {
-            console.error('Erro ao simplificar texto:', error);
-            this.showModal('Erro', 'Não foi possível simplificar o texto.', false);
-        }
-    }
-
     toggleTextSummarizer() {
         this.features.textSummarizer = !this.features.textSummarizer;
         
@@ -749,314 +622,6 @@ class IncluaAIWidget {
         } catch (error) {
             console.error('Erro ao resumir texto:', error);
             this.showModal('Erro', 'Não foi possível resumir o texto selecionado.', false);
-        }
-    }
-
-    async analyzePageContrast() {
-        try {
-            this.showModal('Analisando Contraste', 'Verificando cores da página...', true);
-            
-            // Coletar elementos com cores para análise
-            const elements = document.querySelectorAll('*');
-            const colorElements = [];
-            
-            elements.forEach(el => {
-                const styles = window.getComputedStyle(el);
-                const color = styles.color;
-                const backgroundColor = styles.backgroundColor;
-                
-                if (color !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'rgba(0, 0, 0, 0)') {
-                    colorElements.push({
-                        element: el.tagName.toLowerCase(),
-                        color: color,
-                        backgroundColor: backgroundColor,
-                        text: el.innerText?.substring(0, 50) || ''
-                    });
-                }
-            });
-
-            // Analisar apenas os primeiros elementos para não sobrecarregar a API
-            const sampleElements = colorElements.slice(0, 5);
-            let analysisResults = [];
-
-            for (const elem of sampleElements) {
-                try {
-                    const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/analyze-contrast`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            foregroundColor: elem.color,
-                            backgroundColor: elem.backgroundColor,
-                            elementType: elem.element
-                        }),
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        analysisResults.push({
-                            element: elem.element,
-                            text: elem.text,
-                            analysis: result.analysis
-                        });
-                    }
-                } catch (error) {
-                    console.warn('Erro ao analisar elemento:', error);
-                }
-            }
-
-            let analysis = '<div class="result-container">';
-            if (analysisResults.length > 0) {
-                analysis += '<div class="result-title">Análise de Contraste da Página:</div>';
-                analysisResults.forEach((result, index) => {
-                    analysis += `
-                        <div class="result-content">
-                            <strong>Elemento ${index + 1} (${result.element}):</strong><br>
-                            ${result.text ? `Texto: "${result.text}"<br>` : ''}
-                            ${result.analysis}
-                        </div>
-                    `;
-                });
-            } else {
-                analysis += '<div class="alert alert-info">Nenhum problema de contraste detectado na página.</div>';
-            }
-            analysis += '</div>';
-            
-            this.showModal('Análise de Contraste', analysis, false);
-            
-        } catch (error) {
-            console.error('Erro ao analisar contraste:', error);
-            this.showModal('Erro', 'Não foi possível analisar o contraste da página.', false);
-        }
-    }
-
-    async checkPageAccessibility() {
-        try {
-            this.showModal('Verificando Acessibilidade', 'Analisando página com IA...', true);
-            
-            // Capturar HTML de forma mais inteligente
-            const htmlContent = this.extractRelevantHTML();
-            
-            const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/analyze-accessibility`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    htmlContent,
-                    pageUrl: window.location.href 
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || `Erro HTTP ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            this.showModal('Relatório de Acessibilidade', `
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M17,9H7V7H17M17,13H7V11H17M14,17H7V15H14M12,3A1,1 0 0,1 13,4A1,1 0 0,1 12,5A1,1 0 0,1 11,4A1,1 0 0,1 12,3M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"/>
-                        </svg>
-                        Análise de Acessibilidade
-                    </div>
-                    <div class="result-content">${data.analysis}</div>
-                </div>
-            `, false);
-            
-        } catch (error) {
-            console.error('Erro ao verificar acessibilidade:', error);
-            this.showModal('Erro', `Não foi possível analisar a acessibilidade da página: ${error.message}`, false);
-        }
-    }
-
-    // Extrai HTML relevante para análise de acessibilidade
-    extractRelevantHTML() {
-        const relevantSelectors = [
-            'main', 'header', 'nav', 'footer', 'section', 'article',
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'form', 'input', 'button', 'select', 'textarea', 'label',
-            'img', 'a', 'table', 'th', 'td',
-            '[role]', '[aria-label]', '[aria-labelledby]', '[aria-describedby]'
-        ];
-        
-        let htmlContent = '';
-        
-        // Adicionar informações do head
-        const title = document.title;
-        const lang = document.documentElement.lang;
-        const charset = document.characterSet;
-        
-        htmlContent += `<!DOCTYPE html>\n<html lang="${lang}">\n<head>\n<meta charset="${charset}">\n<title>${title}</title>\n</head>\n<body>\n`;
-        
-        // Extrair elementos relevantes
-        relevantSelectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                if (!el.closest('#inclua-ai-widget')) { // Excluir o próprio widget
-                    htmlContent += el.outerHTML + '\n';
-                }
-            });
-        });
-        
-        htmlContent += '</body></html>';
-        
-        // Limitar tamanho se necessário (mais generoso que antes)
-        if (htmlContent.length > 15000) {
-            htmlContent = htmlContent.substring(0, 15000) + '\n<!-- Truncado para análise -->';
-        }
-        
-        return htmlContent;
-    }
-
-    toggleAltTextGenerator() {
-        this.features.altTextGenerator = !this.features.altTextGenerator;
-        
-        if (this.features.altTextGenerator) {
-            document.addEventListener('click', this.handleAltTextGeneration.bind(this));
-            document.body.style.cursor = 'help';
-            this.showAlert('Clique em uma imagem para gerar alt-text automático', 'success');
-        } else {
-            document.removeEventListener('click', this.handleAltTextGeneration.bind(this));
-            document.body.style.cursor = '';
-            this.showAlert('Gerador de alt-text desativado', 'success');
-        }
-    }
-
-    async handleAltTextGeneration(e) {
-        if (e.target.tagName === 'IMG') {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const img = e.target;
-            const imageUrl = img.src;
-            
-            if (imageUrl && this.isValidImageUrl(imageUrl)) {
-                await this.generateAltText(imageUrl, img);
-            } else {
-                this.showAlert('URL da imagem inválida ou não suportada', 'error');
-            }
-        }
-    }
-
-    async generateAltText(imageUrl, imgElement) {
-        try {
-            this.showModal('Gerando Alt-Text', 'Criando descrição otimizada...', true);
-            
-            const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/generate-alt-text`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    imageUrl,
-                    context: document.title || 'Página web'
-                })
-            });
-
-            if (!response.ok) throw new Error('Falha na API');
-            
-            const data = await response.json();
-            
-            this.showModal('Alt-Text Gerado', `
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M12,3L2,12H5V20H19V12H22M7,18V10.19L12,5.69L17,10.19V18H15V12H9V18H7Z"/>
-                        </svg>
-                        Alt-Text Gerado
-                    </div>
-                    <div class="result-content" style="background: #ecfdf5; border-left: 4px solid #10b981;">${data.altText}</div>
-                </div>
-            `, false);
-            
-            // Aplica o alt-text à imagem
-            imgElement.alt = data.altText;
-            imgElement.title = data.altText;
-            
-        } catch (error) {
-            console.error('Erro ao gerar alt-text:', error);
-            this.showModal('Erro', 'Não foi possível gerar o alt-text.', false);
-        }
-    }
-
-    toggleMathExplainer() {
-        this.features.mathExplainer = !this.features.mathExplainer;
-        
-        if (this.features.mathExplainer) {
-            document.addEventListener('click', this.handleMathClick.bind(this));
-            this.showAlert('Clique em fórmulas matemáticas para explicação', 'success');
-        } else {
-            document.removeEventListener('click', this.handleMathClick.bind(this));
-            this.showAlert('Explicador de matemática desativado', 'success');
-        }
-    }
-
-    async handleMathClick(e) {
-        // Detecta elementos que contêm matemática com mais precisão
-        const mathElement = e.target.closest('.math-formula, [class*="math"], [data-math], .katex, .MathJax') || e.target;
-        const text = mathElement.textContent.trim();
-        
-        // Verificações mais rigorosas para evitar falsos positivos
-        const hasMathSymbols = /[∫∑∏√±×÷∞π∝∂∆∇≈≠≤≥∈∉∪∩⊂⊃]/g.test(text);
-        const hasExponents = /[a-zA-Z]\s*[²³⁴⁵⁶⁷⁸⁹⁰]/g.test(text);
-        const hasMathFunctions = /\b(sin|cos|tan|log|ln|lim|∫|d\/dx|∂\/∂|sqrt|exp|pow)\b/gi.test(text);
-        const hasMathClass = mathElement.className.includes('math') || mathElement.closest('[class*="math"]');
-        const hasEquations = /[a-zA-Z]\s*[=]\s*[a-zA-Z0-9\+\-\*\/\(\)]+/g.test(text);
-        const hasComplexFractions = /\b\d+\/\d+\b.*[a-zA-Z]|[a-zA-Z].*\b\d+\/\d+\b/g.test(text);
-        
-        // Excluir elementos comuns que não são matemática
-        const isCommonElement = mathElement.tagName && ['BUTTON', 'A', 'SPAN', 'DIV'].includes(mathElement.tagName) && 
-                               !hasMathClass && text.length > 50;
-        
-        // Só considera matemática se tiver múltiplos indicadores ou indicadores muito específicos
-        const mathScore = (hasMathSymbols ? 2 : 0) + 
-                         (hasExponents ? 1 : 0) + 
-                         (hasMathFunctions ? 2 : 0) + 
-                         (hasMathClass ? 3 : 0) + 
-                         (hasEquations ? 2 : 0) + 
-                         (hasComplexFractions ? 1 : 0);
-        
-        if (mathScore >= 2 && !isCommonElement && text.length >= 3 && text.length <= 500) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            await this.explainMath(text);
-        }
-    }
-
-    async explainMath(expression) {
-        try {
-            this.showModal('Explicando Matemática', 'Analisando expressão matemática...', true);
-            
-            const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/explain-math`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    mathExpression: expression,
-                    level: 'intermediário'
-                })
-            });
-
-            if (!response.ok) throw new Error('Falha na API');
-            
-            const data = await response.json();
-            
-            this.showModal('Explicação Matemática', `
-                <div class="result-container">
-                    <div class="result-title">
-                        <svg width="20" height="20" viewBox="0 0 24 24">
-                            <path d="M19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M13.03,7.06L14.09,6L16.06,7.94L18.03,6L19.09,7.06L17.12,9L19.09,10.94L18.03,12L16.06,10.06L14.09,12L13.03,10.94L15,9L13.03,7.06M6.25,6H10.5V7.5H9.25L7.75,10.5L9.25,13.5H10.5V15H6.25V13.5H7.5L6.5,11.5L5.5,13.5H6.75V15H2.5V13.5H3.75L5.25,10.5L3.75,7.5H2.5V6H6.75V7.5H5.5L6.5,9.5L7.5,7.5H6.25V6Z"/>
-                        </svg>
-                        Explicação da Expressão: ${expression}
-                    </div>
-                    <div class="result-content">${data.explanation}</div>
-                </div>
-            `, false);
-            
-        } catch (error) {
-            console.error('Erro ao explicar matemática:', error);
-            this.showModal('Erro', 'Não foi possível explicar a expressão matemática.', false);
         }
     }
 
@@ -1239,11 +804,7 @@ class IncluaAIWidget {
             reader: false,
             highlightLinks: false,
             imageDescriber: false,
-            textSimplifier: false,
-            mathExplainer: false,
-            altTextGenerator: false,
-            colorAnalyzer: false,
-            accessibilityChecker: false
+            textSummarizer: false
         };
         
         // Limpar alterações visuais
@@ -1263,9 +824,6 @@ class IncluaAIWidget {
         // Remover event listeners ativos
         document.removeEventListener('mouseup', this.handleTextSelection.bind(this));
         document.removeEventListener('click', this.handleImageClick.bind(this));
-        document.removeEventListener('mouseup', this.handleTextSimplification.bind(this));
-        document.removeEventListener('click', this.handleAltTextGeneration.bind(this));
-        document.removeEventListener('click', this.handleMathClick.bind(this));
         
         this.saveSettings();
         this.showAlert('Configurações resetadas com sucesso!', 'success');
