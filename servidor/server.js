@@ -90,7 +90,7 @@ async function urlToGenerativePart(url) {
       headers: {
         'User-Agent': 'Inclua-AI/1.0'
       },
-      timeout: 10000 // 10 segundos timeout
+      signal: AbortSignal.timeout(10000) // 10 segundos timeout com AbortSignal
     });
     
     if (!response.ok) {
@@ -269,18 +269,20 @@ app.post('/summarize-text', rateLimitMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Texto muito longo (máximo 10.000 caracteres).' });
     }
 
-    const prompt = `Crie um resumo conciso e objetivo do texto a seguir em português:
+    const prompt = `Analise o texto a seguir e crie um resumo inteligente e profissional em português:
 
-TEXTO:
+TEXTO PARA ANÁLISE:
 "${textToSummarize}"
 
-INSTRUÇÕES:
-- Extraia apenas os pontos mais importantes
-- Use 2-4 frases máximo
-- Mantenha o tom e contexto original
-- Seja claro e direto
+DIRETRIZES PARA O RESUMO:
+- Extraia APENAS os pontos mais essenciais e relevantes
+- Use linguagem clara, objetiva e profissional
+- Máximo de 3 frases concisas
+- Mantenha o contexto e significado original
+- Não mencione que é um resumo, vá direto ao conteúdo
+- Seja preciso e informativo
 
-RESUMO:`;
+Responda apenas com o conteúdo resumido, sem prefixos ou explicações:`;
 
     const result = await model.generateContent(prompt);
     const summarizedText = result.response.text().trim();
@@ -291,222 +293,6 @@ RESUMO:`;
   } catch (error) {
     console.error('❌ Erro ao resumir texto:', error.message);
     res.status(500).json({ error: 'Falha ao gerar resumo do texto.' });
-  }
-});
-
-// Simplificação de texto
-app.post('/simplify-text', rateLimitMiddleware, async (req, res) => {
-  console.log('🔤 Recebida requisição para simplificar texto...');
-  
-  try {
-    const { textToSimplify } = req.body;
-    
-    if (!textToSimplify || typeof textToSimplify !== 'string') {
-      return res.status(400).json({ error: 'Texto para simplificar é obrigatório.' });
-    }
-
-    if (textToSimplify.length > 5000) {
-      return res.status(400).json({ error: 'Texto muito longo para simplificar (máximo 5.000 caracteres).' });
-    }
-
-    const prompt = `Reescreva o texto a seguir em linguagem muito simples e acessível:
-
-TEXTO ORIGINAL:
-"${textToSimplify}"
-
-INSTRUÇÕES:
-- Use palavras simples e comuns
-- Frases curtas e diretas
-- Como se explicasse para uma criança de 12 anos
-- Mantenha todas as informações importantes
-- Não adicione opiniões próprias
-
-TEXTO SIMPLIFICADO:`;
-
-    const result = await model.generateContent(prompt);
-    const simplifiedText = result.response.text().trim();
-
-    console.log('✅ Texto simplificado gerado');
-    res.json({ simplifiedText });
-    
-  } catch (error) {
-    console.error('❌ Erro ao simplificar texto:', error.message);
-    res.status(500).json({ error: 'Falha ao simplificar o texto.' });
-  }
-});
-
-// NOVA FEATURE: Análise de contraste de cores
-app.post('/analyze-contrast', rateLimitMiddleware, async (req, res) => {
-  console.log('🎨 Recebida requisição para analisar contraste...');
-  
-  try {
-    const { foregroundColor, backgroundColor, elementType = 'texto' } = req.body;
-    
-    if (!foregroundColor || !backgroundColor) {
-      return res.status(400).json({ error: 'Cores de primeiro plano e fundo são obrigatórias.' });
-    }
-
-    const prompt = `Analise o contraste entre as cores fornecidas para acessibilidade web:
-
-CORES:
-- Primeiro plano (texto): ${foregroundColor}
-- Fundo: ${backgroundColor}
-- Tipo de elemento: ${elementType}
-
-Forneça uma análise completa incluindo:
-1. Ratio de contraste aproximado
-2. Conformidade com WCAG (AA/AAA)
-3. Sugestões de melhoria se necessário
-4. Cores alternativas mais acessíveis
-
-Responda em formato JSON com as chaves: ratio, wcagCompliance, suggestions, alternativeColors`;
-
-    const result = await model.generateContent(prompt);
-    const analysis = result.response.text().trim();
-
-    console.log('✅ Análise de contraste gerada');
-    res.json({ analysis });
-    
-  } catch (error) {
-    console.error('❌ Erro ao analisar contraste:', error.message);
-    res.status(500).json({ error: 'Falha ao analisar contraste de cores.' });
-  }
-});
-
-// NOVA FEATURE: Geração de alt-text automático
-app.post('/generate-alt-text', rateLimitMiddleware, async (req, res) => {
-  console.log('🏷️ Recebida requisição para gerar alt-text...');
-  
-  try {
-    const { imageUrl, context = '' } = req.body;
-    
-    if (!imageUrl || typeof imageUrl !== 'string') {
-      return res.status(400).json({ error: 'URL da imagem é obrigatória.' });
-    }
-
-    try {
-      new URL(imageUrl);
-    } catch {
-      return res.status(400).json({ error: 'URL da imagem inválida.' });
-    }
-
-    const imageParts = [await urlToGenerativePart(imageUrl)];
-    const prompt = `Gere um texto alternativo (alt-text) otimizado para esta imagem:
-
-CONTEXTO DA PÁGINA: ${context || 'Não fornecido'}
-
-DIRETRIZES PARA ALT-TEXT:
-- Máximo 125 caracteres
-- Descreva a função/propósito da imagem no contexto
-- Se decorativa, indique "Imagem decorativa"
-- Se informativa, seja preciso e conciso
-- Se complexa (gráfico/diagrama), descreva os dados principais
-- Use linguagem clara e objetiva
-
-Responda apenas com o alt-text, sem aspas ou explicações.`;
-
-    const result = await model.generateContent([prompt, ...imageParts]);
-    const altText = result.response.text().trim();
-
-    console.log('✅ Alt-text gerado');
-    res.json({ altText });
-    
-  } catch (error) {
-    console.error('❌ Erro ao gerar alt-text:', error.message);
-    res.status(500).json({ error: 'Falha ao gerar alt-text.' });
-  }
-});
-
-// NOVA FEATURE: Análise de acessibilidade da página
-app.post('/analyze-accessibility', rateLimitMiddleware, async (req, res) => {
-  console.log('♿ Recebida requisição para análise de acessibilidade...');
-  
-  try {
-    const { htmlContent, pageUrl = '' } = req.body;
-    
-    if (!htmlContent || typeof htmlContent !== 'string') {
-      return res.status(400).json({ error: 'Conteúdo HTML é obrigatório.' });
-    }
-
-    const prompt = `Analise o código HTML fornecido para problemas de acessibilidade:
-
-HTML:
-${htmlContent}
-
-URL da página: ${pageUrl}
-
-Identifique e liste problemas de acessibilidade seguindo as diretrizes WCAG 2.1:
-
-1. ESTRUTURA:
-- Falta de headings hierárquicos
-- Landmarks ARIA ausentes
-- Elementos semânticos inadequados
-
-2. IMAGENS:
-- Alt-text ausente ou inadequado
-- Imagens decorativas sem aria-hidden
-
-3. FORMULÁRIOS:
-- Labels ausentes
-- Fieldsets sem legend
-- Instruções inadequadas
-
-4. NAVEGAÇÃO:
-- Links sem texto descritivo
-- Foco não visível
-- Skip links ausentes
-
-5. CORES E CONTRASTE:
-- Dependência apenas de cor
-- Contraste insuficiente
-
-Forneça resposta em formato JSON com: problems (array), severity (high/medium/low), suggestions (array)`;
-
-    const result = await model.generateContent(prompt);
-    const analysis = result.response.text().trim();
-
-    console.log('✅ Análise de acessibilidade gerada');
-    res.json({ analysis });
-    
-  } catch (error) {
-    console.error('❌ Erro ao analisar acessibilidade:', error.message);
-    res.status(500).json({ error: 'Falha ao analisar acessibilidade.' });
-  }
-});
-
-// NOVA FEATURE: Explicação de fórmulas matemáticas
-app.post('/explain-math', rateLimitMiddleware, async (req, res) => {
-  console.log('🧮 Recebida requisição para explicar matemática...');
-  
-  try {
-    const { mathExpression, level = 'intermediário' } = req.body;
-    
-    if (!mathExpression || typeof mathExpression !== 'string') {
-      return res.status(400).json({ error: 'Expressão matemática é obrigatória.' });
-    }
-
-    const prompt = `Explique a seguinte expressão matemática de forma acessível:
-
-EXPRESSÃO: ${mathExpression}
-NÍVEL: ${level}
-
-Forneça:
-1. Leitura em português (como um leitor de tela leria)
-2. Explicação passo a passo
-3. Contexto/aplicação prática
-4. Resultado (se aplicável)
-
-Use linguagem adequada ao nível ${level} e seja muito claro para pessoas com deficiência visual.`;
-
-    const result = await model.generateContent(prompt);
-    const explanation = result.response.text().trim();
-
-    console.log('✅ Explicação matemática gerada');
-    res.json({ explanation });
-    
-  } catch (error) {
-    console.error('❌ Erro ao explicar matemática:', error.message);
-    res.status(500).json({ error: 'Falha ao explicar expressão matemática.' });
   }
 });
 
@@ -540,6 +326,47 @@ app.listen(PORT, () => {
   console.log(`🤖 API: Google Gemini 1.5 Flash`);
   console.log(`⚡ Rate Limit: ${RATE_LIMIT} req/min (burst: ${BURST_LIMIT} req/10s)`);
   console.log(`🛡️ Segurança: SSRF protection, size limits, timeout controls`);
-  console.log(`📊 Features: 7 AI endpoints + health check`);
+  console.log(`📊 Features: 2 AI endpoints + health check`);
   console.log('🚀 ========================================');
 });
+
+// 12. Handlers para evitar encerramento inesperado
+process.on('uncaughtException', (error) => {
+  console.error('❌ [UNCAUGHT EXCEPTION] Erro não tratado:', {
+    error: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Não finalizar o processo, apenas log o erro
+  console.log('⚠️ Servidor continuando após erro não tratado...');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ [UNHANDLED REJECTION] Promise rejeitada:', {
+    reason: reason,
+    promise: promise,
+    timestamp: new Date().toISOString()
+  });
+  
+  // Não finalizar o processo, apenas log o erro
+  console.log('⚠️ Servidor continuando após promise rejeitada...');
+});
+
+process.on('SIGTERM', () => {
+  console.log('📊 Recebido SIGTERM. Iniciando graceful shutdown...');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('📊 Recebido SIGINT (Ctrl+C). Finalizando servidor...');
+  process.exit(0);
+});
+
+// Log de status a cada 5 minutos
+setInterval(() => {
+  const uptime = process.uptime();
+  const memUsage = process.memoryUsage();
+  
+  console.log(`💚 [STATUS] Servidor ativo há ${Math.floor(uptime/60)}min | RAM: ${Math.floor(memUsage.heapUsed/1024/1024)}MB`);
+}, 5 * 60 * 1000);

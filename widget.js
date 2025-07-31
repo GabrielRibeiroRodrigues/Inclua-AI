@@ -124,30 +124,15 @@ class IncluaAIWidget {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
         
-        // Log detalhado da requisição
-        console.log('🚀 [Inclua-AI] Iniciando requisição:', url);
-        console.log('📊 [Inclua-AI] Opções:', JSON.stringify(options, null, 2));
-        console.log('⏱️ [Inclua-AI] Timeout configurado:', timeout + 'ms');
-        
         try {
             const response = await fetch(url, {
                 ...options,
-                signal: controller.signal,
-                mode: 'cors', // Garantir CORS
-                credentials: 'omit' // Não enviar credenciais
+                signal: controller.signal
             });
             clearTimeout(timeoutId);
-            
-            console.log('✅ [Inclua-AI] Resposta recebida:', response.status, response.statusText);
-            console.log('📡 [Inclua-AI] Headers da resposta:', Object.fromEntries(response.headers.entries()));
-            
             return response;
         } catch (error) {
             clearTimeout(timeoutId);
-            console.error('❌ [Inclua-AI] Erro na requisição:', error);
-            console.error('🔍 [Inclua-AI] Tipo do erro:', error.name);
-            console.error('📝 [Inclua-AI] Mensagem:', error.message);
-            
             if (error.name === 'AbortError') {
                 throw new Error('Tempo limite da requisição excedido. Tente novamente.');
             }
@@ -158,17 +143,12 @@ class IncluaAIWidget {
         }
     }
 
-    // Função para detectar URL da API - FORÇADO PARA RENDER
+    // Função para detectar URL da API
     getApiBaseUrl() {
-        // TESTE: Sempre usar servidor Render
-        const apiUrl = 'https://inclua-ai-servidor.onrender.com';
-        
-        // Log de debug
-        console.log('🌐 [Inclua-AI] URL da API (FORÇADO RENDER):', apiUrl);
-        console.log('🌐 [Inclua-AI] Hostname atual:', window.location.hostname);
-        console.log('🎯 [Inclua-AI] Modo de teste: SEMPRE RENDER');
-        
-        return apiUrl;
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:3000';
+        }
+        return 'https://inclua-ai-servidor.onrender.com';
     }
 
     // Criação da interface do widget
