@@ -675,3 +675,39 @@ html.filter-achromatopsia { --filter: url(#achromatopsia); }
     --text-secondary: #000;
   }
 }
+
+/* Botão desabilitado */
+.feature-button.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.feature-button.disabled:hover {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  transform: none;
+}
+
+.feature-button.disabled .feature-icon {
+  opacity: 0.4;
+}
+
+/* Badge de desenvolvimento */
+.development-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 6px;
+  background: #6b7280;
+  color: white;
+  font-size: 10px;
+  font-weight: 500;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.feature-button.disabled .development-badge {
+  background: #9ca3af;
+}

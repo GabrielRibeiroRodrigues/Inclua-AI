@@ -241,6 +241,16 @@ class IncluaAIWidget {
                             <div class="feature-description">Lê textos selecionados em voz alta</div>
                         </div>
                     </button>
+                    <button class="feature-button disabled" data-action="libras-interpreter">
+                        <svg class="feature-icon" viewBox="0 0 24 24">
+                            <path d="M12,2A2,2 0 0,1 14,4A2,2 0 0,1 12,6A2,2 0 0,1 10,4A2,2 0 0,1 12,2M21,9V7L15,7V9A5,5 0 0,1 10,14A5,5 0 0,1 5,9V7L3,7V9A7,7 0 0,0 10,16V18H8V20H16V18H14V16A7,7 0 0,0 21,9M12,8L14,10L12,12L10,10L12,8Z"/>
+                        </svg>
+                        <div class="feature-text">
+                            <div class="feature-title">Intérprete de Libras 3D</div>
+                            <div class="feature-description">Avatar 3D para tradução em Libras</div>
+                            <div class="development-badge">Em desenvolvimento</div>
+                        </div>
+                    </button>
                 </div>
             </div>
 
@@ -385,6 +395,9 @@ class IncluaAIWidget {
                     break;
                 case 'reset-settings':
                     this.resetSettings();
+                    break;
+                case 'libras-interpreter':
+                    this.showLibrasInDevelopment();
                     break;
             }
         } catch (error) {
@@ -905,12 +918,6 @@ class IncluaAIWidget {
         const summary = button.getAttribute('data-summary');
         const originalText = button.innerHTML;
         
-        // Verificar se Web Speech API está disponível
-        if (!('speechSynthesis' in window)) {
-            this.showAlert('Síntese de voz não suportada neste navegador', 'error');
-            return;
-        }
-        
         // Parar qualquer reprodução anterior
         if (this.currentSpeech) {
             speechSynthesis.cancel();
@@ -938,33 +945,22 @@ class IncluaAIWidget {
         utterance.lang = 'pt-BR';
         utterance.rate = 0.9;
         utterance.pitch = 1;
-        utterance.volume = 1;
-
-        utterance.onstart = () => {
-            console.log('🔊 Iniciando reprodução do resumo');
-        };
 
         utterance.onend = () => {
-            console.log('🔇 Reprodução do resumo finalizada');
             button.classList.remove('playing');
             button.innerHTML = originalText;
             this.currentSpeech = null;
         };
 
-        utterance.onerror = (event) => {
-            console.error('❌ Erro na reprodução:', event.error);
+        utterance.onerror = () => {
             button.classList.remove('playing');
             button.innerHTML = originalText;
             this.currentSpeech = null;
-            this.showAlert('Erro na síntese de voz: ' + event.error, 'error');
+            this.showAlert('Erro ao reproduzir áudio do resumo', 'error');
         };
 
         this.currentSpeech = utterance;
-        
-        // Aguardar um pouco antes de falar para garantir que está pronto
-        setTimeout(() => {
-            speechSynthesis.speak(utterance);
-        }, 100);
+        speechSynthesis.speak(utterance);
     }
 
     // Método para copiar descrição de imagem
@@ -993,12 +989,6 @@ class IncluaAIWidget {
         const description = button.getAttribute('data-description');
         const originalText = button.innerHTML;
         
-        // Verificar se Web Speech API está disponível
-        if (!('speechSynthesis' in window)) {
-            this.showAlert('Síntese de voz não suportada neste navegador', 'error');
-            return;
-        }
-        
         // Parar qualquer reprodução anterior
         if (this.currentSpeech) {
             speechSynthesis.cancel();
@@ -1026,33 +1016,22 @@ class IncluaAIWidget {
         utterance.lang = 'pt-BR';
         utterance.rate = 0.9;
         utterance.pitch = 1;
-        utterance.volume = 1;
-
-        utterance.onstart = () => {
-            console.log('🔊 Iniciando reprodução da descrição');
-        };
 
         utterance.onend = () => {
-            console.log('🔇 Reprodução da descrição finalizada');
             button.classList.remove('playing');
             button.innerHTML = originalText;
             this.currentSpeech = null;
         };
 
-        utterance.onerror = (event) => {
-            console.error('❌ Erro na reprodução:', event.error);
+        utterance.onerror = () => {
             button.classList.remove('playing');
             button.innerHTML = originalText;
             this.currentSpeech = null;
-            this.showAlert('Erro na síntese de voz: ' + event.error, 'error');
+            this.showAlert('Erro ao reproduzir áudio da descrição', 'error');
         };
 
         this.currentSpeech = utterance;
-        
-        // Aguardar um pouco antes de falar para garantir que está pronto
-        setTimeout(() => {
-            speechSynthesis.speak(utterance);
-        }, 100);
+        speechSynthesis.speak(utterance);
     }
 
     applyColorblindFilter(filterType) {
@@ -1179,29 +1158,11 @@ class IncluaAIWidget {
     }
 
     setupVoices() {
-        // Configuração de vozes melhorada
-        if ('speechSynthesis' in window) {
-            speechSynthesis.addEventListener('voiceschanged', () => {
-                const voices = speechSynthesis.getVoices();
-                const ptBrVoices = voices.filter(v => v.lang.includes('pt'));
-                
-                console.log('🔊 Vozes disponíveis em português:', ptBrVoices.length);
-                if (ptBrVoices.length > 0) {
-                    console.log('✅ Primeira voz PT-BR:', ptBrVoices[0].name);
-                } else {
-                    console.warn('⚠️ Nenhuma voz em português encontrada');
-                }
-            });
-            
-            // Aguardar vozes carregarem
-            setTimeout(() => {
-                if (speechSynthesis.getVoices().length === 0) {
-                    console.warn('⚠️ Vozes ainda não carregadas, tentando novamente...');
-                }
-            }, 1000);
-        } else {
-            console.error('❌ Web Speech API não suportada neste navegador');
-        }
+        // Configuração básica de vozes (pode ser expandida)
+        speechSynthesis.addEventListener('voiceschanged', () => {
+            const voices = speechSynthesis.getVoices();
+            console.log('Vozes disponíveis:', voices.filter(v => v.lang.includes('pt')));
+        });
     }
 
     loadSettings() {
@@ -1276,13 +1237,41 @@ class IncluaAIWidget {
         this.saveSettings();
         this.showAlert('Configurações resetadas com sucesso!', 'success');
     }
+
+    showLibrasInDevelopment() {
+        this.showModal('🤟 Intérprete de Libras 3D', `
+            <div style="text-align: center; padding: 20px;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">🚧</div>
+                <h3 style="color: #374151; margin-bottom: 16px;">Funcionalidade em Desenvolvimento</h3>
+                <p style="color: #6b7280; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                    O <strong>Intérprete de Libras 3D</strong> está sendo desenvolvido para oferecer tradução automática 
+                    de texto para Língua Brasileira de Sinais através de um avatar 3D interativo.
+                </p>
+                
+                <div style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                    <h4 style="color: #374151; margin-bottom: 12px; font-size: 14px;">📋 Recursos Planejados:</h4>
+                    <ul style="text-align: left; color: #6b7280; font-size: 14px; line-height: 1.5;">
+                        <li>Avatar 3D realista para interpretação em Libras</li>
+                        <li>Tradução automática de texto para sinais</li>
+                        <li>Velocidade ajustável de interpretação</li>
+                        <li>Biblioteca completa de sinais brasileiros</li>
+                        <li>Interface intuitiva e acessível</li>
+                    </ul>
+                </div>
+                
+                <div style="background: #ecfdf5; border: 1px solid #10b981; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <p style="color: #047857; font-weight: 500; margin: 0; font-size: 14px;">
+                        🎯 Esta funcionalidade será lançada em uma próxima atualização!
+                    </p>
+                </div>
+            </div>
+        `, false);
+    }
 }
 
 // Inicializar o widget quando a página carregar
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        window.incluaAIWidget = new IncluaAIWidget();
-    });
+    document.addEventListener('DOMContentLoaded', () => new IncluaAIWidget());
 } else {
-    window.incluaAIWidget = new IncluaAIWidget();
+    new IncluaAIWidget();
 }
