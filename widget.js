@@ -1078,7 +1078,9 @@ class IncluaAIWidget {
 
 // Inicializar o widget quando a página carregar
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new IncluaAIWidget());
+    document.addEventListener('DOMContentLoaded', () => {
+        window.incluaAIWidget = new IncluaAIWidget();
+    });
 } else {
-    new IncluaAIWidget();
+    window.incluaAIWidget = new IncluaAIWidget();
 }
