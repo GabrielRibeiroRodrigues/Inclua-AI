@@ -68,6 +68,7 @@ const model = genAI.getGenerativeModel({
   },
 });
 
+
 // 6. Função auxiliar melhorada para imagens com validação de segurança
 async function urlToGenerativePart(url) {
   try {
