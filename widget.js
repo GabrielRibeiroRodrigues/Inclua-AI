@@ -159,9 +159,10 @@ class IncluaAIWidget {
                 </button>
                 <div id="inclua-ai-panel">
                     <div class="panel-header">
-                        <h2>Inclua-AI</h2>
-                        <p>Assistente de Acessibilidade Inteligente</p>
-                        <div class="status-badge"></div>
+                        <div class="header-content">
+                            <h2>Inclua-AI</h2>
+                            <p>Assistente de Acessibilidade Inteligente</p>
+                        </div>
                     </div>
                     <div class="panel-content">
                         ${this.createPanelSections()}
