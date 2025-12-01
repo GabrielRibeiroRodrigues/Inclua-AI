@@ -35,17 +35,17 @@ app.use(express.json({ limit: '10mb' })); // Aumenta limite para imagens
 app.use((req, res, next) => {
   const start = Date.now();
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     const status = res.statusCode;
     const method = req.method;
     const url = req.url;
-    
+
     const emoji = status >= 400 ? '❌' : status >= 300 ? '⚠️' : '✅';
     console.log(`${emoji} ${method} ${url} - ${status} (${duration}ms) [${ip}]`);
   });
-  
+
   next();
 });
 
@@ -59,8 +59,8 @@ app.get('/', (req, res) => {
 
 // 5. Inicializa o cliente do Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ 
-  model: 'gemini-1.5-flash',
+const model = genAI.getGenerativeModel({
+  model: 'gemini-flash-latest',
   generationConfig: {
     temperature: 0.7,
     topP: 0.95,
@@ -72,27 +72,27 @@ const model = genAI.getGenerativeModel({
 async function urlToGenerativePart(url) {
   try {
     console.log(`📥 Baixando imagem de: ${url.substring(0, 100)}...`);
-    
+
     // Validações de segurança
     const urlObj = new URL(url);
-    
+
     // Bloquear protocolos inseguros
     if (!['http:', 'https:', 'data:'].includes(urlObj.protocol)) {
       throw new Error('Protocolo de URL não permitido');
     }
-    
+
     // Bloquear IPs locais (para prevenir SSRF)
     if (urlObj.hostname.match(/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.|localhost$|0\.0\.0\.0$)/)) {
       throw new Error('Acesso a recursos locais não permitido');
     }
-    
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Inclua-AI/1.0'
       },
       signal: AbortSignal.timeout(10000) // 10 segundos timeout com AbortSignal
     });
-    
+
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status} ${response.statusText}`);
     }
@@ -101,7 +101,7 @@ async function urlToGenerativePart(url) {
     if (!contentType || !contentType.startsWith('image/')) {
       throw new Error(`URL não é uma imagem válida. Content-Type: ${contentType}`);
     }
-    
+
     // Verificar tamanho da imagem
     const contentLength = response.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > 10 * 1024 * 1024) { // 10MB
@@ -109,16 +109,16 @@ async function urlToGenerativePart(url) {
     }
 
     const buffer = await response.arrayBuffer();
-    
+
     // Verificar tamanho real
     if (buffer.byteLength > 10 * 1024 * 1024) {
       throw new Error('Imagem muito grande (máximo 10MB)');
     }
-    
+
     const base64 = Buffer.from(buffer).toString('base64');
 
     console.log(`✅ Imagem processada: ${(buffer.byteLength / 1024).toFixed(1)}KB`);
-    
+
     return {
       inlineData: {
         data: base64,
@@ -141,21 +141,21 @@ const BURST_WINDOW = 10000; // 10 segundos
 function checkRateLimit(ip) {
   const now = Date.now();
   const userRequests = requestCounts.get(ip) || [];
-  
+
   // Remove requests antigas
   const recentRequests = userRequests.filter(time => now - time < RATE_WINDOW);
   const burstRequests = userRequests.filter(time => now - time < BURST_WINDOW);
-  
+
   // Verificar limite de burst
   if (burstRequests.length >= BURST_LIMIT) {
     return { allowed: false, reason: 'burst' };
   }
-  
+
   // Verificar limite geral
   if (recentRequests.length >= RATE_LIMIT) {
     return { allowed: false, reason: 'rate' };
   }
-  
+
   recentRequests.push(now);
   requestCounts.set(ip, recentRequests);
   return { allowed: true };
@@ -164,23 +164,23 @@ function checkRateLimit(ip) {
 // 8. Middleware de rate limiting melhorado
 function rateLimitMiddleware(req, res, next) {
   const clientIP = req.ip || req.connection.remoteAddress || 'unknown';
-  
+
   const rateCheck = checkRateLimit(clientIP);
-  
+
   if (!rateCheck.allowed) {
-    const message = rateCheck.reason === 'burst' 
+    const message = rateCheck.reason === 'burst'
       ? 'Muitas requisições muito rápidas. Aguarde 10 segundos.'
       : 'Limite de requisições excedido. Tente novamente em 1 minuto.';
-      
+
     const retryAfter = rateCheck.reason === 'burst' ? 10 : 60;
-    
-    return res.status(429).json({ 
+
+    return res.status(429).json({
       error: message,
       retryAfter,
       type: rateCheck.reason
     });
   }
-  
+
   next();
 }
 
@@ -188,8 +188,8 @@ function rateLimitMiddleware(req, res, next) {
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     service: 'Inclua-AI Server',
     api: 'Google Gemini 1.5 Flash',
     timestamp: new Date().toISOString(),
@@ -201,10 +201,10 @@ app.get('/health', (req, res) => {
 app.post('/describe-image', rateLimitMiddleware, async (req, res) => {
   const startTime = Date.now();
   console.log('🖼️ Recebida requisição para descrever imagem...');
-  
+
   try {
     const { imageUrl } = req.body;
-    
+
     // Validação de entrada
     if (!imageUrl || typeof imageUrl !== 'string') {
       return res.status(400).json({ error: 'URL da imagem é obrigatória e deve ser uma string.' });
@@ -233,13 +233,13 @@ Responda apenas com a descrição, sem explicações adicionais.`;
 
     const responseTime = Date.now() - startTime;
     console.log(`✅ Descrição gerada em ${responseTime}ms: ${description.substring(0, 100)}...`);
-    
+
     res.json({ description });
-    
+
   } catch (error) {
     const responseTime = Date.now() - startTime;
     console.error(`❌ Erro após ${responseTime}ms:`, error.message);
-    
+
     if (error.message.includes('SAFETY')) {
       res.status(400).json({ error: 'Imagem rejeitada por questões de segurança.' });
     } else if (error.message.includes('quota')) {
@@ -253,10 +253,10 @@ Responda apenas com a descrição, sem explicações adicionais.`;
 // Resumo de texto
 app.post('/summarize-text', rateLimitMiddleware, async (req, res) => {
   console.log('📝 Recebida requisição para resumir texto...');
-  
+
   try {
     const { textToSummarize } = req.body;
-    
+
     if (!textToSummarize || typeof textToSummarize !== 'string') {
       return res.status(400).json({ error: 'Texto para resumir é obrigatório.' });
     }
@@ -289,7 +289,7 @@ Responda apenas com o conteúdo resumido, sem prefixos ou explicações:`;
 
     console.log('✅ Resumo gerado com sucesso');
     res.json({ summarizedText });
-    
+
   } catch (error) {
     console.error('❌ Erro ao resumir texto:', error.message);
     res.status(500).json({ error: 'Falha ao gerar resumo do texto.' });
@@ -300,7 +300,7 @@ Responda apenas com o conteúdo resumido, sem prefixos ou explicações:`;
 app.use((error, req, res, next) => {
   const timestamp = new Date().toISOString();
   const ip = req.ip || req.connection.remoteAddress || 'unknown';
-  
+
   console.error(`❌ [${timestamp}] Erro não tratado de ${ip}:`, {
     error: error.message,
     stack: error.stack,
@@ -308,8 +308,8 @@ app.use((error, req, res, next) => {
     method: req.method,
     userAgent: req.get('User-Agent')
   });
-  
-  res.status(500).json({ 
+
+  res.status(500).json({
     error: 'Erro interno do servidor.',
     timestamp,
     requestId: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -337,7 +337,7 @@ process.on('uncaughtException', (error) => {
     stack: error.stack,
     timestamp: new Date().toISOString()
   });
-  
+
   // Não finalizar o processo, apenas log o erro
   console.log('⚠️ Servidor continuando após erro não tratado...');
 });
@@ -348,7 +348,7 @@ process.on('unhandledRejection', (reason, promise) => {
     promise: promise,
     timestamp: new Date().toISOString()
   });
-  
+
   // Não finalizar o processo, apenas log o erro
   console.log('⚠️ Servidor continuando após promise rejeitada...');
 });
@@ -367,6 +367,6 @@ process.on('SIGINT', () => {
 setInterval(() => {
   const uptime = process.uptime();
   const memUsage = process.memoryUsage();
-  
-  console.log(`💚 [STATUS] Servidor ativo há ${Math.floor(uptime/60)}min | RAM: ${Math.floor(memUsage.heapUsed/1024/1024)}MB`);
+
+  console.log(`💚 [STATUS] Servidor ativo há ${Math.floor(uptime / 60)}min | RAM: ${Math.floor(memUsage.heapUsed / 1024 / 1024)}MB`);
 }, 5 * 60 * 1000);
