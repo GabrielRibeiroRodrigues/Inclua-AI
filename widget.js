@@ -13,16 +13,16 @@ class IncluaAIWidget {
             imageDescriber: false,
             textSummarizer: false
         };
-        
+
         this.settings = {
             fontSize: 0,
             darkMode: false,
             voice: '',
             colorFilter: 'none'
         };
-        
+
         this.currentSpeech = null;
-        
+
         this.init();
     }
 
@@ -32,7 +32,7 @@ class IncluaAIWidget {
             this.showAlert('Navegador não suportado. Use uma versão mais recente do Chrome, Firefox, Safari ou Edge.', 'error');
             return;
         }
-        
+
         this.loadSettings();
         this.createWidget();
         this.setupEventListeners();
@@ -93,7 +93,7 @@ class IncluaAIWidget {
             const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/health`, {
                 method: 'GET'
             }, 5000);
-            
+
             if (response.ok) {
                 const health = await response.json();
                 console.log('✅ API Status:', health.status);
@@ -120,7 +120,7 @@ class IncluaAIWidget {
     async fetchWithTimeout(url, options = {}, timeout = 15000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
-        
+
         try {
             const response = await fetch(url, {
                 ...options,
@@ -169,7 +169,7 @@ class IncluaAIWidget {
                 </div>
             </div>
         `;
-        
+
         document.body.insertAdjacentHTML('beforeend', widgetHTML);
     }
 
@@ -333,7 +333,7 @@ class IncluaAIWidget {
     setupEventListeners() {
         const toggle = document.getElementById('inclua-ai-toggle');
         const panel = document.getElementById('inclua-ai-panel');
-        
+
         toggle.addEventListener('click', () => {
             this.isActive = !this.isActive;
             panel.classList.toggle('show', this.isActive);
@@ -369,7 +369,7 @@ class IncluaAIWidget {
 
     async handleAction(action, button) {
         button.classList.add('processing');
-        
+
         try {
             switch (action) {
                 case 'font-increase':
@@ -402,10 +402,10 @@ class IncluaAIWidget {
             }
         } catch (error) {
             console.error('Erro ao executar ação:', error);
-            
+
             // Mensagens de erro mais específicas
             let errorMessage = 'Erro ao executar funcionalidade.';
-            
+
             if (error.message.includes('Tempo limite')) {
                 errorMessage = 'A operação demorou muito para responder. Tente novamente.';
             } else if (error.message.includes('conectividade') || error.message.includes('Failed to fetch')) {
@@ -417,7 +417,7 @@ class IncluaAIWidget {
             } else if (error.message.includes('500')) {
                 errorMessage = 'Erro interno do servidor. Nossa equipe foi notificada.';
             }
-            
+
             this.showAlert(errorMessage, 'error');
         } finally {
             setTimeout(() => {
@@ -450,7 +450,7 @@ class IncluaAIWidget {
 
     toggleTextReader() {
         this.features.reader = !this.features.reader;
-        
+
         if (this.features.reader) {
             document.addEventListener('mouseup', this.handleTextSelection.bind(this));
             this.showAlert('Selecione texto para ouvir a leitura', 'success');
@@ -464,7 +464,7 @@ class IncluaAIWidget {
     handleTextSelection() {
         const selection = window.getSelection();
         const text = selection.toString().trim();
-        
+
         if (text.length > 0) {
             speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
@@ -475,7 +475,7 @@ class IncluaAIWidget {
 
     toggleImageDescriber() {
         this.features.imageDescriber = !this.features.imageDescriber;
-        
+
         if (this.features.imageDescriber) {
             document.addEventListener('click', this.handleImageClick.bind(this));
             document.body.style.cursor = 'crosshair';
@@ -491,10 +491,10 @@ class IncluaAIWidget {
         if (e.target.tagName === 'IMG') {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const img = e.target;
             const imageUrl = img.src;
-            
+
             if (imageUrl && this.isValidImageUrl(imageUrl)) {
                 await this.describeImage(imageUrl, img);
             } else {
@@ -507,26 +507,26 @@ class IncluaAIWidget {
     isValidImageUrl(url) {
         try {
             const urlObj = new URL(url);
-            
+
             // Verificar protocolo seguro
             if (!['http:', 'https:', 'data:'].includes(urlObj.protocol)) {
                 return false;
             }
-            
+
             // Para data URLs, verificar se é imagem
             if (urlObj.protocol === 'data:') {
                 return url.startsWith('data:image/');
             }
-            
+
             // Verificar extensões de imagem comuns
             const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp'];
             const pathname = urlObj.pathname.toLowerCase();
-            
-            return validExtensions.some(ext => pathname.includes(ext)) || 
-                   pathname.includes('image') || 
-                   urlObj.search.includes('image') ||
-                   !pathname.includes('.') || // URLs sem extensão (podem ser APIs de imagem)
-                   pathname.endsWith('/'); // URLs de diretório
+
+            return validExtensions.some(ext => pathname.includes(ext)) ||
+                pathname.includes('image') ||
+                urlObj.search.includes('image') ||
+                !pathname.includes('.') || // URLs sem extensão (podem ser APIs de imagem)
+                pathname.endsWith('/'); // URLs de diretório
         } catch {
             return false;
         }
@@ -535,7 +535,7 @@ class IncluaAIWidget {
     async describeImage(imageUrl, imgElement) {
         try {
             this.showModal('Analisando Imagem', 'Gerando descrição inteligente...', true);
-            
+
             const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/describe-image`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -546,135 +546,60 @@ class IncluaAIWidget {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `Erro HTTP ${response.status}`);
             }
-            
+
             const data = await response.json();
-            
+
             this.showModal('🖼️ Descrição Inteligente', `
-                <div class="description-container">
-                    <div class="description-header">
-                        <div class="description-icon">
+                <div class="ai-result-container">
+                    <div class="ai-result-header">
+                        <div class="ai-result-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                                 <circle cx="9" cy="9" r="2"/>
                                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
                             </svg>
                         </div>
-                        <div class="description-meta">
+                        <div class="ai-result-meta">
                             <h3>Análise Visual Completa</h3>
-                            <span class="image-stats">Descrição gerada por IA</span>
+                            <span>Descrição gerada por IA</span>
                         </div>
                     </div>
                     
-                    <div class="description-content">
-                        <div class="description-text">
+                    <div class="ai-result-content">
+                        <div class="ai-result-text">
                             ${data.description}
                         </div>
                         
-                        <div class="description-actions">
+                        <div class="ai-result-actions">
                             <button onclick="window.incluaAIWidget.copyDescription(this)" 
                                     data-description="${data.description.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
-                                    class="action-btn primary">
+                                    class="btn btn-primary">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                                     <path d="m5 15-4-4 4-4"/>
                                 </svg>
-                                Copiar Descrição
+                                Copiar
                             </button>
                             <button onclick="window.incluaAIWidget.playDescription(this)" 
                                     data-description="${data.description.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
-                                    class="action-btn secondary">
+                                    class="btn btn-secondary">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                                     <path d="m19.07 4.93-1.41 1.41A10 10 0 0 1 23 12a10 10 0 0 1-5.34 8.66L19.07 21.07"/>
                                 </svg>
-                                Ouvir Descrição
+                                Ouvir
                             </button>
                         </div>
                     </div>
                 </div>
-                
-                <style>
-                .description-container {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }
-                
-                .description-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                    margin-bottom: 20px;
-                    padding: 20px;
-                    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-                    border-radius: 12px;
-                    color: white;
-                }
-                
-                .description-icon {
-                    background: rgba(255,255,255,0.2);
-                    padding: 12px;
-                    border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                
-                .description-meta h3 {
-                    margin: 0 0 4px 0;
-                    font-size: 18px;
-                    font-weight: 600;
-                }
-                
-                .image-stats {
-                    font-size: 13px;
-                    opacity: 0.9;
-                    font-weight: 400;
-                }
-                
-                .description-content {
-                    background: #f8fafc;
-                    border-radius: 12px;
-                    padding: 24px;
-                    border: 1px solid #e2e8f0;
-                }
-                
-                .description-text {
-                    font-size: 16px;
-                    line-height: 1.7;
-                    color: #2d3748;
-                    margin-bottom: 24px;
-                    padding: 20px;
-                    background: white;
-                    border-radius: 8px;
-                    border-left: 4px solid #4f46e5;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-                
-                .description-actions {
-                    display: flex;
-                    gap: 12px;
-                    justify-content: center;
-                }
-                
-                /* Dark mode para descrição */
-                .widget-dark-mode .description-content {
-                    background: #2d3748 !important;
-                    border-color: #4a5568 !important;
-                }
-                
-                .widget-dark-mode .description-text {
-                    background: #1a202c !important;
-                    color: #e2e8f0 !important;
-                    border-left-color: #5b21b6 !important;
-                }
-                </style>
             `, false);
-            
+
             // Adiciona alt-text à imagem se não existir
             if (!imgElement.alt || imgElement.alt.trim() === '') {
                 imgElement.alt = data.description;
                 imgElement.title = data.description;
             }
-            
+
         } catch (error) {
             console.error('Erro ao descrever imagem:', error);
             this.showModal('Erro', 'Não foi possível gerar a descrição da imagem.', false);
@@ -683,7 +608,7 @@ class IncluaAIWidget {
 
     toggleTextSummarizer() {
         this.features.textSummarizer = !this.features.textSummarizer;
-        
+
         if (this.features.textSummarizer) {
             document.addEventListener('mouseup', this.handleTextSummarization.bind(this));
             this.showAlert('Selecione texto para resumir (mínimo 50 caracteres)', 'success');
@@ -696,7 +621,7 @@ class IncluaAIWidget {
     async handleTextSummarization() {
         const selection = window.getSelection();
         const text = selection.toString().trim();
-        
+
         if (text.length >= 50) {
             await this.summarizeText(text);
         } else if (text.length > 0) {
@@ -707,7 +632,7 @@ class IncluaAIWidget {
     async summarizeText(text) {
         try {
             this.showModal('Resumindo Texto', 'Criando resumo inteligente...', true);
-            
+
             const response = await this.fetchWithTimeout(`${this.getApiBaseUrl()}/summarize-text`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -718,13 +643,13 @@ class IncluaAIWidget {
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `Erro HTTP ${response.status}`);
             }
-            
+
             const data = await response.json();
-            
+
             this.showModal('📄 Resumo Inteligente', `
-                <div class="summary-container">
-                    <div class="summary-header">
-                        <div class="summary-icon">
+                <div class="ai-result-container">
+                    <div class="ai-result-header">
+                        <div class="ai-result-icon">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                                 <polyline points="14,2 14,8 20,8"/>
@@ -733,159 +658,41 @@ class IncluaAIWidget {
                                 <polyline points="10,9 9,9 8,9"/>
                             </svg>
                         </div>
-                        <div class="summary-meta">
+                        <div class="ai-result-meta">
                             <h3>Resumo Gerado</h3>
-                            <span class="text-stats">${text.length} caracteres → Resumo conciso</span>
+                            <span>${text.length} caracteres → Resumo conciso</span>
                         </div>
                     </div>
                     
-                    <div class="summary-content">
-                        <div class="summary-text">
+                    <div class="ai-result-content">
+                        <div class="ai-result-text">
                             ${data.summarizedText}
                         </div>
                         
-                        <div class="summary-actions">
+                        <div class="ai-result-actions">
                             <button onclick="window.incluaAIWidget.copySummary(this)" 
                                     data-summary="${data.summarizedText.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
-                                    class="action-btn primary">
+                                    class="btn btn-primary">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                                     <path d="m5 15-4-4 4-4"/>
                                 </svg>
-                                Copiar Resumo
+                                Copiar
                             </button>
                             <button onclick="window.incluaAIWidget.playSummary(this)" 
                                     data-summary="${data.summarizedText.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}"
-                                    class="action-btn secondary">
+                                    class="btn btn-secondary">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
                                     <path d="m19.07 4.93-1.41 1.41A10 10 0 0 1 23 12a10 10 0 0 1-5.34 8.66L19.07 21.07"/>
                                 </svg>
-                                Ouvir Resumo
+                                Ouvir
                             </button>
                         </div>
                     </div>
                 </div>
-                
-                <style>
-                .summary-container {
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                }
-                
-                .summary-header {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                    margin-bottom: 20px;
-                    padding: 20px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 12px;
-                    color: white;
-                }
-                
-                .summary-icon {
-                    background: rgba(255,255,255,0.2);
-                    padding: 12px;
-                    border-radius: 10px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                
-                .summary-meta h3 {
-                    margin: 0 0 4px 0;
-                    font-size: 18px;
-                    font-weight: 600;
-                }
-                
-                .text-stats {
-                    font-size: 13px;
-                    opacity: 0.9;
-                    font-weight: 400;
-                }
-                
-                .summary-content {
-                    background: #f8fafc;
-                    border-radius: 12px;
-                    padding: 24px;
-                    border: 1px solid #e2e8f0;
-                }
-                
-                .summary-text {
-                    font-size: 16px;
-                    line-height: 1.7;
-                    color: #2d3748;
-                    margin-bottom: 24px;
-                    padding: 20px;
-                    background: white;
-                    border-radius: 8px;
-                    border-left: 4px solid #667eea;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                }
-                
-                .summary-actions {
-                    display: flex;
-                    gap: 12px;
-                    justify-content: center;
-                }
-                
-                .action-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 12px 20px;
-                    border: none;
-                    border-radius: 8px;
-                    font-size: 14px;
-                    font-weight: 500;
-                    cursor: pointer;
-                    transition: all 0.2s ease;
-                    text-decoration: none;
-                }
-                
-                .action-btn.primary {
-                    background: #667eea;
-                    color: white;
-                }
-                
-                .action-btn.primary:hover {
-                    background: #5a67d8;
-                    transform: translateY(-1px);
-                }
-                
-                .action-btn.secondary {
-                    background: #e2e8f0;
-                    color: #4a5568;
-                }
-                
-                .action-btn.secondary:hover {
-                    background: #cbd5e0;
-                    transform: translateY(-1px);
-                }
-                
-                /* Dark mode */
-                .widget-dark-mode .summary-content {
-                    background: #2d3748 !important;
-                    border-color: #4a5568 !important;
-                }
-                
-                .widget-dark-mode .summary-text {
-                    background: #1a202c !important;
-                    color: #e2e8f0 !important;
-                    border-left-color: #4c51bf !important;
-                }
-                
-                .widget-dark-mode .action-btn.secondary {
-                    background: #4a5568 !important;
-                    color: #e2e8f0 !important;
-                }
-                
-                .widget-dark-mode .action-btn.secondary:hover {
-                    background: #2d3748 !important;
-                }
-                </style>
             `, false);
-            
+
         } catch (error) {
             console.error('Erro ao resumir texto:', error);
             this.showModal('Erro', 'Não foi possível resumir o texto selecionado.', false);
@@ -917,7 +724,7 @@ class IncluaAIWidget {
     playSummary(button) {
         const summary = button.getAttribute('data-summary');
         const originalText = button.innerHTML;
-        
+
         // Parar qualquer reprodução anterior
         if (this.currentSpeech) {
             speechSynthesis.cancel();
@@ -988,7 +795,7 @@ class IncluaAIWidget {
     playDescription(button) {
         const description = button.getAttribute('data-description');
         const originalText = button.innerHTML;
-        
+
         // Parar qualquer reprodução anterior
         if (this.currentSpeech) {
             speechSynthesis.cancel();
@@ -1037,14 +844,14 @@ class IncluaAIWidget {
     applyColorblindFilter(filterType) {
         // Remove filtros anteriores
         document.documentElement.className = document.documentElement.className.replace(/filter-\w+/g, '');
-        
+
         if (filterType !== 'none') {
             document.documentElement.classList.add(`filter-${filterType}`);
             this.showAlert(`Filtro aplicado: ${this.getFilterName(filterType)}`, 'success');
         } else {
             this.showAlert('Filtro removido', 'success');
         }
-        
+
         this.settings.colorFilter = filterType;
         this.saveSettings();
     }
@@ -1052,7 +859,7 @@ class IncluaAIWidget {
     getFilterName(filterType) {
         const names = {
             'protanopia': 'Protanopia (Vermelho-Verde)',
-            'deuteranopia': 'Deuteranopia (Verde-Vermelho)', 
+            'deuteranopia': 'Deuteranopia (Verde-Vermelho)',
             'tritanopia': 'Tritanopia (Azul-Amarelo)',
             'achromatopsia': 'Acromatopsia (Sem cores)'
         };
@@ -1064,10 +871,10 @@ class IncluaAIWidget {
         // Remove modal existente
         const existingModal = document.querySelector('.modal-overlay');
         if (existingModal) existingModal.remove();
-        
+
         const modal = document.createElement('div');
         modal.className = 'modal-overlay show';
-        
+
         const loadingContent = isLoading ? `
             <div class="loading-container">
                 <div style="display: flex; align-items: center; justify-content: center;">
@@ -1080,7 +887,7 @@ class IncluaAIWidget {
                 <div class="loading-text">Processando com IA... Isso pode levar alguns segundos.</div>
             </div>
         ` : content;
-        
+
         modal.innerHTML = `
             <div class="modal">
                 <div class="modal-header">
@@ -1093,14 +900,14 @@ class IncluaAIWidget {
                 ${!isLoading ? '<div class="modal-actions"><button class="btn btn-secondary modal-close">Fechar</button></div>' : ''}
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         if (!isLoading) {
             modal.querySelectorAll('.modal-close').forEach(btn => {
                 btn.addEventListener('click', () => modal.remove());
             });
-            
+
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) modal.remove();
             });
@@ -1118,16 +925,16 @@ class IncluaAIWidget {
             min-width: 300px;
             max-width: 400px;
         `;
-        
+
         alert.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 ${type === 'success' ? '<path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M11,16.5L18,9.5L16.59,8.09L11,13.67L7.91,10.59L6.5,12L11,16.5Z"/>' : '<path d="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z"/>'}
             </svg>
             ${message}
         `;
-        
+
         document.body.appendChild(alert);
-        
+
         setTimeout(() => {
             alert.style.opacity = '0';
             setTimeout(() => alert.remove(), 300);
@@ -1208,14 +1015,14 @@ class IncluaAIWidget {
             voice: '',
             colorFilter: 'none'
         };
-        
+
         this.features = {
             reader: false,
             highlightLinks: false,
             imageDescriber: false,
             textSummarizer: false
         };
-        
+
         // Limpar alterações visuais
         document.documentElement.style.fontSize = '';
         document.documentElement.className = document.documentElement.className.replace(/filter-\w+/g, '');
@@ -1223,17 +1030,17 @@ class IncluaAIWidget {
         document.documentElement.classList.remove('widget-highlight-links');
         document.body.style.cursor = '';
         speechSynthesis.cancel();
-        
+
         // Resetar filtro de daltonismo
         const filterSelect = document.getElementById('colorblind-filter');
         if (filterSelect) {
             filterSelect.value = 'none';
         }
-        
+
         // Remover event listeners ativos
         document.removeEventListener('mouseup', this.handleTextSelection.bind(this));
         document.removeEventListener('click', this.handleImageClick.bind(this));
-        
+
         this.saveSettings();
         this.showAlert('Configurações resetadas com sucesso!', 'success');
     }
