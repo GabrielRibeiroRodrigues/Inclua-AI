@@ -748,6 +748,13 @@
   .btn-secondary:hover {
     background: #334155;
   }
+
+  /* Highlight Links - Dark Mode */
+  html.widget-highlight-links a {
+    background: #854d0e !important;
+    color: #fef3c7 !important;
+    border-color: #fbbf24 !important;
+  }
 }
 
 /* Utilitários */
@@ -847,6 +854,16 @@
     transform: translateX(20px);
   }
 }
+
+/* Feature: Highlight Links */
+html.widget-highlight-links a {
+  background: #fef3c7 !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+  border: 2px solid #f59e0b !important;
+  transition: all 0.2s ease !important;
+}
+
 
 /* Accessibility: Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
