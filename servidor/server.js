@@ -19,15 +19,28 @@ if (!process.env.GEMINI_API_KEY) {
 
 // 4. Inicializa o Express e middlewares
 const app = express();
-// path já foi importado acima
 
-// Configurar CORS para permitir bookmarklet
+// Configurar CORS para permitir bookmarklet e arquivos locais
 app.use(cors({
-  origin: ['*'], // Permitir qualquer origem para bookmarklet
+  origin: '*', // Permitir qualquer origem (importante para bookmarklet e file://)
   credentials: false,
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'Content-Type']
 }));
+
+// Adicionar headers CORS manualmente como fallback
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 app.use(express.json({ limit: '10mb' })); // Aumenta limite para imagens
 
