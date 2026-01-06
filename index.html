@@ -1,96 +1,177 @@
 <!DOCTYPE html>
-<h1>🚀 Inclua-AI</h1>
-<p class="subtitle">Assistente Inteligente de Acessibilidade</p>
-</div>
+<html lang="pt-BR">
 
-<p class="description">
-    Transforme a acessibilidade do seu site com inteligência artificial avançada.
-    Nossa ferramenta oferece leitura de texto natural, descrição de imagens por IA e resumos inteligentes em uma
-    interface premium.
-</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inclua-AI | Assistente de Acessibilidade Inteligente</title>
+    <meta name="description"
+        content="Transforme a acessibilidade do seu site com inteligência artificial. Leitura de texto, descrição de imagens e muito mais.">
 
-<div class="features">
-    <div class="feature">
-        <div class="feature-icon">🔊</div>
-        <div class="feature-content">
-            <div class="feature-title">Leitor de Texto</div>
-            <div class="feature-desc">Narração natural e fluida</div>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="landing.css">
+
+    <!-- Widget (Self-hosted for demo) -->
+    <link rel="stylesheet" href="widget.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container nav">
+            <a href="#" class="logo">
+                <span>�</span> Inclua-AI
+            </a>
+            <nav class="nav-links">
+                <a href="#features">Recursos</a>
+                <a href="#how-it-works">Como Funciona</a>
+                <a href="https://github.com/GabrielRibeiroRodrigues/Inclua-AI" target="_blank">GitHub</a>
+            </nav>
+            <button class="btn btn-primary" onclick="window.open('test.html', '_blank')">
+                Testar Demo
+            </button>
         </div>
-    </div>
-    <div class="feature">
-        <div class="feature-icon">🖼️</div>
-        <div class="feature-content">
-            <div class="feature-title">Descrição IA</div>
-            <div class="feature-desc">Análise visual detalhada</div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Acessibilidade Web <br> Potencializada por IA</h1>
+            <p class="hero-subtitle">
+                Torne seu site acessível para todos em minutos.
+                Nossa ferramenta oferece leitura natural, descrição de imagens e resumos inteligentes.
+            </p>
+            <div class="hero-actions">
+                <button class="btn btn-primary" onclick="window.open('test.html', '_blank')">
+                    <span class="icon">🧪</span> Ver Demonstração
+                </button>
+                <button class="btn btn-secondary" onclick="copyBookmarklet()">
+                    <span class="icon">📌</span> Adicionar aos Favoritos
+                </button>
+            </div>
         </div>
-    </div>
-    <div class="feature">
-        <div class="feature-icon">📄</div>
-        <div class="feature-content">
-            <div class="feature-title">Resumo Smart</div>
-            <div class="feature-desc">Síntese de conteúdo</div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Recursos Poderosos</h2>
+            <p class="text-center">Tudo que você precisa para uma web mais inclusiva.</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔊</div>
+                    <h3>Leitor de Texto</h3>
+                    <p>Narração natural e fluida do conteúdo da página, facilitando o consumo para pessoas com
+                        deficiência visual ou dislexia.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <h3>Descrição de Imagens</h3>
+                    <p>IA avançada que analisa e descreve imagens em tempo real, garantindo que nenhum conteúdo visual
+                        seja perdido.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📄</div>
+                    <h3>Resumo Inteligente</h3>
+                    <p>Obtenha a essência de artigos longos com resumos gerados automaticamente, economizando tempo e
+                        esforço cognitivo.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Personalização Visual</h3>
+                    <p>Ajuste contraste, tamanho da fonte e espaçamento para uma experiência de leitura confortável e
+                        adaptada.</p>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="feature">
-        <div class="feature-icon">🎨</div>
-        <div class="feature-content">
-            <div class="feature-title">Visual Pro</div>
-            <div class="feature-desc">Personalização total</div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="steps">
+        <div class="container">
+            <h2>Como Usar</h2>
+            <p class="text-center">Integre o Inclua-AI em segundos, sem complicações.</p>
+
+            <div class="steps-grid">
+                <div class="step-item">
+                    <div class="step-number">01</div>
+                    <h3>Teste Agora</h3>
+                    <p>Clique no botão de demonstração para ver o widget em ação nesta mesma página ou em nossa página
+                        de teste.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">02</div>
+                    <h3>Use o Bookmarklet</h3>
+                    <p>Arraste o botão abaixo para sua barra de favoritos ou clique para copiar o código e criar um
+                        favorito manual.</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="javascript:(function(){if(document.getElementById('inclua-ai-widget'))return;const c=document.createElement('link');c.rel='stylesheet';c.href='http://localhost:8080/widget.css';document.head.appendChild(c);const s=document.createElement('script');s.src='http://localhost:8080/widget.js';document.head.appendChild(s);})();"
+                            class="btn btn-secondary" onclick="event.preventDefault(); copyBookmarklet()">
+                            Inclua-AI Widget
+                        </a>
+                    </div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">03</div>
+                    <h3>Para Desenvolvedores</h3>
+                    <p>Adicione o script diretamente no seu site para oferecer acessibilidade a todos os seus
+                        visitantes.</p>
+                    <div class="code-box">
+                        <button
+                            onclick="navigator.clipboard.writeText('<script src=&quot;https://seu-dominio.com/widget.js&quot;></script>')">Copy</button>
+                        &lt;script src="widget.js"&gt;&lt;/script&gt;
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<div class="actions">
-    <button class="cta primary" onclick="window.open('test.html', '_blank')">
-        <span class="icon">🧪</span>
-        Testar Demo
-    </button>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="#">Sobre</a>
+                <a href="#">Privacidade</a>
+                <a href="#">Contato</a>
+            </div>
+            <p class="copyright">© 2024 Inclua-AI. Desenvolvido com ❤️ para acessibilidade.</p>
+        </div>
+    </footer>
 
-    <button class="cta secondary" onclick="copyBookmarklet()">
-        <span class="icon">📌</span>
-        Copiar Widget
-    </button>
-</div>
-
-<div class="info">
-    <div class="info-header">
-        <strong>📋 Guia Rápido</strong>
-    </div>
-    <ul class="info-list">
-        <li>Clique em <strong>Testar Demo</strong> para ver o widget em ação</li>
-        <li>Use o <strong>Copiar Widget</strong> para levar o Inclua-AI para qualquer site</li>
-        <li>O botão flutuante aparecerá no canto inferior direito</li>
-    </ul>
-</div>
-</div>
-
-<!-- Widget CSS e JS -->
-<link rel="stylesheet" href="widget.css">
-<script src="widget.js"></script>
-
-<script>
-    function copyBookmarklet() {
-        const bookmarklet = `javascript:(function(){
+    <!-- Scripts -->
+    <script src="widget.js"></script>
+    <script>
+        function copyBookmarklet() {
+            // Note: In production, replace window.location.origin with the actual CDN/Server URL
+            const origin = window.location.origin;
+            const bookmarklet = `javascript:(function(){
                 if(document.getElementById('inclua-ai-widget')) return;
                 const css = document.createElement('link');
                 css.rel = 'stylesheet';
-                css.href = '${window.location.origin}/widget.css';
+                css.href = '${origin}/widget.css';
                 document.head.appendChild(css);
                 const script = document.createElement('script');
-                script.src = '${window.location.origin}/widget.js';
+                script.src = '${origin}/widget.js';
                 document.head.appendChild(script);
             })();`;
 
-        navigator.clipboard.writeText(bookmarklet).then(() => {
-            alert('✅ Bookmarklet copiado! Cole na barra de favoritos do seu navegador.');
-        }).catch(() => {
-            prompt('📋 Copie este código:', bookmarklet);
-        });
-    }
-
-    // Expor widget globalmente
-    window.incluaAIWidget = null;
-</script>
+            navigator.clipboard.writeText(bookmarklet).then(() => {
+                // Use a custom toast or simple alert for now. 
+                // Since we have the widget loaded, we could potentially use its toast system if exposed, 
+                // but let's stick to a simple alert for the landing page logic to be standalone.
+                alert('✅ Código do Bookmarklet copiado!\n\nCrie um novo favorito no seu navegador e cole este código na URL.');
+            }).catch(() => {
+                prompt('Copie este código:', bookmarklet);
+            });
+        }
+    </script>
 </body>
 
 </html>
