@@ -317,6 +317,20 @@
   fill: currentColor;
 }
 
+/* Emoji nos botões - Mais visível e atraente */
+.feature-emoji {
+  font-size: 24px;
+  line-height: 1;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.feature-button:hover .feature-emoji {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  transform: scale(1.1);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
 /* Texto do botão */
 .feature-text {
   flex: 1;

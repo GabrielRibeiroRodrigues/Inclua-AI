@@ -16,7 +16,6 @@ class IncluaAIWidget {
 
         this.settings = {
             fontSize: 0,
-            darkMode: false,
             voice: '',
             colorFilter: 'none'
         };
@@ -149,19 +148,18 @@ class IncluaAIWidget {
         // (O código HTML das seções é longo, vou simplificar aqui mantendo a lógica original mas com melhorias)
         return `
             ${this.createSection('Ajustes Visuais', [
-            { id: 'font-increase', icon: 'M2 20H7V18H5.5L6.5 15H9.5L10.5 18H9V20H14V18H13L10 9H8L5 18H2V20M6.85 13L8 9.87L9.15 13H6.85M15 4V6H17V12H19V6H21V4H15M19 14V16H21V18H19V20H17V18H15V16H17V14H19Z', title: 'Aumentar Fonte', desc: 'Torna o texto maior' },
-            { id: 'font-decrease', icon: 'M2 20H7V18H5.5L6.5 15H9.5L10.5 18H9V20H14V18H13L10 9H8L5 18H2V20M6.85 13L8 9.87L9.15 13H6.85M15 18H21V16H15V18Z', title: 'Diminuir Fonte', desc: 'Reduz o tamanho do texto' },
-            { id: 'dark-mode', icon: 'M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C7.79,7.9 8.75,10.87 10.95,13.06C13.14,15.26 16.1,16.22 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.36,12.31 6.2,9.5 6.04,6.68C3.23,9.82 3.34,14.4 6.35,17.41C9.37,20.43 14,20.54 17.33,17.97Z', title: 'Modo Escuro', desc: 'Alto contraste escuro' },
-            { id: 'highlight-links', icon: 'M10.59,13.41C11,13.8 11,14.4 10.59,14.81C10.2,15.2 9.6,15.2 9.19,14.81L7.77,13.39L7.77,13.39L6.36,12L6.36,12C4.78,10.4 4.78,7.9 6.36,6.31L6.36,6.31L7.77,4.89C9.36,3.31 11.86,3.31 13.45,4.89C15.03,6.47 15.03,8.97 13.45,10.56L12.8,11.21C12.4,11.6 11.8,11.6 11.41,11.21C11,10.8 11,10.2 11.41,9.81L12.06,9.16C12.87,8.35 12.87,7.04 12.06,6.23C11.25,5.42 9.94,5.42 9.13,6.23L7.72,7.64C6.91,8.45 6.91,9.76 7.72,10.57L10.59,13.41M13.41,9.2C13.8,8.81 14.4,8.81 14.81,9.2L16.22,10.61C17.8,12.2 17.8,14.7 16.22,16.28L14.81,17.69C13.22,19.28 10.72,19.28 9.14,17.69C7.56,16.11 7.56,13.61 9.14,12.03L9.79,11.38C10.2,10.97 10.8,10.97 11.19,11.38C11.6,11.77 11.6,12.37 11.19,12.78L10.54,13.43C9.73,14.24 9.73,15.55 10.54,16.36C11.35,17.17 12.66,17.17 13.47,16.36L14.88,14.95C15.69,14.14 15.69,12.83 14.88,12.02L13.41,9.2Z', title: 'Destacar Links', desc: 'Identificar links' }
+            { id: 'font-increase', emoji: '🔼', title: 'Aumentar Fonte', desc: 'Torna o texto maior' },
+            { id: 'font-decrease', emoji: '🔽', title: 'Diminuir Fonte', desc: 'Reduz o tamanho do texto' },
+            { id: 'highlight-links', emoji: '🔗', title: 'Destacar Links', desc: 'Identificar links' }
         ])}
 
             ${this.createSection('Assistente de Leitura', [
-            { id: 'text-reader', icon: 'M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z', title: 'Leitor de Texto', desc: 'Lê textos selecionados' }
+            { id: 'text-reader', emoji: '🔊', title: 'Leitor de Texto', desc: 'Lê textos selecionados' }
         ])}
 
             ${this.createSection('IA para Acessibilidade', [
-            { id: 'describe-image', icon: 'M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z', title: 'Descrever Imagem', desc: 'IA descreve imagens' },
-            { id: 'summarize-text', icon: 'M3,3H21V5H3V3M3,7H15V9H3V7M3,11H21V13H3V11M3,15H15V17H3V15M3,19H21V21H3V19Z', title: 'Resumir Texto', desc: 'IA resume conteúdo' }
+            { id: 'describe-image', emoji: '🖼️', title: 'Descrever Imagem', desc: 'IA descreve imagens' },
+            { id: 'summarize-text', emoji: '📝', title: 'Resumir Texto', desc: 'IA resume conteúdo' }
         ])}
 
             <div class="feature-section">
@@ -184,7 +182,7 @@ class IncluaAIWidget {
                 <div class="feature-group">
                     <button class="feature-button" data-action="reset-settings">
                         <div class="feature-icon-container">
-                            <svg class="feature-icon" viewBox="0 0 24 24"><path d="M12,4C14.1,4 16.1,4.8 17.6,6.3C20.7,9.4 20.7,14.5 17.6,17.6C15.8,19.5 13.3,20.2 10.9,19.9L11.4,17.9C13.1,18.1 14.9,17.5 16.2,16.2C18.5,13.9 18.5,10.1 16.2,7.7C15.1,6.6 13.5,6 12,6V10.5L7,5.5L12,0.5V4M6.3,17.6C3.7,15 3.3,11 5.1,7.9L6.6,9.4C5.5,11.6 5.9,14.4 7.8,16.2C8.3,16.7 8.9,17.1 9.6,17.4L9,19.4C8,19 7.1,18.4 6.3,17.6Z"/></svg>
+                            <span class="feature-emoji">🔄</span>
                         </div>
                         <div class="feature-text">
                             <div class="feature-title">Resetar Configurações</div>
@@ -200,7 +198,7 @@ class IncluaAIWidget {
         const buttons = items.map(item => `
             <button class="feature-button" data-action="${item.id}">
                 <div class="feature-icon-container">
-                    <svg class="feature-icon" viewBox="0 0 24 24"><path d="${item.icon}"/></svg>
+                    ${item.emoji ? `<span class="feature-emoji">${item.emoji}</span>` : `<svg class="feature-icon" viewBox="0 0 24 24"><path d="${item.icon}"/></svg>`}
                 </div>
                 <div class="feature-text">
                     <div class="feature-title">${item.title}</div>
@@ -359,7 +357,6 @@ class IncluaAIWidget {
             switch (action) {
                 case 'font-increase': this.adjustFontSize(1); break;
                 case 'font-decrease': this.adjustFontSize(-1); break;
-                case 'dark-mode': this.toggleDarkMode(); break;
                 case 'highlight-links': this.toggleHighlightLinks(); break;
                 case 'text-reader': this.toggleTextReader(); break;
                 case 'describe-image': this.toggleImageDescriber(); break;
@@ -385,12 +382,7 @@ class IncluaAIWidget {
         this.showToast(`Tamanho da fonte: ${percentage}%`, 'success');
     }
 
-    toggleDarkMode() {
-        this.settings.darkMode = !this.settings.darkMode;
-        document.body.classList.toggle('widget-dark-mode', this.settings.darkMode);
-        this.saveSettings();
-        this.showToast(`Modo escuro ${this.settings.darkMode ? 'ativado' : 'desativado'}`, 'success');
-    }
+
 
     toggleHighlightLinks() {
         this.features.highlightLinks = !this.features.highlightLinks;
@@ -632,9 +624,7 @@ class IncluaAIWidget {
             const percentage = 100 + (this.settings.fontSize * 20);
             document.documentElement.style.fontSize = `${percentage}%`;
         }
-        if (this.settings.darkMode) {
-            document.body.classList.add('widget-dark-mode');
-        }
+
         if (this.settings.colorFilter !== 'none') {
             this.applyColorblindFilter(this.settings.colorFilter);
         }
