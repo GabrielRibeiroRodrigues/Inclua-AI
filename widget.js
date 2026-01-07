@@ -214,27 +214,12 @@ class IncluaAIWidget {
             { id: 'didactic-summary', emoji: '📚', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
             { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' },
             { id: 'focus-mode', emoji: '🎯', title: 'Foco', desc: 'Destaca conteúdo', key: 'F11' }
-        ])
+        ])}
+
             ${this.createSection('Assistência Virtual', [
             { id: 'chatbot', emoji: '💬', title: 'ChatBot Assistente', desc: 'Converse com IA' },
             { id: 'call-center', emoji: '☎️', title: 'Central de Atendimento', desc: 'Atendimento por voz' }
         ])}
-
-            <div class="feature-section">
-                <div class="section-header">Filtros para Daltonismo</div>
-                <div class="feature-group">
-                    <div class="form-group">
-                        <label class="form-label" for="colorblind-filter">Tipo de Daltonismo:</label>
-                        <select id="colorblind-filter" class="form-select">
-                            <option value="none">Nenhum filtro</option>
-                            <option value="protanopia">Protanopia (Vermelho-Verde)</option>
-                            <option value="deuteranopia">Deuteranopia (Verde-Vermelho)</option>
-                            <option value="tritanopia">Tritanopia (Azul-Amarelo)</option>
-                            <option value="achromatopsia">Acromatopsia (Sem cores)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
 
             <div class="menu-footer">
                 <button class="reset-button" data-action="reset-settings">
@@ -261,6 +246,31 @@ class IncluaAIWidget {
             <div class="acess-category" data-category="${id}" style="--category-color: ${color}">
                 <div class="category-header">
                     <span class="category-icon">${icon}</span>
+                    <span class="category-title">${title}</span>
+                </div>
+                <div class="category-grid">
+                    ${cards}
+                </div>
+            </div>
+        `;
+    }
+
+    createSection(title, items) {
+        const cards = items.map(item => `
+            <button class="feature-card" 
+                    data-action="${item.id}"
+                    aria-label="${item.title}: ${item.desc}">
+                <div class="active-check">✓</div>
+                <div class="card-icon">${item.emoji}</div>
+                <div class="card-label">${item.title}</div>
+                <div class="card-status">OFF</div>
+            </button>
+        `).join('');
+
+        return `
+            <div class="acess-category" style="--category-color: #6366f1">
+                <div class="category-header">
+                    <span class="category-icon">🤖</span>
                     <span class="category-title">${title}</span>
                 </div>
                 <div class="category-grid">
