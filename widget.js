@@ -46,6 +46,14 @@ class IncluaAIWidget {
         this.speechRecognition = null;
         this.isListening = false;
 
+        // Loading states
+        this.loadingStates = new Map();
+        this.loadingIndicator = null;
+
+        // Hover reader indicator
+        this.hoverIndicator = null;
+        this.isReading = false;
+
         this.init();
 
         // Bind dos métodos para preservar referência
@@ -319,6 +327,155 @@ class IncluaAIWidget {
     showAlert(message, type = 'info') {
         // Fallback para manter compatibilidade, mas redireciona para Toast
         this.showToast(message, type);
+    }
+
+    // ==========================================================================
+    // LOADING STATE SYSTEM
+    // ==========================================================================
+
+    showLoading(action, message = 'Processando...') {
+        this.loadingStates.set(action, true);
+        
+        // Cria ou atualiza indicador de loading
+        if (!this.loadingIndicator) {
+            const loadingHTML = `
+                <div id="inclua-loading-indicator" class="loading-overlay">
+                    <div class="loading-content">
+                        <div class="loading-spinner">
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                            <div class="spinner-ring"></div>
+                        </div>
+                        <div class="loading-text">Processando...</div>
+                        <div class="loading-subtext">Aguarde um momento</div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', loadingHTML);
+            this.loadingIndicator = document.getElementById('inclua-loading-indicator');
+            this.injectLoadingStyles();
+        }
+        
+        const textElement = this.loadingIndicator.querySelector('.loading-text');
+        if (textElement) textElement.textContent = message;
+        
+        this.loadingIndicator.classList.add('show');
+    }
+
+    hideLoading(action) {
+        this.loadingStates.delete(action);
+        
+        // Se não há mais estados de loading, esconde o indicador
+        if (this.loadingStates.size === 0 && this.loadingIndicator) {
+            this.loadingIndicator.classList.remove('show');
+        }
+    }
+
+    injectLoadingStyles() {
+        if (document.getElementById('inclua-loading-styles')) return;
+        
+        const styles = document.createElement('style');
+        styles.id = 'inclua-loading-styles';
+        styles.textContent = `
+            .loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                z-index: 9999999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .loading-overlay.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .loading-content {
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                padding: 40px 50px;
+                border-radius: 24px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                text-align: center;
+                border: 2px solid rgba(59, 130, 246, 0.3);
+                animation: loadingSlideIn 0.3s ease;
+            }
+
+            @keyframes loadingSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px) scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0) scale(1);
+                }
+            }
+
+            .loading-spinner {
+                position: relative;
+                width: 80px;
+                height: 80px;
+                margin: 0 auto 24px;
+            }
+
+            .spinner-ring {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border: 4px solid transparent;
+                border-radius: 50%;
+                animation: spinnerRotate 1.5s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+            }
+
+            .spinner-ring:nth-child(1) {
+                border-top-color: #3b82f6;
+                animation-delay: -0.45s;
+            }
+
+            .spinner-ring:nth-child(2) {
+                border-top-color: #8b5cf6;
+                animation-delay: -0.3s;
+            }
+
+            .spinner-ring:nth-child(3) {
+                border-top-color: #10b981;
+                animation-delay: -0.15s;
+            }
+
+            @keyframes spinnerRotate {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loading-text {
+                color: #f1f5f9;
+                font-size: 18px;
+                font-weight: 700;
+                margin-bottom: 8px;
+                font-family: 'Inter', sans-serif;
+            }
+
+            .loading-subtext {
+                color: #94a3b8;
+                font-size: 14px;
+                font-weight: 500;
+            }
+        `;
+        document.head.appendChild(styles);
     }
 
     // ==========================================================================
@@ -717,20 +874,48 @@ class IncluaAIWidget {
 
         if (this.settings.textReader) {
             document.addEventListener('mouseup', this.boundHandleTextSelection);
-            this.showToast('Selecione texto para ouvir a leitura', 'info');
+            this.showToast('🔊 Leitor ativado: Selecione qualquer texto para ouvir', 'success');
+            console.log('Leitor de texto ativado - Selecione texto para ler');
         } else {
             document.removeEventListener('mouseup', this.boundHandleTextSelection);
             speechSynthesis.cancel();
             this.showToast('Leitor de texto desativado', 'info');
+            console.log('Leitor de texto desativado');
         }
     }
 
     handleTextSelection() {
-        const text = window.getSelection().toString().trim();
+        // Ignora seleções dentro do widget
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+        
+        const range = selection.getRangeAt(0);
+        if (range.startContainer.parentElement?.closest('#inclua-ai-widget')) return;
+        
+        const text = selection.toString().trim();
         if (text.length > 0) {
+            console.log('Texto selecionado para leitura:', text.substring(0, 50) + '...');
             speechSynthesis.cancel();
+            
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'pt-BR';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            
+            utterance.onstart = () => {
+                this.showToast('🔊 Lendo texto selecionado...', 'info');
+            };
+            
+            utterance.onend = () => {
+                console.log('Leitura finalizada');
+            };
+            
+            utterance.onerror = (e) => {
+                console.error('Erro na síntese de voz:', e);
+                this.showToast('Erro ao ler texto', 'error');
+            };
+            
             speechSynthesis.speak(utterance);
         }
     }
@@ -745,58 +930,251 @@ class IncluaAIWidget {
         if (this.settings.hoverReader) {
             document.addEventListener('mouseover', this.boundHandleHover);
             document.addEventListener('mouseout', this.boundHandleHoverOut);
-            this.showToast('Passe o mouse sobre o texto para ler', 'info');
+            this.showToast('👆 Leitor de Tela ativado: Passe o mouse sobre textos', 'success');
+            console.log('Leitor de tela (hover) ativado');
         } else {
             document.removeEventListener('mouseover', this.boundHandleHover);
             document.removeEventListener('mouseout', this.boundHandleHoverOut);
             clearTimeout(this.hoverTimeout);
             speechSynthesis.cancel();
             this.removeHighlight();
-            this.showToast('Leitura ao passar mouse desativada', 'info');
+            this.hideHoverReadingIndicator();
+            this.isReading = false;
+            this.showToast('Leitor de tela desativado', 'info');
+            console.log('Leitor de tela (hover) desativado');
         }
     }
 
     handleHover(e) {
+        if (!this.settings.hoverReader) {
+            console.log('Hover reader não está ativado');
+            return;
+        }
+        
         if (this.activeModal || e.target.closest('#inclua-ai-widget')) return;
+        if (e.target.closest('#inclua-hover-indicator') || e.target.closest('#inclua-loading-indicator')) return;
 
-        // Tags que consideramos "conteúdo"
-        const inlineTags = ['A', 'B', 'STRONG', 'I', 'EM', 'SPAN', 'LABEL', 'BUTTON'];
+        // Elementos que devem ser lidos
+        const readableTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'SPAN', 'A', 'BUTTON', 'LI', 'TD', 'TH', 'LABEL', 'DIV', 'ARTICLE', 'SECTION'];
         let target = e.target;
 
-        // Se for inline, sobe para o pai (geralmente P ou DIV) para ler o contexto
-        if (inlineTags.includes(target.tagName)) {
-            target = target.parentElement || target;
+        // Procura o elemento mais apropriado para ler
+        if (!readableTags.includes(target.tagName)) {
+            target = target.closest(readableTags.map(t => t.toLowerCase()).join(','));
         }
 
-        const text = target.innerText ? target.innerText.trim() : '';
+        if (!target) return;
 
-        // Validação simples: tem texto? não é gigante?
-        if (text.length > 0 && text.length < 3000) {
-            // Evita reler o mesmo elemento
-            if (this.currentHighlighted === target) return;
-
-            // Debounce mais rápido (400ms)
-            clearTimeout(this.hoverTimeout);
-            this.hoverTimeout = setTimeout(() => {
-                // Checagem dupla se o mouse ainda está lá (opcional, mas bom)
-                this.highlightElement(target);
-
-                speechSynthesis.cancel();
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'pt-BR';
-                utterance.onend = () => { this.currentSpeech = null; };
-
-                this.currentSpeech = utterance;
-                speechSynthesis.speak(utterance);
-            }, 400);
+        // Para elementos inline (A, SPAN, BUTTON), lê apenas o elemento específico
+        const inlineElements = ['A', 'BUTTON', 'LABEL', 'SPAN', 'STRONG', 'EM', 'B', 'I'];
+        let text;
+        
+        if (inlineElements.includes(target.tagName)) {
+            // Para links e botões, lê o texto específico + contexto
+            text = target.innerText?.trim();
+            if (target.tagName === 'A' && text) {
+                text = `Link: ${text}`;
+            } else if (target.tagName === 'BUTTON' && text) {
+                text = `Botão: ${text}`;
+            }
+        } else {
+            // Para blocos de texto, lê o conteúdo completo
+            text = target.innerText?.trim();
         }
+
+        // Validação: tem texto válido?
+        if (!text || text.length === 0 || text.length > 5000) return;
+
+        // Evita reler o mesmo elemento
+        if (this.currentHighlighted === target) return;
+
+        console.log('Hover sobre elemento:', target.tagName, '- Texto:', text.substring(0, 50) + '...');
+
+        // Debounce para evitar leitura excessiva
+        clearTimeout(this.hoverTimeout);
+        this.hoverTimeout = setTimeout(() => {
+            console.log('Iniciando leitura do texto...');
+            this.highlightElement(target);
+            this.showHoverReadingIndicator(target, text);
+
+            // Cancela leitura anterior
+            speechSynthesis.cancel();
+
+            // Configura nova leitura
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 1.1; // Um pouco mais rápido para melhor experiência
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+                
+            utterance.onstart = () => { 
+                this.isReading = true;
+                this.updateHoverIndicator('🔊 Lendo...', 'reading');
+                console.log('Leitura iniciada');
+            };
+                
+            utterance.onend = () => { 
+                this.currentSpeech = null;
+                this.isReading = false;
+                console.log('Leitura finalizada');
+                // Não esconde o indicador imediatamente, deixa visível
+            };
+
+            utterance.onerror = (error) => {
+                this.currentSpeech = null;
+                this.isReading = false;
+                console.error('Erro na síntese de voz:', error);
+                this.showToast('Erro na síntese de voz', 'error');
+            };
+
+            this.currentSpeech = utterance;
+            speechSynthesis.speak(utterance);
+        }, 300); // Delay reduzido para resposta mais rápida
     }
 
     handleHoverOut(e) {
         clearTimeout(this.hoverTimeout);
         speechSynthesis.cancel();
         this.removeHighlight();
+        this.hideHoverReadingIndicator();
+        this.isReading = false;
+    }
+
+    showHoverReadingIndicator(element, text = '') {
+        if (!this.hoverIndicator) {
+            const indicatorHTML = `
+                <div id="inclua-hover-indicator" class="hover-reading-indicator">
+                    <div class="indicator-icon">🔊</div>
+                    <div class="indicator-content">
+                        <div class="indicator-title">Leitor de Tela</div>
+                        <div class="indicator-text">Preparando...</div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', indicatorHTML);
+            this.hoverIndicator = document.getElementById('inclua-hover-indicator');
+            this.injectHoverIndicatorStyles();
+        }
+        
+        // Atualiza o texto do preview
+        const textElement = this.hoverIndicator.querySelector('.indicator-text');
+        if (textElement && text) {
+            const preview = text.length > 60 ? text.substring(0, 60) + '...' : text;
+            textElement.textContent = preview;
+        }
+        
+        // Posiciona próximo ao elemento
+        const rect = element.getBoundingClientRect();
+        const indicatorHeight = 70; // Altura aproximada do indicador
+        
+        // Posiciona acima do elemento, mas verifica se cabe na tela
+        let top = rect.top - indicatorHeight - 10;
+        if (top < 10) {
+            // Se não cabe acima, coloca abaixo
+            top = rect.bottom + 10;
+        }
+        
+        this.hoverIndicator.style.top = `${top}px`;
+        this.hoverIndicator.style.left = `${rect.left}px`;
+        this.hoverIndicator.classList.add('show');
+    }
+
+    updateHoverIndicator(text, state = 'ready') {
+        if (!this.hoverIndicator) return;
+        
+        const textElement = this.hoverIndicator.querySelector('.indicator-text');
+        if (textElement) textElement.textContent = text;
+        
+        this.hoverIndicator.className = `hover-reading-indicator show ${state}`;
+    }
+
+    hideHoverReadingIndicator() {
+        if (this.hoverIndicator) {
+            this.hoverIndicator.classList.remove('show');
+        }
+    }
+
+    injectHoverIndicatorStyles() {
+        if (document.getElementById('inclua-hover-indicator-styles')) return;
+        
+        const styles = document.createElement('style');
+        styles.id = 'inclua-hover-indicator-styles';
+        styles.textContent = `
+            .hover-reading-indicator {
+                position: fixed;
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                color: white;
+                padding: 12px 16px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 2px rgba(59, 130, 246, 0.3);
+                z-index: 999998;
+                font-family: 'Inter', sans-serif;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px) scale(0.95);
+                transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                pointer-events: none;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                max-width: 400px;
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+
+            .hover-reading-indicator.show {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0) scale(1);
+            }
+
+            .hover-reading-indicator.reading {
+                background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4), 0 0 0 2px rgba(16, 185, 129, 0.5);
+            }
+
+            .indicator-icon {
+                font-size: 24px;
+                flex-shrink: 0;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+            }
+
+            .indicator-content {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .indicator-title {
+                font-size: 11px;
+                font-weight: 700;
+                color: rgba(255, 255, 255, 0.7);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 4px;
+            }
+
+            .indicator-text {
+                color: white;
+                font-size: 13px;
+                font-weight: 500;
+                line-height: 1.4;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+
+            .hover-reading-indicator.reading .indicator-icon {
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.1); opacity: 0.8; }
+            }
+        `;
+        document.head.appendChild(styles);
     }
 
     highlightElement(el) {
@@ -843,7 +1221,7 @@ class IncluaAIWidget {
     }
 
     async describeImage(imageUrl, imgElement) {
-        this.showToast('Analisando imagem...', 'info');
+        this.showLoading('image-description', '🖼️ Analisando imagem com IA...');
         try {
             const response = await this.fetchWithRetry(`${this.getApiBaseUrl()}/describe-image`, {
                 method: 'POST',
@@ -853,6 +1231,8 @@ class IncluaAIWidget {
 
             if (!response.ok) throw new Error('Falha na API');
             const data = await response.json();
+            
+            this.hideLoading('image-description');
 
             this.showModal('🖼️ Descrição Inteligente', `
                 <div class="ai-result-container">
@@ -874,10 +1254,39 @@ class IncluaAIWidget {
                     </div>
                 </div>
             `);
-
-            if (!imgElement.alt) imgElement.alt = data.description;
-
+                this.showToast('✅ Imagem descrita com sucesso!', 'success');
+                
+                // Reproduz automaticamente a descrição em áudio
+                setTimeout(() => {
+                    console.log('Iniciando reprodução automática da descrição');
+                    speechSynthesis.cancel(); // Garante que não há áudio anterior
+                    
+                    const utterance = new SpeechSynthesisUtterance(data.description);
+                    utterance.lang = 'pt-BR';
+                    utterance.rate = 1.0;
+                    utterance.pitch = 1.0;
+                    utterance.volume = 1.0;
+                    
+                    utterance.onstart = () => {
+                        console.log('Áudio da descrição iniciado');
+                        this.showToast('🔊 Reproduzindo descrição...', 'info');
+                    };
+                    
+                    utterance.onend = () => {
+                        console.log('Áudio da descrição finalizado');
+                        this.currentSpeech = null;
+                    };
+                    
+                    utterance.onerror = (e) => {
+                        console.error('Erro na reprodução de áudio:', e);
+                        this.showToast('Erro ao reproduzir áudio', 'error');
+                    };
+                    
+                    this.currentSpeech = utterance;
+                    speechSynthesis.speak(utterance);
+                }, 800); // Delay maior para garantir que o modal esteja pronto
         } catch (error) {
+            this.hideLoading('image-description');
             this.showToast('Erro ao descrever imagem', 'error');
         }
     }
@@ -906,7 +1315,7 @@ class IncluaAIWidget {
     async handleTextSummarization() {
         const text = window.getSelection().toString().trim();
         if (text.length >= 50) {
-            this.showToast('Gerando resumo...', 'info');
+            this.showLoading('text-summary', '📝 Gerando resumo inteligente...');
             try {
                 const response = await this.fetchWithRetry(`${this.getApiBaseUrl()}/summarize-text`, {
                     method: 'POST',
@@ -916,6 +1325,8 @@ class IncluaAIWidget {
 
                 if (!response.ok) throw new Error('Falha na API');
                 const data = await response.json();
+                
+                this.hideLoading('text-summary');
 
                 this.showModal('📄 Resumo Inteligente', `
                     <div class="ai-result-container">
@@ -937,7 +1348,9 @@ class IncluaAIWidget {
                         </div>
                     </div>
                 `);
+                this.showToast('✅ Resumo gerado com sucesso!', 'success');
             } catch (error) {
+                this.hideLoading('text-summary');
                 this.showToast('Erro ao resumir texto', 'error');
             }
         }
@@ -978,7 +1391,7 @@ class IncluaAIWidget {
 
         const text = window.getSelection().toString().trim();
         if (text.length >= 50 && this.settings.didacticSummary) {
-            this.showToast('Gerando resumo didático...', 'info');
+            this.showLoading('didactic-summary', '📚 Criando resumo didático...');
             try {
                 const response = await this.fetchWithRetry(`${this.getApiBaseUrl()}/didactic-summarize`, {
                     method: 'POST',
@@ -988,6 +1401,8 @@ class IncluaAIWidget {
 
                 if (!response.ok) throw new Error('Falha na API');
                 const data = await response.json();
+                
+                this.hideLoading('didactic-summary');
 
                 this.showModal('📚 Resumo Didático', `
                     <div class="ai-result-container">
@@ -1009,7 +1424,9 @@ class IncluaAIWidget {
                         </div>
                     </div>
                 `);
+                this.showToast('✅ Resumo didático criado!', 'success');
             } catch (error) {
+                this.hideLoading('didactic-summary');
                 this.showToast('Erro ao gerar resumo didático', 'error');
             }
         }
@@ -1888,6 +2305,7 @@ class IncluaAIWidget {
             this.librasHoverTimeout = setTimeout(async () => {
                 this.highlightLibrasElement(target);
                 this.currentLibrasTarget = target;
+                this.showLoading('libras-translation', '🤟 Traduzindo para Libras...');
                 this.showLibrasLoading(text);
 
                 try {
@@ -1896,6 +2314,8 @@ class IncluaAIWidget {
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text })
                     });
+
+                    this.hideLoading('libras-translation');
 
                     if (response.ok) {
                         const data = await response.json();
@@ -1910,6 +2330,7 @@ class IncluaAIWidget {
                     }
                 } catch (error) {
                     console.error('Erro ao processar Libras:', error);
+                    this.hideLoading('libras-translation');
                     // API falhou - usar texto original
                     this.currentLibrasGlosa = null;
                     this.currentOriginalText = text;
