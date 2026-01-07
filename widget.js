@@ -16,9 +16,22 @@ class IncluaAIWidget {
         };
 
         this.settings = {
+            // Ajustes Visuais
             fontSize: 0,
-            voice: '',
-            colorFilter: 'none'
+            colorFilter: 'none',
+            highlightLinks: false,
+
+            // Assistente de Leitura
+            textReader: false,
+            hoverReader: false,
+
+            // IA
+            imageDescriber: false,
+            textSummarizer: false,
+            didacticSummary: false,
+
+            // Libras
+            librasHover: false
         };
 
         this.currentSpeech = null;
@@ -227,10 +240,11 @@ class IncluaAIWidget {
             <button class="feature-card" 
                     data-action="${item.id}" 
                     data-category="${id}"
-                    aria-label="${item.title}: ${item.desc}${item.key ? '. Atalho: ' + item.key : ''}">
+                    aria-label="${item.title}: ${item.desc}. Estado: Desligado. ${item.key ? 'Atalho: ' + item.key : ''}">
+                <div class="active-check">✓</div>
                 <div class="card-icon">${item.emoji}</div>
                 <div class="card-label">${item.title}</div>
-                ${item.key ? `<div class="card-shortcut">${item.key}</div>` : ''}
+                <div class="card-status">OFF</div>
             </button>
         `).join('');
 
@@ -400,10 +414,52 @@ class IncluaAIWidget {
                 case 'call-center': this.openCallCenter(); break;
                 case 'reset-settings': this.resetSettings(); break;
             }
+
+            // Atualiza visual do botão após ação
+            this.updateButtonVisuals(button);
+
         } catch (error) {
             this.showToast('Erro ao executar ação. Tente novamente.', 'error');
         } finally {
             setTimeout(() => button.classList.remove('processing'), 500);
+        }
+    }
+
+    updateButtonVisuals(button) {
+        // Verifica estado real baseada na ação
+        let isActive = false;
+        const action = button.dataset.action;
+
+        // Lógica de estado para cada feature
+        if (action === 'highlight-links') isActive = document.body.classList.contains('inclua-highlight-links');
+        if (action === 'text-reader') isActive = this.settings.textReader;
+        if (action === 'hover-reader') isActive = this.settings.hoverReader;
+        if (action === 'describe-image') isActive = this.settings.imageDescriber;
+        if (action === 'summarize-text') isActive = this.settings.textSummarizer;
+        if (action === 'didactic-summary') isActive = this.settings.didacticSummary;
+        if (action === 'libras-hover') isActive = this.settings.librasHover;
+
+        // Aplica classes e textos
+        if (isActive) {
+            button.classList.add('active');
+            const status = button.querySelector('.card-status');
+            if (status) status.textContent = 'ON';
+            button.setAttribute('aria-pressed', 'true');
+
+            // Atualiza label para leitor de tela
+            const currentLabel = button.getAttribute('aria-label') || '';
+            button.setAttribute('aria-label', currentLabel.replace('Desligado', 'Ligado'));
+        } else {
+            // Apenas remove se for toggle, botões de ação momentânea (como fonte) não mantêm estado
+            if (!['font-increase', 'font-decrease', 'reset-settings'].includes(action)) {
+                button.classList.remove('active');
+                const status = button.querySelector('.card-status');
+                if (status) status.textContent = 'OFF';
+                button.setAttribute('aria-pressed', 'false');
+
+                const currentLabel = button.getAttribute('aria-label') || '';
+                button.setAttribute('aria-label', currentLabel.replace('Ligado', 'Desligado'));
+            }
         }
     }
 
@@ -604,14 +660,24 @@ class IncluaAIWidget {
 
 
     toggleHighlightLinks() {
-        this.features.highlightLinks = !this.features.highlightLinks;
-        document.documentElement.classList.toggle('widget-highlight-links', this.features.highlightLinks);
-        this.showToast(`Destaque de links ${this.features.highlightLinks ? 'ativado' : 'desativado'}`, 'success');
+        this.settings.highlightLinks = !this.settings.highlightLinks;
+        document.body.classList.toggle('inclua-highlight-links', this.settings.highlightLinks);
+
+        // Atualiza visual
+        const btn = document.querySelector('[data-action="highlight-links"]');
+        if (btn) this.updateButtonVisuals(btn);
+
+        this.showToast(`Destaque de links ${this.settings.highlightLinks ? 'ativado' : 'desativado'}`, 'success');
     }
 
     toggleTextReader() {
-        this.features.reader = !this.features.reader;
-        if (this.features.reader) {
+        this.settings.textReader = !this.settings.textReader;
+
+        // Atualiza visual
+        const btn = document.querySelector('[data-action="text-reader"]');
+        if (btn) this.updateButtonVisuals(btn);
+
+        if (this.settings.textReader) {
             document.addEventListener('mouseup', this.boundHandleTextSelection);
             this.showToast('Selecione texto para ouvir a leitura', 'info');
         } else {
@@ -632,8 +698,13 @@ class IncluaAIWidget {
     }
 
     toggleHoverReader() {
-        this.features.hoverReader = !this.features.hoverReader;
-        if (this.features.hoverReader) {
+        this.settings.hoverReader = !this.settings.hoverReader;
+
+        // Atualiza visual
+        const btn = document.querySelector('[data-action="hover-reader"]');
+        if (btn) this.updateButtonVisuals(btn);
+
+        if (this.settings.hoverReader) {
             document.addEventListener('mouseover', this.boundHandleHover);
             document.addEventListener('mouseout', this.boundHandleHoverOut);
             this.showToast('Passe o mouse sobre o texto para ler', 'info');
@@ -707,15 +778,20 @@ class IncluaAIWidget {
     }
 
     toggleImageDescriber() {
-        this.features.imageDescriber = !this.features.imageDescriber;
-        if (this.features.imageDescriber) {
+        this.settings.imageDescriber = !this.settings.imageDescriber;
+
+        // Atualiza visual
+        const btn = document.querySelector('[data-action="describe-image"]');
+        if (btn) this.updateButtonVisuals(btn);
+
+        if (this.settings.imageDescriber) {
             document.addEventListener('click', this.boundHandleImageClick);
             document.body.style.cursor = 'help';
             this.showToast('Clique em uma imagem para descrição', 'info');
         } else {
             document.removeEventListener('click', this.boundHandleImageClick);
             document.body.style.cursor = '';
-            this.showToast('Descritor de imagens desativado', 'info');
+            this.showToast('Descrição de imagens desativada', 'info');
         }
     }
 
@@ -769,20 +845,23 @@ class IncluaAIWidget {
     }
 
     toggleTextSummarizer() {
-        this.features.textSummarizer = !this.features.textSummarizer;
+        this.settings.textSummarizer = !this.settings.textSummarizer;
 
-        // Se ativar resumo normal, desativar resumo didático
-        if (this.features.textSummarizer && this.features.didacticSummary) {
-            this.features.didacticSummary = false;
+        // Se selecionar resumo normal, desabilita resumo didático
+        if (this.settings.textSummarizer && this.settings.didacticSummary) {
+            this.settings.didacticSummary = false;
             document.removeEventListener('mouseup', this.handleDidacticSummarization.bind(this));
+            // Atualiza visual do botão didático se houver mudança cruzada
+            const didacticBtn = document.querySelector('[data-action="didactic-summary"]');
+            if (didacticBtn) this.updateButtonVisuals(didacticBtn);
         }
 
-        if (this.features.textSummarizer) {
+        if (this.settings.textSummarizer) {
             document.addEventListener('mouseup', this.boundHandleTextSummarization);
             this.showToast('Selecione texto para resumir', 'info');
         } else {
             document.removeEventListener('mouseup', this.boundHandleTextSummarization);
-            this.showToast('Resumidor desativado', 'info');
+            this.showToast('Resumo de texto desativado', 'info');
         }
     }
 
@@ -827,19 +906,28 @@ class IncluaAIWidget {
     }
 
     toggleDidacticSummary() {
-        this.features.didacticSummary = !this.features.didacticSummary;
+        this.settings.didacticSummary = !this.settings.didacticSummary;
 
         // Se ativar resumo didático, desativar resumo normal
-        if (this.features.didacticSummary && this.features.textSummarizer) {
-            this.features.textSummarizer = false;
-            document.removeEventListener('mouseup', this.handleTextSummarization.bind(this));
+        if (this.settings.didacticSummary && this.settings.textSummarizer) {
+            this.settings.textSummarizer = false;
+            document.removeEventListener('mouseup', this.boundHandleTextSummarization);
+            // Atualiza visual do botão resumir se houver mudança cruzada
+            const summarizeBtn = document.querySelector('[data-action="summarize-text"]');
+            if (summarizeBtn) this.updateButtonVisuals(summarizeBtn);
         }
 
-        if (this.features.didacticSummary) {
-            document.addEventListener('mouseup', this.handleDidacticSummarization.bind(this));
+        if (this.settings.didacticSummary) {
+            // Usa boundHandle paraDidactic se ainda não existir, cria agora ou usa método direto se preferir
+            if (!this.boundHandleDidacticSummarization) {
+                this.boundHandleDidacticSummarization = this.handleDidacticSummarization.bind(this);
+            }
+            document.addEventListener('mouseup', this.boundHandleDidacticSummarization);
             this.showToast('Selecione texto para resumo didático', 'info');
         } else {
-            document.removeEventListener('mouseup', this.handleDidacticSummarization.bind(this));
+            if (this.boundHandleDidacticSummarization) {
+                document.removeEventListener('mouseup', this.boundHandleDidacticSummarization);
+            }
             this.showToast('Resumo didático desativado', 'info');
         }
     }
@@ -851,7 +939,7 @@ class IncluaAIWidget {
         }
 
         const text = window.getSelection().toString().trim();
-        if (text.length >= 50) {
+        if (text.length >= 50 && this.settings.didacticSummary) {
             this.showToast('Gerando resumo didático...', 'info');
             try {
                 const response = await this.fetchWithRetry(`${this.getApiBaseUrl()}/didactic-summarize`, {
@@ -894,9 +982,9 @@ class IncluaAIWidget {
     // ==========================================================================
 
     toggleLibrasHover() {
-        this.features.librasHover = !this.features.librasHover;
+        this.settings.librasHover = !this.settings.librasHover;
 
-        if (this.features.librasHover) {
+        if (this.settings.librasHover) {
             this.initLibrasPlayer();
             document.addEventListener('mouseover', this.boundHandleLibrasHover);
             document.addEventListener('mouseout', this.boundHandleLibrasHoverOut);
@@ -1771,10 +1859,10 @@ class IncluaAIWidget {
                 gap: 12px;
             }
 
-            /* Cards de Funcionalidade - CORES SÓLIDAS PARA VISIBILIDADE */
+            /* Cards de Funcionalidade - CORES SÓLIDAS & INDICADORES */
             .feature-card {
-                background-color: #1e293b !important; /* Azul escuro sólido */
-                border: 2px solid #475569 !important; /* Cinza claro */
+                background-color: #1e293b !important;
+                border: 2px solid #475569 !important;
                 border-radius: 12px;
                 padding: 12px 8px;
                 display: flex;
@@ -1783,59 +1871,106 @@ class IncluaAIWidget {
                 justify-content: center;
                 gap: 8px;
                 cursor: pointer;
-                transition: all 0.2s;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
                 position: relative;
-                min-height: 90px;
+                min-height: 95px; /* Aumentado para caber indicador */
                 box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-                color: #f8fafc !important; /* Branco quase puro */
+                color: #94a3b8 !important; /* Texto cinza quando inativo */
                 opacity: 1 !important;
                 visibility: visible !important;
             }
 
             .feature-card:hover {
                 background-color: #334155 !important;
-                border-color: var(--category-color) !important;
+                border-color: #94a3b8 !important;
+                color: #f1f5f9 !important;
                 transform: translateY(-2px);
-                box-shadow: 0 8px 15px rgba(0,0,0,0.4);
             }
 
-            .feature-card:active, 
+            /* ESTADO ATIVO - CLARAMENTE LIGADO */
             .feature-card.active {
                 background-color: var(--category-color) !important;
-                border-color: var(--category-color) !important;
+                border-color: white !important;
                 color: white !important;
+                box-shadow: 0 0 15px var(--category-color), inset 0 0 10px rgba(0,0,0,0.2) !important;
             }
 
-            .feature-card:focus-visible {
-                outline: 3px solid var(--category-color) !important;
-                outline-offset: 2px !important;
+            .feature-card.active .card-icon {
+                transform: scale(1.1);
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+            }
+
+            .feature-card.active .card-status {
+                background: white;
+                color: var(--category-color);
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            /* Indicador ON/OFF */
+            .card-status {
+                font-size: 10px;
+                font-weight: 800;
+                text-transform: uppercase;
+                background: #475569;
+                color: #94a3b8;
+                padding: 2px 8px;
+                border-radius: 10px;
+                margin-top: 4px;
+                transition: all 0.2s;
+                opacity: 0.8;
+            }
+
+            .feature-card:hover .card-status {
+                background: #64748b;
+                color: white;
+            }
+
+            /* Checkmark flutuante */
+            .active-check {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: white;
+                color: var(--category-color);
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                font-weight: bold;
+                border: 2px solid var(--category-color);
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                opacity: 0;
+                transform: scale(0);
+                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+
+            .feature-card.active .active-check {
+                opacity: 1;
+                transform: scale(1);
             }
 
             .card-icon {
-                font-size: 32px;
-                margin-bottom: 4px;
+                font-size: 28px;
+                margin-bottom: 2px;
                 display: block !important;
+                transition: transform 0.2s;
             }
 
             .card-label {
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 600;
                 color: inherit;
                 text-align: center;
-                line-height: 1.3;
+                line-height: 1.2;
                 display: block !important;
             }
 
             .card-shortcut {
-                font-size: 10px;
-                color: #cbd5e1;
-                background: rgba(0,0,0,0.6);
-                padding: 2px 6px;
-                border-radius: 4px;
-                font-family: monospace;
-                position: absolute;
-                top: 6px;
-                right: 6px;
+                display: none; /* Escondendo atalho para limpar visual, aparece no hover se quiser */
             }
 
             .card-icon {
@@ -1968,6 +2103,16 @@ class IncluaAIWidget {
             .acess-category:nth-child(3) { animation-delay: 0.2s; }
             .acess-category:nth-child(4) { animation-delay: 0.3s; }
             .acess-category:nth-child(5) { animation-delay: 0.4s; }
+
+            /* Highlight Links Feature */
+            body.inclua-highlight-links a {
+                background-color: yellow !important;
+                color: black !important;
+                outline: 2px solid #000 !important;
+                text-decoration: underline !important;
+                font-weight: bold !important;
+                box-shadow: 0 0 5px rgba(255, 255, 0, 0.8) !important;
+            }
 
             /* Responsivo */
             @media (max-width: 400px) {
