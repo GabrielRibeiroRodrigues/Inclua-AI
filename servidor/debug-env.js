@@ -1,7 +1,7 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const fs = require('fs');
-
+ 
 const envPath = path.join(__dirname, '.env');
 console.log('Checking .env at:', envPath);
  
