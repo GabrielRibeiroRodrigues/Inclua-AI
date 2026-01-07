@@ -3,7 +3,7 @@
 ![Inclua-AI](https://img.shields.io/badge/Inclua--AI-Acessibilidade-blue?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Ativo-success?style=for-the-badge)
 ![Versão](https://img.shields.io/badge/Versão-2.0-orange?style=for-the-badge)
-
+ 
 > **Uma revolução em acessibilidade web com inteligência artificial**
 
 O Inclua-AI é uma solução completa de acessibilidade que combina ferramentas tradicionais com o poder da Inteligência Artificial para criar experiências web verdadeiramente inclusivas.
