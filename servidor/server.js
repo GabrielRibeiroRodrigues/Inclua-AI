@@ -34,7 +34,7 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  
+
   // Handle preflight
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
@@ -220,27 +220,30 @@ app.post('/describe-image', rateLimitMiddleware, async (req, res) => {
     const { imageUrl } = req.body;
 
     // Validação de entrada
-    if (!imageUrl || typeof imageUrl !== 'string') {
-      return res.status(400).json({ error: 'URL da imagem é obrigatória e deve ser uma string.' });
+    if (!imageUrl) {
+      return res.status(400).json({ error: 'URL da imagem é obrigatória.' });
     }
 
-    // Valida se é uma URL
+    const imageUrls = Array.isArray(imageUrl) ? imageUrl : [imageUrl];
+
+    // Valida se são URLs válidas
     try {
-      new URL(imageUrl);
+      imageUrls.forEach(url => new URL(url));
     } catch {
-      return res.status(400).json({ error: 'URL da imagem inválida.' });
+      return res.status(400).json({ error: 'Uma ou mais URLs de imagem são inválidas.' });
     }
 
-    const imageParts = [await urlToGenerativePart(imageUrl)];
-    const prompt = `Analise esta imagem e crie uma descrição acessível em português para pessoas com deficiência visual.
+    const imageParts = await Promise.all(imageUrls.map(url => urlToGenerativePart(url)));
+
+    const prompt = `Analise a(s) imagem(ns) e crie uma descrição acessível em português para pessoas com deficiência visual.
 
 Diretrizes:
-- Seja objetivo e conciso (máximo 2-3 frases)
-- Descreva os elementos principais e o contexto
+- Seja objetivo e conciso
+- Descreva os elementos principais e o contexto de todas as imagens
 - Use linguagem clara e descritiva
 - Foque no que é mais importante visualmente
 
-Responda apenas com a descrição, sem explicações adicionais.`;
+Responda apenas com a descrição.`;
 
     const result = await model.generateContent([prompt, ...imageParts]);
     const description = result.response.text().trim();
