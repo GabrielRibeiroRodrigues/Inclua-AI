@@ -380,6 +380,58 @@ Responda apenas com o conteúdo formatado de forma didática:`;
   }
 });
 
+// Conversão de texto para glosa de Libras
+app.post('/convert-to-libras', rateLimitMiddleware, async (req, res) => {
+  console.log('🤟 Recebida requisição para converter texto para Libras...');
+
+  try {
+    const { text } = req.body;
+
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({ error: 'Texto para converter é obrigatório.' });
+    }
+
+    if (text.length < 5) {
+      return res.status(400).json({ error: 'Texto muito curto para converter (mínimo 5 caracteres).' });
+    }
+
+    if (text.length > 500) {
+      return res.status(400).json({ error: 'Texto muito longo (máximo 500 caracteres).' });
+    }
+
+    const prompt = `Converta o seguinte texto para GLOSA de Libras (Língua Brasileira de Sinais).
+
+TEXTO ORIGINAL:
+"${text}"
+
+REGRAS PARA CONVERSÃO EM GLOSA:
+- Glosa é a representação escrita dos sinais de Libras em PORTUGUÊS MAIÚSCULO
+- Remova artigos (o, a, os, as, um, uma)
+- Remova preposições desnecessárias (de, para, com, em) quando possível
+- Use a ordem sujeito-objeto-verbo quando apropriado
+- Verbos ficam no infinitivo
+- Palavras em maiúsculas representam sinais
+- Mantenha substantivos, verbos principais e adjetivos importantes
+
+EXEMPLOS:
+- "O gato está dormindo" → "GATO DORMIR"
+- "Eu vou para a escola amanhã" → "EU AMANHÃ ESCOLA IR"
+- "A menina comprou uma flor bonita" → "MENINA FLOR BONITA COMPRAR"
+
+Responda APENAS com a glosa em maiúsculas, sem explicações:`;
+
+    const result = await model.generateContent(prompt);
+    const librasText = result.response.text().trim().toUpperCase();
+
+    console.log(`✅ Glosa gerada: ${librasText.substring(0, 50)}...`);
+    res.json({ librasText });
+
+  } catch (error) {
+    console.error('❌ Erro ao converter para Libras:', error.message);
+    res.status(500).json({ error: 'Falha ao converter texto para Libras.' });
+  }
+});
+
 // 10. Middleware de erro global
 app.use((error, req, res, next) => {
   const timestamp = new Date().toISOString();

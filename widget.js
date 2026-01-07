@@ -11,7 +11,8 @@ class IncluaAIWidget {
             reader: false,
             highlightLinks: false,
             imageDescriber: false,
-            textSummarizer: false
+            textSummarizer: false,
+            librasHover: false
         };
 
         this.settings = {
@@ -33,6 +34,14 @@ class IncluaAIWidget {
         this.boundHandleHover = this.handleHover.bind(this);
         this.boundHandleHoverOut = this.handleHoverOut.bind(this);
         this.hoverTimeout = null;
+
+        // Binds para Libras
+        this.boundHandleLibrasHover = this.handleLibrasHover.bind(this);
+        this.boundHandleLibrasHoverOut = this.handleLibrasHoverOut.bind(this);
+        this.librasHoverTimeout = null;
+        this.currentLibrasTarget = null;
+        this.currentOriginalText = null;
+        this.currentLibrasGlosa = null;
     }
 
     init() {
@@ -44,7 +53,9 @@ class IncluaAIWidget {
         this.loadSettings();
         this.createWidget();
         this.setupEventListeners();
+        this.setupKeyboardNavigation(); // Sistema de navegação por teclado e atalhos
         this.injectSVGFilters();
+        this.injectCategoryStyles(); // Estilos do novo design de categorias
         this.setupVoices();
         this.checkApiHealth();
         this.setupErrorHandling();
@@ -151,25 +162,35 @@ class IncluaAIWidget {
         document.body.insertAdjacentHTML('beforeend', widgetHTML);
     }
 
+
     createPanelSections() {
-        // Mantendo a estrutura HTML existente das seções, mas garantindo ARIA attributes nos botões
-        // (O código HTML das seções é longo, vou simplificar aqui mantendo a lógica original mas com melhorias)
         return `
-            ${this.createSection('Ajustes Visuais', [
-            { id: 'font-increase', emoji: '🔼', title: 'Aumentar Fonte', desc: 'Torna o texto maior' },
-            { id: 'font-decrease', emoji: '🔽', title: 'Diminuir Fonte', desc: 'Reduz o tamanho do texto' },
-            { id: 'highlight-links', emoji: '🔗', title: 'Destacar Links', desc: 'Identificar links' }
+            ${this.createCategory('visual', '👁️', 'Deficiência Visual', '#3b82f6', [
+            { id: 'font-increase', emoji: '🔼', title: 'Aumentar', desc: 'Fonte maior', key: 'F2' },
+            { id: 'font-decrease', emoji: '🔽', title: 'Diminuir', desc: 'Fonte menor', key: 'F3' },
+            { id: 'highlight-links', emoji: '🔗', title: 'Links', desc: 'Destacar', key: 'F9' },
+            { id: 'text-reader', emoji: '🔊', title: 'Leitor', desc: 'Ler texto', key: 'F4' },
+            { id: 'hover-reader', emoji: '👆', title: 'Hover', desc: 'Ler ao passar', key: 'F5' }
         ])}
 
-            ${this.createSection('Assistente de Leitura', [
-            { id: 'text-reader', emoji: '🔊', title: 'Leitor de Texto', desc: 'Lê textos selecionados' },
-            { id: 'hover-reader', emoji: '👆', title: 'Ler ao Passar Mouse', desc: 'Lê o que você aponta' }
+            <div class="category-colorblind">
+                <div class="colorblind-label">🎨 Filtros de Daltonismo</div>
+                <select id="colorblind-filter" class="colorblind-select">
+                    <option value="none">Nenhum filtro</option>
+                    <option value="protanopia">Protanopia (Vermelho-Verde)</option>
+                    <option value="deuteranopia">Deuteranopia (Verde-Vermelho)</option>
+                    <option value="tritanopia">Tritanopia (Azul-Amarelo)</option>
+                    <option value="achromatopsia">Acromatopsia (Sem cores)</option>
+                </select>
+            </div>
+
+            ${this.createCategory('auditiva', '👂', 'Deficiência Auditiva', '#10b981', [
+            { id: 'libras-hover', emoji: '🤟', title: 'Libras', desc: 'Traduzir', key: 'F8' }
         ])}
 
-            ${this.createSection('IA para Acessibilidade', [
-            { id: 'describe-image', emoji: '🖼️', title: 'Descrever Imagem', desc: 'IA descreve imagens' },
-            { id: 'summarize-text', emoji: '📝', title: 'Resumir Texto', desc: 'IA resume conteúdo' },
-            { id: 'didactic-summary', emoji: '📚', title: 'Resumo Didático', desc: 'Resumo formatado e educacional' }
+            ${this.createCategory('cognitiva', '🧠', 'Dificuldades Cognitivas', '#8b5cf6', [
+            { id: 'didactic-summary', emoji: '📚', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
+            { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' }
         ])}
 
             ${this.createSection('Assistência Virtual', [
@@ -193,42 +214,39 @@ class IncluaAIWidget {
                 </div>
             </div>
 
-            <div class="feature-section">
-                <div class="feature-group">
-                    <button class="feature-button" data-action="reset-settings">
-                        <div class="feature-icon-container">
-                            <span class="feature-emoji">🔄</span>
-                        </div>
-                        <div class="feature-text">
-                            <div class="feature-title">Resetar Configurações</div>
-                            <div class="feature-description">Volta ao padrão</div>
-                        </div>
-                    </button>
-                </div>
+            <div class="menu-footer">
+                <button class="reset-button" data-action="reset-settings">
+                    <span>🔄</span> Resetar Configurações
+                </button>
             </div>
         `;
     }
 
-    createSection(title, items) {
-        const buttons = items.map(item => `
-            <button class="feature-button" data-action="${item.id}">
-                <div class="feature-icon-container">
-                    ${item.emoji ? `<span class="feature-emoji">${item.emoji}</span>` : `<svg class="feature-icon" viewBox="0 0 24 24"><path d="${item.icon}"/></svg>`}
-                </div>
-                <div class="feature-text">
-                    <div class="feature-title">${item.title}</div>
-                    <div class="feature-description">${item.desc}</div>
-                </div>
+    createCategory(id, icon, title, color, items) {
+        const cards = items.map(item => `
+            <button class="feature-card" 
+                    data-action="${item.id}" 
+                    data-category="${id}"
+                    aria-label="${item.title}: ${item.desc}${item.key ? '. Atalho: ' + item.key : ''}">
+                <div class="card-icon">${item.emoji}</div>
+                <div class="card-label">${item.title}</div>
+                ${item.key ? `<div class="card-shortcut">${item.key}</div>` : ''}
             </button>
         `).join('');
 
         return `
-            <div class="feature-section">
-                <div class="section-header">${title}</div>
-                <div class="feature-group">${buttons}</div>
+            <div class="acess-category" data-category="${id}" style="--category-color: ${color}">
+                <div class="category-header">
+                    <span class="category-icon">${icon}</span>
+                    <span class="category-title">${title}</span>
+                </div>
+                <div class="category-grid">
+                    ${cards}
+                </div>
             </div>
         `;
     }
+
 
     // ==========================================================================
     // TOAST NOTIFICATION SYSTEM
@@ -346,7 +364,7 @@ class IncluaAIWidget {
 
         const panel = document.getElementById('inclua-ai-panel');
         panel.addEventListener('click', (e) => {
-            const button = e.target.closest('.feature-button');
+            const button = e.target.closest('.feature-button, .feature-card, .reset-button');
             if (button) {
                 const action = button.dataset.action;
                 this.handleAction(action, button);
@@ -387,6 +405,188 @@ class IncluaAIWidget {
         } finally {
             setTimeout(() => button.classList.remove('processing'), 500);
         }
+    }
+
+    // ==========================================================================
+    // NAVEGAÇÃO POR TECLADO E ATALHOS
+    // ==========================================================================
+
+    setupKeyboardNavigation() {
+        // Atalhos globais e teclas de função
+        document.addEventListener('keydown', (e) => {
+            // Alt+A: Toggle widget
+            if (e.altKey && e.key.toLowerCase() === 'a') {
+                e.preventDefault();
+                this.togglePanel();
+                this.announceToScreenReader('Menu de acessibilidade ' + (this.isActive ? 'aberto' : 'fechado'));
+                return;
+            }
+
+            // Esc: Fechar painel se estiver aberto
+            if (e.key === 'Escape' && this.isActive) {
+                this.togglePanel();
+                return;
+            }
+
+            // Atalhos de Função (F1-F10)
+            this.handleFunctionKeys(e);
+
+            // Navegação por setas quando painel aberto
+            if (this.isActive && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+                this.navigateButtons(e);
+            }
+        });
+
+        // Melhorar navegação por Tab nos botões
+        this.enhanceButtonNavigation();
+    }
+
+    handleFunctionKeys(e) {
+        const functionKeyMap = {
+            'F1': () => this.showHelpScreen(),
+            'F2': () => this.triggerAction('font-increase', 'Aumentar fonte'),
+            'F3': () => this.triggerAction('font-decrease', 'Diminuir fonte'),
+            'F4': () => this.triggerAction('text-reader', 'Leitor de texto'),
+            'F5': () => this.triggerAction('hover-reader', 'Ler ao passar mouse'),
+            'F6': () => this.triggerAction('describe-image', 'Descrever imagem'),
+            'F7': () => this.triggerAction('summarize-text', 'Resumir texto'),
+            'F8': () => this.triggerAction('libras-hover', 'Libras ao hover'),
+            'F9': () => this.triggerAction('highlight-links', 'Destacar links'),
+            'F10': () => this.triggerAction('didactic-summary', 'Resumo didático')
+        };
+
+        if (functionKeyMap[e.key]) {
+            e.preventDefault();
+            functionKeyMap[e.key]();
+        }
+    }
+
+    triggerAction(action, name) {
+        const button = document.querySelector(`[data-action="${action}"]`);
+        if (button) {
+            this.handleAction(action, button);
+            this.announceToScreenReader(`${name} ativado`);
+        }
+    }
+
+    navigateButtons(e) {
+        e.preventDefault();
+        const buttons = Array.from(document.querySelectorAll('.feature-card, .feature-button'));
+        const currentIndex = buttons.findIndex(btn => btn === document.activeElement);
+
+        let nextIndex;
+        if (e.key === 'ArrowDown') {
+            nextIndex = currentIndex < buttons.length - 1 ? currentIndex + 1 : 0;
+        } else {
+            nextIndex = currentIndex > 0 ? currentIndex - 1 : buttons.length - 1;
+        }
+
+        buttons[nextIndex]?.focus();
+    }
+
+    enhanceButtonNavigation() {
+        // Adicionar suporte a Enter/Space para ativar botões
+        const panel = document.getElementById('inclua-ai-panel');
+        panel.addEventListener('keydown', (e) => {
+            const isFeatureElement = e.target.classList.contains('feature-button') ||
+                e.target.classList.contains('feature-card');
+            if ((e.key === 'Enter' || e.key === ' ') && isFeatureElement) {
+                e.preventDefault();
+                e.target.click();
+            }
+        });
+    }
+
+    showHelpScreen() {
+        // Remove help screen anterior se existir
+        const existingHelp = document.getElementById('inclua-help-screen');
+        if (existingHelp) {
+            existingHelp.remove();
+            return; // Toggle: fecha se já estiver aberto
+        }
+
+        const helpHTML = `
+            <div id="inclua-help-screen" class="help-screen" role="dialog" aria-labelledby="help-title" aria-modal="true">
+                <div class="help-content">
+                    <div class="help-header">
+                        <h2 id="help-title">⌨️ Atalhos de Teclado</h2>
+                        <button class="help-close" onclick="document.getElementById('inclua-help-screen').remove()" aria-label="Fechar ajuda">✕</button>
+                    </div>
+                    <div class="help-body">
+                        <div class="help-section">
+                            <h3>Atalhos Globais</h3>
+                            <ul class="help-list">
+                                <li><kbd>Alt</kbd> + <kbd>A</kbd> - Abrir/Fechar Menu</li>
+                                <li><kbd>F1</kbd> - Mostrar esta ajuda</li>
+                                <li><kbd>Esc</kbd> - Fechar painel</li>
+                            </ul>
+                        </div>
+                        <div class="help-section">
+                            <h3>Funcionalidades (F2-F10)</h3>
+                            <ul class="help-list">
+                                <li><kbd>F2</kbd> - Aumentar fonte</li>
+                                <li><kbd>F3</kbd> - Diminuir fonte</li>
+                                <li><kbd>F4</kbd> - Leitor de texto</li>
+                                <li><kbd>F5</kbd> - Ler ao passar mouse</li>
+                                <li><kbd>F6</kbd> - Descrever imagem</li>
+                                <li><kbd>F7</kbd> - Resumir texto</li>
+                                <li><kbd>F8</kbd> - Libras ao hover</li>
+                                <li><kbd>F9</kbd> - Destacar links</li>
+                                <li><kbd>F10</kbd> - Resumo didático</li>
+                            </ul>
+                        </div>
+                        <div class="help-section">
+                            <h3>Navegação no Menu</h3>
+                            <ul class="help-list">
+                                <li><kbd>Tab</kbd> - Próximo elemento</li>
+                                <li><kbd>Shift</kbd> + <kbd>Tab</kbd> - Elemento anterior</li>
+                                <li><kbd>↑</kbd> - Botão anterior</li>
+                                <li><kbd>↓</kbd> - Próximo botão</li>
+                                <li><kbd>Enter</kbd> ou <kbd>Espaço</kbd> - Ativar</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', helpHTML);
+        this.injectHelpStyles();
+
+        // Foco no botão fechar
+        document.querySelector('.help-close').focus();
+        this.announceToScreenReader('Tela de ajuda aberta. Navegue com Tab para ver os atalhos');
+
+        // Fechar com Esc ou F1
+        const helpScreen = document.getElementById('inclua-help-screen');
+        const closeHelp = (e) => {
+            if (e.key === 'Escape' || e.key === 'F1') {
+                e.preventDefault();
+                helpScreen.remove();
+                document.removeEventListener('keydown', closeHelp);
+            }
+        };
+        document.addEventListener('keydown', closeHelp);
+    }
+
+    announceToScreenReader(message) {
+        // Criar região ARIA live se não existir
+        let liveRegion = document.getElementById('inclua-aria-live');
+        if (!liveRegion) {
+            liveRegion = document.createElement('div');
+            liveRegion.id = 'inclua-aria-live';
+            liveRegion.setAttribute('aria-live', 'polite');
+            liveRegion.setAttribute('aria-atomic', 'true');
+            liveRegion.className = 'sr-only';
+            document.body.appendChild(liveRegion);
+        }
+
+        liveRegion.textContent = message;
+
+        // Limpar após 1 segundo
+        setTimeout(() => {
+            liveRegion.textContent = '';
+        }, 1000);
     }
 
     // ==========================================================================
@@ -690,6 +890,677 @@ class IncluaAIWidget {
     }
 
     // ==========================================================================
+    // LIBRAS ACCESSIBILITY FUNCTIONS
+    // ==========================================================================
+
+    toggleLibrasHover() {
+        this.features.librasHover = !this.features.librasHover;
+
+        if (this.features.librasHover) {
+            this.initLibrasPlayer();
+            document.addEventListener('mouseover', this.boundHandleLibrasHover);
+            document.addEventListener('mouseout', this.boundHandleLibrasHoverOut);
+            this.showToast('🤟 Passe o mouse sobre textos para traduzir em Libras', 'info');
+        } else {
+            document.removeEventListener('mouseover', this.boundHandleLibrasHover);
+            document.removeEventListener('mouseout', this.boundHandleLibrasHoverOut);
+            clearTimeout(this.librasHoverTimeout);
+            this.removeLibrasHighlight();
+            this.hideLibrasPlayer();
+            this.showToast('Libras ao hover desativado', 'info');
+        }
+    }
+
+    initLibrasPlayer() {
+        // Cria o player flutuante de Libras se não existir
+        if (document.getElementById('inclua-libras-player')) return;
+
+        const playerHTML = `
+            <div id="inclua-libras-player" class="libras-player-container" style="display: none;">
+                <div class="libras-player-header">
+                    <span class="libras-player-title">🤟 Tradução em Libras</span>
+                    <button class="libras-player-close" onclick="window.incluaAIWidget.hideLibrasPlayer()" aria-label="Fechar">✕</button>
+                </div>
+                <div class="libras-player-content">
+                    <div class="libras-original-text" id="libras-original-text"></div>
+                    <div class="libras-glosa-container">
+                        <div class="libras-glosa-label">📝 Glosa em Libras:</div>
+                        <div class="libras-glosa-text" id="libras-glosa-text"></div>
+                    </div>
+                    <div class="libras-hugo-container" id="libras-hugo-container">
+                        <img src="hugo-avatar.png" 
+                             alt="Avatar Hugo fazendo sinais de Libras" 
+                             class="hugo-avatar-image"
+                             id="hugo-avatar-img">
+                        <div class="hugo-status" id="hugo-status">Avatar demonstrativo - Mostra como funcionaria</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', playerHTML);
+        this.injectLibrasStyles();
+    }
+
+    // Funções VLibras removidas - usando apenas imagem demonstrativa
+
+    oldInitEmbeddedVLibras() {
+        // Carrega o VLibras de forma embutida no nosso player
+        if (this.vlibrasLoaded) {
+            this.moveVLibrasToPlayer();
+            return;
+        }
+
+        // Verifica se já existe o VLibras na página
+        if (document.querySelector('[vw]')) {
+            this.vlibrasLoaded = true;
+            this.moveVLibrasToPlayer();
+            return;
+        }
+
+        // Cria o container do VLibras
+        const vlibrasDiv = document.createElement('div');
+        vlibrasDiv.setAttribute('vw', '');
+        vlibrasDiv.className = 'enabled';
+        vlibrasDiv.id = 'vlibras-widget-container';
+        vlibrasDiv.innerHTML = `
+            <div vw-access-button class="active"></div>
+            <div vw-plugin-wrapper>
+                <div class="vw-plugin-top-wrapper"></div>
+            </div>
+        `;
+        document.body.appendChild(vlibrasDiv);
+
+        // Carrega o script do VLibras
+        const script = document.createElement('script');
+        script.src = 'https://vlibras.gov.br/app/vlibras-plugin.js';
+        script.onload = () => {
+            if (window.VLibras) {
+                new window.VLibras.Widget('https://vlibras.gov.br/app');
+                this.vlibrasLoaded = true;
+                console.log('✅ VLibras Widget carregado');
+
+                // Aguarda o widget renderizar e move para nosso player
+                setTimeout(() => {
+                    this.moveVLibrasToPlayer();
+                }, 1500);
+            }
+        };
+        script.onerror = () => {
+            console.error('❌ Erro ao carregar VLibras');
+            this.showHugoFallback();
+        };
+        document.head.appendChild(script);
+    }
+
+    moveVLibrasToPlayer() {
+        const hugoContainer = document.getElementById('hugo-avatar-wrapper');
+        const vlibrasWrapper = document.querySelector('[vw-plugin-wrapper]');
+        const vlibrasButton = document.querySelector('[vw-access-button]');
+
+        if (hugoContainer && vlibrasWrapper) {
+            // Estiliza o wrapper do VLibras para caber no nosso player
+            this.injectVLibrasOverrideStyles();
+
+            // Atualiza status
+            hugoContainer.innerHTML = `
+                <div class="hugo-ready">
+                    <div class="hugo-icon">🧏</div>
+                    <span>Clique abaixo para ver o Hugo traduzindo!</span>
+                    <small style="color: #64748b; font-size: 11px; margin-top: 8px; display: block;">O Hugo aparecerá no widget do VLibras (governo)</small>
+                </div>
+            `;
+
+            console.log('✅ VLibras pronto para uso');
+        }
+
+        // Mantém o botão de acesso visível mas discreto
+        if (vlibrasButton) {
+            vlibrasButton.style.cssText = 'position: fixed !important; bottom: 20px !important; right: 20px !important; z-index: 9999 !important;';
+        }
+    }
+
+    showHugoFallback() {
+        const hugoContainer = document.getElementById('hugo-avatar-wrapper');
+        if (hugoContainer) {
+            hugoContainer.innerHTML = `
+                <div class="hugo-fallback">
+                    <div class="hugo-icon">🤟</div>
+                    <span>Use a glosa acima para traduzir em Libras</span>
+                </div>
+            `;
+        }
+    }
+
+    injectVLibrasOverrideStyles() {
+        if (document.getElementById('vlibras-override-styles')) return;
+
+        const styles = document.createElement('style');
+        styles.id = 'vlibras-override-styles';
+        styles.textContent = `
+            /* Estiliza o VLibras para aparecer em tela cheia quando ativado */
+            [vw].enabled [vw-plugin-wrapper] {
+                position: fixed !important;
+                bottom: 80px !important;
+                right: 20px !important;
+                z-index: 999999 !important;
+            }
+            
+            /* Animação suave ao abrir */
+            [vw].enabled [vw-plugin-wrapper].active {
+                animation: vlibrasOpen 0.3s ease forwards;
+            }
+            
+            @keyframes vlibrasOpen {
+                from { opacity: 0; transform: scale(0.9); }
+                to { opacity: 1; transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    initVLibrasPlayer() {
+        // Alias para compatibilidade
+        this.initEmbeddedVLibras();
+    }
+
+    loadVLibrasWidget() {
+        // Mantido para compatibilidade
+        this.initEmbeddedVLibras();
+    }
+
+    activateVLibras() {
+        // Abre o widget do VLibras
+        const accessButton = document.querySelector('[vw-access-button]');
+        if (accessButton) {
+            accessButton.click();
+        }
+    }
+
+    playHugoTranslation() {
+        // Usa glosa se disponível, senão usa texto original
+        const textToTranslate = this.currentLibrasGlosa || this.currentOriginalText;
+
+        if (!textToTranslate) {
+            this.showToast('Nenhuma tradução disponível', 'error');
+            return;
+        }
+
+        // Ativa o VLibras primeiro
+        this.activateVLibras();
+        this.showToast('🤟 Abrindo Hugo...', 'info');
+
+        // Aguarda o VLibras abrir e então envia o texto
+        setTimeout(() => {
+            this.sendTextToVLibras(textToTranslate);
+        }, 800);
+    }
+
+    sendTextToVLibras(text) {
+        // Tenta encontrar o campo de texto do VLibras
+        const vlibrasWrapper = document.querySelector('[vw-plugin-wrapper]');
+
+        if (!vlibrasWrapper) {
+            // VLibras não carregou ainda, mostra instrução simples
+            this.showToast('🤟 Aguarde o VLibras carregar...', 'info');
+            return;
+        }
+
+        // Busca o textarea do VLibras
+        const textInputs = vlibrasWrapper.querySelectorAll('textarea, input[type="text"], .vw-text-input');
+        let textArea = null;
+
+        for (const input of textInputs) {
+            if (input.offsetParent !== null) { // Visível
+                textArea = input;
+                break;
+            }
+        }
+
+        if (textArea) {
+            // Insere o texto
+            textArea.value = text;
+            textArea.dispatchEvent(new Event('input', { bubbles: true }));
+            textArea.dispatchEvent(new Event('change', { bubbles: true }));
+
+            // Tenta clicar no botão de traduzir
+            setTimeout(() => {
+                const buttons = vlibrasWrapper.querySelectorAll('button');
+                for (const btn of buttons) {
+                    const btnText = btn.textContent?.toLowerCase() || '';
+                    if (btnText.includes('traduzir') || btnText.includes('play') || btn.type === 'submit') {
+                        btn.click();
+                        this.showToast('🤟 Hugo está traduzindo!', 'success');
+                        return;
+                    }
+                }
+                // Se não encontrou botão específico, tenta o primeiro botão
+                if (buttons.length > 0) {
+                    buttons[0].click();
+                    this.showToast('🤟 Hugo está traduzindo!', 'success');
+                }
+            }, 300);
+        } else {
+            // Aguarda mais um pouco e tenta novamente
+            this.showToast('🤟 Insira o texto no campo do VLibras', 'info');
+        }
+    }
+
+    translateWithVLibras(text) {
+        // Método alternativo - salva o texto para uso posterior
+        this.currentLibrasGlosa = text;
+    }
+
+    injectLibrasStyles() {
+        if (document.getElementById('inclua-libras-styles')) return;
+
+        const styles = document.createElement('style');
+        styles.id = 'inclua-libras-styles';
+        styles.textContent = `
+            .libras-player-container {
+                position: fixed;
+                bottom: 100px;
+                right: 24px;
+                width: 400px;
+                background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                z-index: 999998;
+                font-family: 'Inter', system-ui, sans-serif;
+                overflow: hidden;
+                animation: librasSlideIn 0.3s ease;
+            }
+
+            @keyframes librasSlideIn {
+                from { opacity: 0; transform: translateY(20px) scale(0.95); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
+            .libras-player-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 14px 18px;
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+            }
+
+            .libras-player-title { font-size: 15px; font-weight: 600; }
+
+            .libras-player-close {
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                width: 26px;
+                height: 26px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 13px;
+                transition: background 0.2s;
+            }
+
+            .libras-player-close:hover { background: rgba(255, 255, 255, 0.35); }
+
+            .libras-player-content { padding: 14px; }
+
+            .libras-original-text {
+                background: rgba(255, 255, 255, 0.08);
+                border-radius: 10px;
+                padding: 10px 14px;
+                margin-bottom: 12px;
+                color: #e2e8f0;
+                font-size: 13px;
+                line-height: 1.5;
+                max-height: 80px;
+                overflow-y: auto;
+            }
+
+            .libras-original-text::before {
+                content: "📄 Texto original: ";
+                font-weight: 600;
+                color: #94a3b8;
+            }
+
+            .libras-glosa-container {
+                margin-bottom: 12px;
+            }
+
+            .libras-glosa-label {
+                color: #64748b;
+                font-size: 12px;
+                margin-bottom: 6px;
+                font-weight: 500;
+            }
+
+            .libras-glosa-text {
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.15) 100%);
+                border: 2px solid rgba(16, 185, 129, 0.4);
+                border-radius: 12px;
+                padding: 16px;
+                color: #34d399;
+                font-size: 18px;
+                font-weight: 700;
+                text-align: center;
+                letter-spacing: 2px;
+                min-height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                word-break: break-word;
+                text-transform: uppercase;
+            }
+
+            .libras-hugo-container {
+                background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1a 100%);
+                border-radius: 12px;
+                padding: 16px;
+                margin-bottom: 12px;
+                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .hugo-avatar-image {
+                width: 200px;
+                height: 200px;
+                border-radius: 16px;
+                object-fit: cover;
+                box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+                border: 3px solid #10b981;
+                animation: hugoPulse 3s ease-in-out infinite;
+            }
+
+            @keyframes hugoPulse {
+                0%, 100% { transform: scale(1); box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3); }
+                50% { transform: scale(1.02); box-shadow: 0 12px 32px rgba(16, 185, 129, 0.5); }
+            }
+
+            .hugo-status {
+                color: #94a3b8;
+                font-size: 12px;
+                font-style: italic;
+                text-align: center;
+            }
+
+            .hugo-avatar-wrapper {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 80px;
+            }
+
+            .hugo-loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                color: #94a3b8;
+            }
+
+            .hugo-loading-avatar {
+                font-size: 48px;
+                animation: hugoPulseOld 2s ease-in-out infinite;
+            }
+
+            @keyframes hugoPulseOld {
+                0%, 100% { transform: scale(1); opacity: 0.7; }
+                50% { transform: scale(1.1); opacity: 1; }
+            }
+
+            .hugo-instruction {
+                color: #64748b;
+                font-size: 12px;
+                line-height: 1.4;
+            }
+
+            .hugo-instruction strong {
+                color: #10b981;
+            }
+
+            .hugo-ready, .hugo-fallback {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                color: #e2e8f0;
+                padding: 10px;
+            }
+
+            .hugo-ready .hugo-icon {
+                font-size: 48px;
+                animation: hugoReady 1s ease;
+            }
+
+            .hugo-fallback .hugo-icon {
+                font-size: 40px;
+                opacity: 0.6;
+            }
+
+            @keyframes hugoReady {
+                0% { transform: scale(0.5); opacity: 0; }
+                50% { transform: scale(1.2); }
+                100% { transform: scale(1); opacity: 1; }
+            }
+
+            .hugo-ready span, .hugo-fallback span {
+                font-size: 12px;
+                color: #94a3b8;
+                text-align: center;
+            }
+
+            .libras-player-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 12px;
+            }
+
+            .libras-player-actions .btn {
+                flex: 1;
+                padding: 12px 16px;
+                border-radius: 10px;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                border: none;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .libras-player-actions .btn-primary {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+            }
+
+            .libras-player-actions .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            }
+
+            .libras-player-actions .btn-full {
+                width: 100%;
+            }
+
+            .libras-player-actions .btn-secondary {
+                background: rgba(255, 255, 255, 0.1);
+                color: #e2e8f0;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .libras-player-actions .btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.15);
+            }
+
+            .libras-loading {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                padding: 16px;
+                color: #94a3b8;
+            }
+
+            .libras-loading-spinner {
+                width: 36px;
+                height: 36px;
+                border: 3px solid rgba(16, 185, 129, 0.2);
+                border-top-color: #10b981;
+                border-radius: 50%;
+                animation: librasSpin 1s linear infinite;
+            }
+
+            @keyframes librasSpin { to { transform: rotate(360deg); } }
+
+            .inclua-libras-active {
+                outline: 3px solid #10b981 !important;
+                background-color: rgba(16, 185, 129, 0.12) !important;
+                transition: all 0.2s ease !important;
+                border-radius: 4px;
+            }
+
+            /* Esconder o botão azul do VLibras quando nosso player estiver ativo */
+            .libras-player-container[style*="block"] ~ [vw] [vw-access-button] {
+                opacity: 0.3;
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    async handleLibrasHover(e) {
+        if (this.activeModal || e.target.closest('#inclua-ai-widget') || e.target.closest('#inclua-libras-player')) return;
+
+        const inlineTags = ['A', 'B', 'STRONG', 'I', 'EM', 'SPAN', 'LABEL', 'BUTTON'];
+        let target = e.target;
+
+        if (inlineTags.includes(target.tagName)) {
+            target = target.parentElement || target;
+        }
+
+        const text = target.innerText ? target.innerText.trim() : '';
+
+        if (text.length >= 5 && text.length < 500) {
+            if (this.currentLibrasTarget === target) return;
+
+            clearTimeout(this.librasHoverTimeout);
+            this.librasHoverTimeout = setTimeout(async () => {
+                this.highlightLibrasElement(target);
+                this.currentLibrasTarget = target;
+                this.showLibrasLoading(text);
+
+                try {
+                    const response = await this.fetchWithRetry(`${this.getApiBaseUrl()}/convert-to-libras`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        this.currentLibrasGlosa = data.librasText;
+                        this.currentOriginalText = text;
+                        this.displayLibrasResult(text, data.librasText);
+                    } else {
+                        // API falhou - usar texto original
+                        this.currentLibrasGlosa = null;
+                        this.currentOriginalText = text;
+                        this.displayLibrasResult(text, text.toUpperCase() + ' (texto original)');
+                    }
+                } catch (error) {
+                    console.error('Erro ao processar Libras:', error);
+                    // API falhou - usar texto original
+                    this.currentLibrasGlosa = null;
+                    this.currentOriginalText = text;
+                    this.displayLibrasResult(text, text.toUpperCase() + ' (texto original)');
+                }
+            }, 800);
+        }
+    }
+
+    handleLibrasHoverOut(e) {
+        if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('#inclua-libras-player')) return;
+        clearTimeout(this.librasHoverTimeout);
+    }
+
+    highlightLibrasElement(el) {
+        this.removeLibrasHighlight();
+        this.currentLibrasHighlighted = el;
+        el.classList.add('inclua-libras-active');
+    }
+
+    removeLibrasHighlight() {
+        if (this.currentLibrasHighlighted) {
+            this.currentLibrasHighlighted.classList.remove('inclua-libras-active');
+            this.currentLibrasHighlighted = null;
+        }
+        this.currentLibrasTarget = null;
+    }
+
+    showLibrasLoading(originalText) {
+        const player = document.getElementById('inclua-libras-player');
+        if (!player) return;
+
+        player.style.display = 'block';
+
+        const originalEl = document.getElementById('libras-original-text');
+        const glosaEl = document.getElementById('libras-glosa-text');
+
+        if (originalEl) originalEl.textContent = originalText;
+        if (glosaEl) {
+            glosaEl.innerHTML = `
+                <div class="libras-loading">
+                    <div class="libras-loading-spinner"></div>
+                    <span>Convertendo...</span>
+                </div>
+            `;
+        }
+    }
+
+    displayLibrasResult(originalText, glosa) {
+        const player = document.getElementById('inclua-libras-player');
+        if (!player) return;
+
+        player.style.display = 'block';
+        this.currentLibrasGlosa = glosa;
+
+        const originalEl = document.getElementById('libras-original-text');
+        const glosaEl = document.getElementById('libras-glosa-text');
+        const hugoContainer = document.getElementById('hugo-avatar-wrapper');
+
+        if (originalEl) originalEl.textContent = originalText;
+        if (glosaEl) glosaEl.textContent = glosa;
+
+        // Atualiza container do Hugo com instruções
+        if (hugoContainer) {
+            hugoContainer.innerHTML = `
+                <div class="hugo-loading-avatar">🧏</div>
+                <div class="hugo-instruction">
+                    Clique em <strong>"Ver em Libras"</strong> para ver o Hugo traduzindo!
+                </div>
+            `;
+        }
+    }
+
+    hideLibrasPlayer() {
+        const player = document.getElementById('inclua-libras-player');
+        if (player) player.style.display = 'none';
+        this.removeLibrasHighlight();
+    }
+
+    copyLibrasText() {
+        if (this.currentLibrasGlosa) {
+            navigator.clipboard.writeText(this.currentLibrasGlosa)
+                .then(() => this.showToast('Glosa copiada! Cole no VLibras acima.', 'success'))
+                .catch(() => this.showToast('Erro ao copiar', 'error'));
+        }
+    }
+
+    // ==========================================================================
     // MODAL SYSTEM
     // ==========================================================================
 
@@ -842,6 +1713,425 @@ class IncluaAIWidget {
             const voices = speechSynthesis.getVoices();
             // Lógica de seleção de voz pode ser expandida aqui
         };
+    }
+
+    injectCategoryStyles() {
+        // Tenta remover estilo antigo se existir para limpar cache
+        const oldStyle = document.getElementById('inclua-category-styles');
+        if (oldStyle) oldStyle.remove();
+
+        if (document.getElementById('inclua-category-styles-v2')) return;
+
+        const styles = document.createElement('style');
+        styles.id = 'inclua-category-styles-v2';
+        styles.textContent = `
+            /* Layout do Painel Melhorado */
+            .panel-content {
+                padding: 16px !important;
+                overflow-y: auto;
+                max-height: 70vh;
+            }
+
+            /* Categorias de Acessibilidade */
+            .acess-category {
+                margin-bottom: 24px;
+                animation: categoryFadeIn 0.4s ease forwards;
+            }
+
+            @keyframes categoryFadeIn {
+                from { opacity: 0; transform: translateY(10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+
+            .category-header {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid var(--category-color);
+            }
+
+            .category-icon {
+                font-size: 24px;
+            }
+
+            .category-title {
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--category-color);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Grid de Cards */
+            .category-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+                gap: 12px;
+            }
+
+            /* Cards de Funcionalidade - CORES SÓLIDAS PARA VISIBILIDADE */
+            .feature-card {
+                background-color: #1e293b !important; /* Azul escuro sólido */
+                border: 2px solid #475569 !important; /* Cinza claro */
+                border-radius: 12px;
+                padding: 12px 8px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+                min-height: 90px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                color: #f8fafc !important; /* Branco quase puro */
+                opacity: 1 !important;
+                visibility: visible !important;
+            }
+
+            .feature-card:hover {
+                background-color: #334155 !important;
+                border-color: var(--category-color) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 15px rgba(0,0,0,0.4);
+            }
+
+            .feature-card:active, 
+            .feature-card.active {
+                background-color: var(--category-color) !important;
+                border-color: var(--category-color) !important;
+                color: white !important;
+            }
+
+            .feature-card:focus-visible {
+                outline: 3px solid var(--category-color) !important;
+                outline-offset: 2px !important;
+            }
+
+            .card-icon {
+                font-size: 32px;
+                margin-bottom: 4px;
+                display: block !important;
+            }
+
+            .card-label {
+                font-size: 12px;
+                font-weight: 600;
+                color: inherit;
+                text-align: center;
+                line-height: 1.3;
+                display: block !important;
+            }
+
+            .card-shortcut {
+                font-size: 10px;
+                color: #cbd5e1;
+                background: rgba(0,0,0,0.6);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: monospace;
+                position: absolute;
+                top: 6px;
+                right: 6px;
+            }
+
+            .card-icon {
+                font-size: 32px;
+                filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
+                animation: iconFloat 3s ease-in-out infinite;
+            }
+
+            @keyframes iconFloat {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-2px); }
+            }
+
+            .card-label {
+                font-size: 11px;
+                font-weight: 600;
+                color: #e2e8f0;
+                text-align: center;
+                line-height: 1.2;
+                max-width: 100%;
+                word-wrap: break-word;
+            }
+
+            .card-shortcut {
+                font-size: 9px;
+                color: #94a3b8;
+                background: rgba(0,0,0,0.3);
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: 'Courier New', monospace;
+                font-weight: 600;
+                position: absolute;
+                top: 4px;
+                right: 4px;
+            }
+
+            .feature-card:hover .card-shortcut {
+                color: var(--category-color);
+                background: rgba(0,0,0,0.5);
+            }
+
+            /* Filtro de Daltonismo */
+            .category-colorblind {
+                margin-bottom: 20px;
+                padding: 12px 16px;
+                background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+                border: 2px solid rgba(168, 85, 247, 0.3);
+                border-radius: 12px;
+            }
+
+            .colorblind-label {
+                font-size: 13px;
+                font-weight: 600;
+                color: #a855f7;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .colorblind-select {
+                width: 100%;
+                padding: 10px 12px;
+                background: rgba(0,0,0,0.3);
+                border: 1px solid rgba(255,255,255,0.2);
+                border-radius: 8px;
+                color: #e2e8f0;
+                font-size: 13px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .colorblind-select:hover {
+                border-color: #a855f7;
+                background: rgba(0,0,0,0.4);
+            }
+
+            .colorblind-select:focus {
+                outline: 2px solid #a855f7;
+                outline-offset: 2px;
+            }
+
+            .colorblind-select option {
+                background: #1e293b;
+                color: #e2e8f0;
+            }
+
+            /* Rodapé do Menu */
+            .menu-footer {
+                margin-top: 20px;
+                padding-top: 16px;
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+
+            .reset-button {
+                width: 100%;
+                padding: 12px;
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%);
+                border: 2px solid rgba(239, 68, 68, 0.4);
+                border-radius: 10px;
+                color:#ef4444;
+                font-size: 13px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .reset-button:hover {
+                background: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.3) 100%);
+                border-color: #ef4444;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            }
+
+            .reset-button:focus-visible {
+                outline: 3px solid #ef4444 !important;
+                outline-offset: 2px !important;
+            }
+
+            .reset-button span {
+                font-size: 18px;
+            }
+
+            /* Animação de entrada escalonada */
+            .acess-category:nth-child(1) { animation-delay: 0s; }
+            .acess-category:nth-child(2) { animation-delay: 0.1s; }
+            .acess-category:nth-child(3) { animation-delay: 0.2s; }
+            .acess-category:nth-child(4) { animation-delay: 0.3s; }
+            .acess-category:nth-child(5) { animation-delay: 0.4s; }
+
+            /* Responsivo */
+            @media (max-width: 400px) {
+                .category-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                
+                .feature-card {
+                    min-height: 90px;
+                }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+
+    injectHelpStyles() {
+        if (document.getElementById('inclua-help-styles')) return;
+
+        const styles = document.createElement('style');
+        styles.id = 'inclua-help-styles';
+        styles.textContent = `
+            /* Help Screen */
+            .help-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 999999;
+                animation: fadeIn 0.2s ease;
+            }
+
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+
+            .help-content {
+                background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+                border-radius: 20px;
+                padding: 0;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            }
+
+            .help-header {
+                background: rgba(16, 185, 129, 0.1);
+                padding: 20px 24px;
+                border-bottom: 2px solid rgba(16, 185, 129, 0.3);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .help-header h2 {
+                margin: 0;
+                color: #10b981;
+                font-size: 24px;
+                font-weight: 700;
+            }
+
+            .help-close {
+                background: rgba(239, 68, 68, 0.2);
+                border: 1px solid rgba(239, 68, 68, 0.5);
+                color: #ef4444;
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                font-size: 20px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .help-close:hover {
+                background: rgba(239, 68, 68, 0.3);
+                transform: scale(1.1);
+            }
+
+            .help-close:focus {
+                outline: 3px solid #10b981;
+                outline-offset: 2px;
+            }
+
+            .help-body {
+                padding: 24px;
+                overflow-y: auto;
+                max-height: calc(80vh - 80px);
+            }
+
+            .help-section {
+                margin-bottom: 24px;
+            }
+
+            .help-section h3 {
+                color: #e2e8f0;
+                font-size: 16px;
+                margin: 0 0 12px 0;
+                font-weight: 600;
+            }
+
+            .help-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .help-list li {
+                padding: 8px 0;
+                color: #cbd5e1;
+                font-size: 14px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .help-list li:last-child {
+                border-bottom: none;
+            }
+
+            kbd {
+                background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+                border: 1px solid #475569;
+                border-radius: 4px;
+                padding: 2px 8px;
+                font-family: 'Courier New', monospace;
+                font-size: 12px;
+                color: #10b981;
+                font-weight: 600;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            /* Foco Visual Aprimorado */
+            .feature-button:focus-visible,
+            button:focus-visible,
+            select:focus-visible {
+                outline: 3px solid #10b981 !important;
+                outline-offset: 2px !important;
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.2) !important;
+            }
+
+            .feature-button:focus {
+                z-index: 10;
+                transform: scale(1.02);
+            }
+
+            /* Screen Reader Only */
+            .sr-only {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                padding: 0;
+                margin: -1px;
+                overflow: hidden;
+                clip: rect(0, 0, 0, 0);
+                white-space: nowrap;
+                border: 0;
+            }
+        `;
+        document.head.appendChild(styles);
     }
 
     resetSettings() {
