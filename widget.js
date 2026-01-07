@@ -11,8 +11,7 @@ class IncluaAIWidget {
             reader: false,
             highlightLinks: false,
             imageDescriber: false,
-            textSummarizer: false,
-            didacticSummary: false
+            textSummarizer: false
         };
 
         this.settings = {
@@ -26,6 +25,14 @@ class IncluaAIWidget {
         this.activeModal = null;
 
         this.init();
+
+        // Bind dos métodos para preservar referência
+        this.boundHandleTextSelection = this.handleTextSelection.bind(this);
+        this.boundHandleImageClick = this.handleImageClick.bind(this);
+        this.boundHandleTextSummarization = this.handleTextSummarization.bind(this);
+        this.boundHandleHover = this.handleHover.bind(this);
+        this.boundHandleHoverOut = this.handleHoverOut.bind(this);
+        this.hoverTimeout = null;
     }
 
     init() {
@@ -155,7 +162,8 @@ class IncluaAIWidget {
         ])}
 
             ${this.createSection('Assistente de Leitura', [
-            { id: 'text-reader', emoji: '🔊', title: 'Leitor de Texto', desc: 'Lê textos selecionados' }
+            { id: 'text-reader', emoji: '🔊', title: 'Leitor de Texto', desc: 'Lê textos selecionados' },
+            { id: 'hover-reader', emoji: '👆', title: 'Ler ao Passar Mouse', desc: 'Lê o que você aponta' }
         ])}
 
             ${this.createSection('IA para Acessibilidade', [
@@ -361,6 +369,7 @@ class IncluaAIWidget {
                 case 'font-decrease': this.adjustFontSize(-1); break;
                 case 'highlight-links': this.toggleHighlightLinks(); break;
                 case 'text-reader': this.toggleTextReader(); break;
+                case 'hover-reader': this.toggleHoverReader(); break;
                 case 'describe-image': this.toggleImageDescriber(); break;
                 case 'summarize-text': this.toggleTextSummarizer(); break;
                 case 'didactic-summary': this.toggleDidacticSummary(); break;
@@ -396,10 +405,10 @@ class IncluaAIWidget {
     toggleTextReader() {
         this.features.reader = !this.features.reader;
         if (this.features.reader) {
-            document.addEventListener('mouseup', this.handleTextSelection.bind(this));
+            document.addEventListener('mouseup', this.boundHandleTextSelection);
             this.showToast('Selecione texto para ouvir a leitura', 'info');
         } else {
-            document.removeEventListener('mouseup', this.handleTextSelection.bind(this));
+            document.removeEventListener('mouseup', this.boundHandleTextSelection);
             speechSynthesis.cancel();
             this.showToast('Leitor de texto desativado', 'info');
         }
@@ -415,14 +424,89 @@ class IncluaAIWidget {
         }
     }
 
+    toggleHoverReader() {
+        this.features.hoverReader = !this.features.hoverReader;
+        if (this.features.hoverReader) {
+            document.addEventListener('mouseover', this.boundHandleHover);
+            document.addEventListener('mouseout', this.boundHandleHoverOut);
+            this.showToast('Passe o mouse sobre o texto para ler', 'info');
+        } else {
+            document.removeEventListener('mouseover', this.boundHandleHover);
+            document.removeEventListener('mouseout', this.boundHandleHoverOut);
+            clearTimeout(this.hoverTimeout);
+            speechSynthesis.cancel();
+            this.removeHighlight();
+            this.showToast('Leitura ao passar mouse desativada', 'info');
+        }
+    }
+
+    handleHover(e) {
+        if (this.activeModal || e.target.closest('#inclua-ai-widget')) return;
+
+        // Tags que consideramos "conteúdo"
+        const inlineTags = ['A', 'B', 'STRONG', 'I', 'EM', 'SPAN', 'LABEL', 'BUTTON'];
+        let target = e.target;
+
+        // Se for inline, sobe para o pai (geralmente P ou DIV) para ler o contexto
+        if (inlineTags.includes(target.tagName)) {
+            target = target.parentElement || target;
+        }
+
+        const text = target.innerText ? target.innerText.trim() : '';
+
+        // Validação simples: tem texto? não é gigante?
+        if (text.length > 0 && text.length < 3000) {
+            // Evita reler o mesmo elemento
+            if (this.currentHighlighted === target) return;
+
+            // Debounce mais rápido (400ms)
+            clearTimeout(this.hoverTimeout);
+            this.hoverTimeout = setTimeout(() => {
+                // Checagem dupla se o mouse ainda está lá (opcional, mas bom)
+                this.highlightElement(target);
+
+                speechSynthesis.cancel();
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'pt-BR';
+                utterance.onend = () => { this.currentSpeech = null; };
+
+                this.currentSpeech = utterance;
+                speechSynthesis.speak(utterance);
+            }, 400);
+        }
+    }
+
+    handleHoverOut(e) {
+        clearTimeout(this.hoverTimeout);
+        speechSynthesis.cancel();
+        this.removeHighlight();
+    }
+
+    highlightElement(el) {
+        this.removeHighlight();
+        this.currentHighlighted = el;
+        el.style.outline = '2px solid #2563eb';
+        el.style.backgroundColor = 'rgba(37, 99, 235, 0.1)';
+        el.style.transition = 'all 0.2s';
+    }
+
+    removeHighlight() {
+        if (this.currentHighlighted) {
+            this.currentHighlighted.style.outline = '';
+            this.currentHighlighted.style.backgroundColor = '';
+            this.currentHighlighted = null;
+        }
+    }
+
     toggleImageDescriber() {
         this.features.imageDescriber = !this.features.imageDescriber;
         if (this.features.imageDescriber) {
-            document.addEventListener('click', this.handleImageClick.bind(this));
+            document.addEventListener('click', this.boundHandleImageClick);
             document.body.style.cursor = 'help';
             this.showToast('Clique em uma imagem para descrição', 'info');
         } else {
-            document.removeEventListener('click', this.handleImageClick.bind(this));
+            document.removeEventListener('click', this.boundHandleImageClick);
             document.body.style.cursor = '';
             this.showToast('Descritor de imagens desativado', 'info');
         }
@@ -487,20 +571,15 @@ class IncluaAIWidget {
         }
 
         if (this.features.textSummarizer) {
-            document.addEventListener('mouseup', this.handleTextSummarization.bind(this));
+            document.addEventListener('mouseup', this.boundHandleTextSummarization);
             this.showToast('Selecione texto para resumir', 'info');
         } else {
-            document.removeEventListener('mouseup', this.handleTextSummarization.bind(this));
+            document.removeEventListener('mouseup', this.boundHandleTextSummarization);
             this.showToast('Resumidor desativado', 'info');
         }
     }
 
     async handleTextSummarization() {
-        // Não gerar resumo se um modal estiver aberto
-        if (this.activeModal) {
-            return;
-        }
-
         const text = window.getSelection().toString().trim();
         if (text.length >= 50) {
             this.showToast('Gerando resumo...', 'info');
@@ -630,6 +709,9 @@ class IncluaAIWidget {
         // Fechar modal
         const closeBtn = overlay.querySelector('.modal-close');
         const close = () => {
+            speechSynthesis.cancel();
+            if (this.currentSpeech) this.currentSpeech = null;
+
             overlay.classList.remove('show');
             setTimeout(() => overlay.remove(), 300);
             this.activeModal = null;
