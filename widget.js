@@ -194,7 +194,7 @@ class IncluaAIWidget {
 
     createPanelSections() {
         return `
-            ${this.createCategory('visual', '👁️', 'Deficiência Visual', '#3b82f6', [
+            ${this.createCategory('visual', '', 'Deficiência Visual', '#3b82f6', [
             { id: 'font-increase', emoji: '🔼', title: 'Aumentar', desc: 'Fonte maior', key: 'F2' },
             { id: 'font-decrease', emoji: '🔽', title: 'Diminuir', desc: 'Fonte menor', key: 'F3' },
             { id: 'highlight-links', emoji: '🔗', title: 'Links', desc: 'Destacar', key: 'F9' },
@@ -204,7 +204,7 @@ class IncluaAIWidget {
         ])}
 
             <div class="category-colorblind">
-                <div class="colorblind-label">🎨 Filtros de Daltonismo</div>
+                <div class="colorblind-label"> Filtros de Daltonismo</div>
                 <select id="colorblind-filter" class="colorblind-select">
                     <option value="none">Nenhum filtro</option>
                     <option value="protanopia">Protanopia (Vermelho-Verde)</option>
@@ -214,11 +214,11 @@ class IncluaAIWidget {
                 </select>
             </div>
 
-            ${this.createCategory('auditiva', '👂', 'Deficiência Auditiva', '#10b981', [
+            ${this.createCategory('auditiva', '', 'Deficiência Auditiva', '#10b981', [
             { id: 'libras-hover', emoji: '🤟', title: 'Libras', desc: 'Traduzir', key: 'F8' }
         ])}
 
-            ${this.createCategory('cognitiva', '🧠', 'Dificuldades Cognitivas', '#8b5cf6', [
+            ${this.createCategory('cognitiva', '', 'Dificuldades Cognitivas', '#8b5cf6', [
             { id: 'didactic-summary', emoji: '📚', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
             { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' },
             { id: 'focus-mode', emoji: '🎯', title: 'Foco', desc: 'Destaca conteúdo', key: 'F11' }
@@ -278,7 +278,7 @@ class IncluaAIWidget {
         return `
             <div class="acess-category" style="--category-color: #6366f1">
                 <div class="category-header">
-                    <span class="category-icon">🤖</span>
+                    <span class="category-icon"></span>
                     <span class="category-title">${title}</span>
                 </div>
                 <div class="category-grid">
@@ -2625,44 +2625,46 @@ class IncluaAIWidget {
             /* Grid de Cards */
             .category-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-                gap: 12px;
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 18px;
+                padding: 4px;
             }
 
             /* Cards de Funcionalidade - CORES SÓLIDAS & INDICADORES */
             .feature-card {
-                background-color: #1e293b !important;
-                border: 2px solid #475569 !important;
-                border-radius: 12px;
-                padding: 12px 8px;
+                background: linear-gradient(145deg, #374151 0%, #1f2937 100%) !important;
+                border: 2px solid rgba(255, 255, 255, 0.2) !important;
+                border-radius: 16px;
+                padding: 16px 12px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
+                gap: 10px;
                 cursor: pointer;
-                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 position: relative;
-                min-height: 95px; /* Aumentado para caber indicador */
-                box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-                color: #94a3b8 !important; /* Texto cinza quando inativo */
+                min-height: 115px;
+                box-shadow: 0 6px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+                color: #d1d5db !important;
                 opacity: 1 !important;
                 visibility: visible !important;
             }
 
             .feature-card:hover {
-                background-color: #334155 !important;
-                border-color: #94a3b8 !important;
-                color: #f1f5f9 !important;
-                transform: translateY(-2px);
+                background: linear-gradient(145deg, #4b5563 0%, #374151 100%) !important;
+                border-color: rgba(255, 255, 255, 0.35) !important;
+                color: #ffffff !important;
+                transform: translateY(-4px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
             }
 
             /* ESTADO ATIVO - CLARAMENTE LIGADO */
             .feature-card.active {
-                background-color: var(--category-color) !important;
-                border-color: white !important;
+                background: linear-gradient(145deg, var(--category-color) 0%, color-mix(in srgb, var(--category-color) 80%, black) 100%) !important;
+                border-color: rgba(255, 255, 255, 0.5) !important;
                 color: white !important;
-                box-shadow: 0 0 15px var(--category-color), inset 0 0 10px rgba(0,0,0,0.2) !important;
+                box-shadow: 0 0 20px var(--category-color), 0 8px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.3) !important;
             }
 
             .feature-card.active .card-icon {
@@ -2724,40 +2726,35 @@ class IncluaAIWidget {
             }
 
             .card-icon {
-                font-size: 28px;
-                margin-bottom: 2px;
+                font-size: 38px;
+                margin-bottom: 4px;
                 display: block !important;
-                transition: transform 0.2s;
+                transition: all 0.3s ease;
+                filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
+                opacity: 0.95;
+            }
+
+            .feature-card:hover .card-icon {
+                transform: scale(1.1);
+                filter: drop-shadow(0 4px 12px rgba(255,255,255,0.3));
+                opacity: 1;
+            }
+
+            .feature-card.active .card-icon {
+                filter: drop-shadow(0 4px 12px rgba(255,255,255,0.5));
             }
 
             .card-label {
-                font-size: 11px;
+                font-size: 11.5px;
                 font-weight: 600;
                 color: inherit;
                 text-align: center;
-                line-height: 1.2;
+                line-height: 1.3;
                 display: block !important;
             }
 
             .card-shortcut {
-                display: none; /* Escondendo atalho para limpar visual, aparece no hover se quiser */
-            }
-
-            .card-icon {
-                font-size: 32px;
-                filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-                animation: iconFloat 3s ease-in-out infinite;
-            }
-
-            @keyframes iconFloat {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-2px); }
-            }
-
-            .card-label {
-                font-size: 11px;
-                font-weight: 600;
-                color: #e2e8f0;
+                display: none;
                 text-align: center;
                 line-height: 1.2;
                 max-width: 100%;
@@ -3152,7 +3149,7 @@ class IncluaAIWidget {
                         <div class="demo-preview">
                             <div class="chat-demo-window">
                                 <div class="demo-message bot">
-                                    <div class="demo-avatar">🤖</div>
+                                    <div class="demo-avatar"></div>
                                     <div class="demo-bubble">Olá! Como posso ajudar?</div>
                                 </div>
                                 <div class="demo-message user">
@@ -3160,7 +3157,7 @@ class IncluaAIWidget {
                                     <div class="demo-avatar">👤</div>
                                 </div>
                                 <div class="demo-message bot">
-                                    <div class="demo-avatar">🤖</div>
+                                    <div class="demo-avatar"></div>
                                     <div class="demo-bubble">Posso te ajudar! Temos recursos de leitura, descrição de imagens...</div>
                                 </div>
                             </div>
@@ -3177,7 +3174,7 @@ class IncluaAIWidget {
                                 <li>💬 Conversação natural em texto</li>
                                 <li>🎤 Entrada por comando de voz</li>
                                 <li>🔊 Respostas em áudio (TTS)</li>
-                                <li>🤖 IA treinada em acessibilidade</li>
+                                <li> IA treinada em acessibilidade</li>
                                 <li>📱 Disponível 24/7</li>
                             </ul>
                             <p class="demo-note">Este é um preview visual. Funcionalidade em desenvolvimento.</p>
