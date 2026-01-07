@@ -193,9 +193,26 @@ class IncluaAIWidget {
             { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' }
         ])}
 
-            ${this.createCategory('ia', '🤖', 'Inteligência Artificial', '#f59e0b', [
-            { id: 'describe-image', emoji: '🖼️', title: 'Imagem', desc: 'Descrever com IA', key: 'F6' }
+            ${this.createSection('Assistência Virtual', [
+            { id: 'chatbot', emoji: '💬', title: 'ChatBot Assistente', desc: 'Converse com IA' },
+            { id: 'call-center', emoji: '☎️', title: 'Central de Atendimento', desc: 'Atendimento por voz' }
         ])}
+
+            <div class="feature-section">
+                <div class="section-header">Filtros para Daltonismo</div>
+                <div class="feature-group">
+                    <div class="form-group">
+                        <label class="form-label" for="colorblind-filter">Tipo de Daltonismo:</label>
+                        <select id="colorblind-filter" class="form-select">
+                            <option value="none">Nenhum filtro</option>
+                            <option value="protanopia">Protanopia (Vermelho-Verde)</option>
+                            <option value="deuteranopia">Deuteranopia (Verde-Vermelho)</option>
+                            <option value="tritanopia">Tritanopia (Azul-Amarelo)</option>
+                            <option value="achromatopsia">Acromatopsia (Sem cores)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
             <div class="menu-footer">
                 <button class="reset-button" data-action="reset-settings">
@@ -379,7 +396,8 @@ class IncluaAIWidget {
                 case 'describe-image': this.toggleImageDescriber(); break;
                 case 'summarize-text': this.toggleTextSummarizer(); break;
                 case 'didactic-summary': this.toggleDidacticSummary(); break;
-                case 'libras-hover': this.toggleLibrasHover(); break;
+                case 'chatbot': this.openChatbot(); break;
+                case 'call-center': this.openCallCenter(); break;
                 case 'reset-settings': this.resetSettings(); break;
             }
         } catch (error) {
@@ -2119,6 +2137,171 @@ class IncluaAIWidget {
     resetSettings() {
         localStorage.removeItem('inclua-ai-settings');
         location.reload();
+    }
+
+    // ==========================================================================
+    // CHATBOT E CALL CENTER (SIMULAÇÃO VISUAL)
+    // ==========================================================================
+
+    openChatbot() {
+        const modalHTML = `
+            <div class="modal-overlay" id="chatbot-modal" role="dialog" aria-modal="true" aria-labelledby="chatbot-title">
+                <div class="modal-content demo-container">
+                    <div class="modal-header">
+                        <h2 id="chatbot-title" class="modal-title">💬 ChatBot</h2>
+                        <button class="modal-close" onclick="incluaAIWidget.closeChatbot()" aria-label="Fechar" title="Fechar">
+                            ✕
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="demo-badge">🎭 Modo Demonstração</div>
+                        
+                        <div class="demo-preview">
+                            <div class="chat-demo-window">
+                                <div class="demo-message bot">
+                                    <div class="demo-avatar">🤖</div>
+                                    <div class="demo-bubble">Olá! Como posso ajudar?</div>
+                                </div>
+                                <div class="demo-message user">
+                                    <div class="demo-bubble">Preciso de ajuda com acessibilidade</div>
+                                    <div class="demo-avatar">👤</div>
+                                </div>
+                                <div class="demo-message bot">
+                                    <div class="demo-avatar">🤖</div>
+                                    <div class="demo-bubble">Posso te ajudar! Temos recursos de leitura, descrição de imagens...</div>
+                                </div>
+                            </div>
+                            
+                            <div class="demo-input-bar">
+                                <div class="demo-input">Digite sua mensagem...</div>
+                                <button class="demo-voice-btn">🎤</button>
+                            </div>
+                        </div>
+
+                        <div class="demo-info">
+                            <h3>✨ Recursos do ChatBot:</h3>
+                            <ul class="demo-features-list">
+                                <li>💬 Conversação natural em texto</li>
+                                <li>🎤 Entrada por comando de voz</li>
+                                <li>🔊 Respostas em áudio (TTS)</li>
+                                <li>🤖 IA treinada em acessibilidade</li>
+                                <li>📱 Disponível 24/7</li>
+                            </ul>
+                            <p class="demo-note">Este é um preview visual. Funcionalidade em desenvolvimento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('chatbot-modal');
+        this.activeModal = modal;
+        
+        // Fechar ao clicar fora do modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeChatbot();
+            }
+        });
+        
+        requestAnimationFrame(() => {
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.style.opacity = '1');
+        });
+
+        this.trapFocus(modal);
+    }
+
+    closeChatbot() {
+        const modal = document.getElementById('chatbot-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.remove(), 300);
+            this.activeModal = null;
+            this.releaseFocus();
+        }
+    }
+
+    openCallCenter() {
+        const modalHTML = `
+            <div class="modal-overlay" id="callcenter-modal" role="dialog" aria-modal="true" aria-labelledby="callcenter-title">
+                <div class="modal-content demo-container">
+                    <div class="modal-header">
+                        <h2 id="callcenter-title" class="modal-title">☎️ Central de Atendimento</h2>
+                        <button class="modal-close" onclick="incluaAIWidget.closeCallCenter()" aria-label="Fechar" title="Fechar">
+                            ✕
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="demo-badge">🎭 Modo Demonstração</div>
+                        
+                        <div class="demo-preview call-preview">
+                            <div class="call-demo-screen">
+                                <div class="call-demo-avatar pulsing">
+                                    🎧
+                                </div>
+                                <h3>Atendente Virtual</h3>
+                                <p class="call-status-text">Conectado</p>
+                                <div class="call-timer-demo">02:34</div>
+                                
+                                <div class="call-controls-demo">
+                                    <div class="call-btn-demo mute">🔇</div>
+                                    <div class="call-btn-demo end">📞</div>
+                                    <div class="call-btn-demo speaker">🔊</div>
+                                </div>
+                                
+                                <div class="call-transcript-demo">
+                                    <p><strong>Você:</strong> Olá, preciso de ajuda</p>
+                                    <p><strong>Atendente:</strong> Olá! Como posso ajudar?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-info">
+                            <h3>✨ Recursos da Central:</h3>
+                            <ul class="demo-features-list">
+                                <li>☎️ Atendimento por voz em tempo real</li>
+                                <li>🎯 Roteamento inteligente para departamentos</li>
+                                <li>📝 Transcrição automática da conversa</li>
+                                <li>🔊 Síntese de voz natural (TTS)</li>
+                                <li>🌐 Suporte multilíngue</li>
+                                <li>♿ Totalmente acessível</li>
+                            </ul>
+                            <p class="demo-note">Este é um preview visual. Funcionalidade em desenvolvimento.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        const modal = document.getElementById('callcenter-modal');
+        this.activeModal = modal;
+        
+        // Fechar ao clicar fora do modal
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                this.closeCallCenter();
+            }
+        });
+        
+        requestAnimationFrame(() => {
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.style.opacity = '1');
+        });
+
+        this.trapFocus(modal);
+    }
+
+    closeCallCenter() {
+        const modal = document.getElementById('callcenter-modal');
+        if (modal) {
+            modal.style.opacity = '0';
+            setTimeout(() => modal.remove(), 300);
+            this.activeModal = null;
+            this.releaseFocus();
+        }
     }
 }
 
