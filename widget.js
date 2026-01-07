@@ -31,12 +31,20 @@ class IncluaAIWidget {
             didacticSummary: false,
 
             // Libras
-            librasHover: false
+            librasHover: false,
+
+            // Novas funcionalidades
+            voiceCommands: false,
+            focusMode: false
         };
 
         this.currentSpeech = null;
         this.focusTrap = null;
         this.activeModal = null;
+
+        // Voice Recognition
+        this.speechRecognition = null;
+        this.isListening = false;
 
         this.init();
 
@@ -183,7 +191,8 @@ class IncluaAIWidget {
             { id: 'font-decrease', emoji: '🔽', title: 'Diminuir', desc: 'Fonte menor', key: 'F3' },
             { id: 'highlight-links', emoji: '🔗', title: 'Links', desc: 'Destacar', key: 'F9' },
             { id: 'text-reader', emoji: '🔊', title: 'Leitor', desc: 'Ler texto', key: 'F4' },
-            { id: 'hover-reader', emoji: '👆', title: 'Hover', desc: 'Ler ao passar', key: 'F5' }
+            { id: 'hover-reader', emoji: '👆', title: 'Hover', desc: 'Ler ao passar', key: 'F5' },
+            { id: 'describe-image', emoji: '🖼️', title: 'Imagem', desc: 'Descrever com IA', key: 'F6' }
         ])}
 
             <div class="category-colorblind">
@@ -203,9 +212,9 @@ class IncluaAIWidget {
 
             ${this.createCategory('cognitiva', '🧠', 'Dificuldades Cognitivas', '#8b5cf6', [
             { id: 'didactic-summary', emoji: '📚', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
-            { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' }
-        ])}
-
+            { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' },
+            { id: 'focus-mode', emoji: '🎯', title: 'Foco', desc: 'Destaca conteúdo', key: 'F11' }
+        ])
             ${this.createSection('Assistência Virtual', [
             { id: 'chatbot', emoji: '💬', title: 'ChatBot Assistente', desc: 'Converse com IA' },
             { id: 'call-center', emoji: '☎️', title: 'Central de Atendimento', desc: 'Atendimento por voz' }
@@ -410,6 +419,9 @@ class IncluaAIWidget {
                 case 'describe-image': this.toggleImageDescriber(); break;
                 case 'summarize-text': this.toggleTextSummarizer(); break;
                 case 'didactic-summary': this.toggleDidacticSummary(); break;
+                case 'libras-hover': this.toggleLibrasHover(); break;
+                case 'voice-commands': this.toggleVoiceCommands(); break;
+                case 'focus-mode': this.toggleFocusMode(); break;
                 case 'chatbot': this.openChatbot(); break;
                 case 'call-center': this.openCallCenter(); break;
                 case 'reset-settings': this.resetSettings(); break;
@@ -438,6 +450,8 @@ class IncluaAIWidget {
         if (action === 'summarize-text') isActive = this.settings.textSummarizer;
         if (action === 'didactic-summary') isActive = this.settings.didacticSummary;
         if (action === 'libras-hover') isActive = this.settings.librasHover;
+        if (action === 'voice-commands') isActive = this.settings.voiceCommands;
+        if (action === 'focus-mode') isActive = this.settings.focusMode;
 
         // Aplica classes e textos
         if (isActive) {
@@ -508,7 +522,9 @@ class IncluaAIWidget {
             'F7': () => this.triggerAction('summarize-text', 'Resumir texto'),
             'F8': () => this.triggerAction('libras-hover', 'Libras ao hover'),
             'F9': () => this.triggerAction('highlight-links', 'Destacar links'),
-            'F10': () => this.triggerAction('didactic-summary', 'Resumo didático')
+            'F10': () => this.triggerAction('didactic-summary', 'Resumo didático'),
+            'F11': () => this.triggerAction('focus-mode', 'Modo foco'),
+            'F12': () => this.triggerAction('voice-commands', 'Controle por voz')
         };
 
         if (functionKeyMap[e.key]) {
@@ -578,7 +594,7 @@ class IncluaAIWidget {
                             </ul>
                         </div>
                         <div class="help-section">
-                            <h3>Funcionalidades (F2-F10)</h3>
+                            <h3>Funcionalidades (F2-F12)</h3>
                             <ul class="help-list">
                                 <li><kbd>F2</kbd> - Aumentar fonte</li>
                                 <li><kbd>F3</kbd> - Diminuir fonte</li>
@@ -589,6 +605,18 @@ class IncluaAIWidget {
                                 <li><kbd>F8</kbd> - Libras ao hover</li>
                                 <li><kbd>F9</kbd> - Destacar links</li>
                                 <li><kbd>F10</kbd> - Resumo didático</li>
+                                <li><kbd>F11</kbd> - Modo foco</li>
+                                <li><kbd>F12</kbd> - Controle por voz</li>
+                            </ul>
+                        </div>
+                        <div class="help-section">
+                            <h3>Comandos de Voz</h3>
+                            <ul class="help-list">
+                                <li>"aumentar" / "diminuir" - Fonte</li>
+                                <li>"ler" / "parar" - Leitor</li>
+                                <li>"foco" - Modo concentração</li>
+                                <li>"resumir" / "libras" - Funções</li>
+                                <li>"ajuda" - Ver comandos</li>
                             </ul>
                         </div>
                         <div class="help-section">
@@ -974,6 +1002,317 @@ class IncluaAIWidget {
             } catch (error) {
                 this.showToast('Erro ao gerar resumo didático', 'error');
             }
+        }
+    }
+
+    // ==========================================================================
+    // VOICE COMMANDS - Controle por Voz
+    // ==========================================================================
+
+    toggleVoiceCommands() {
+        this.settings.voiceCommands = !this.settings.voiceCommands;
+
+        // Atualiza visual
+        const btn = document.querySelector('[data-action="voice-commands"]');
+        if (btn) this.updateButtonVisuals(btn);
+
+        if (this.settings.voiceCommands) {
+            this.initVoiceRecognition();
+        } else {
+            this.stopVoiceRecognition();
+        }
+    }
+
+    initVoiceRecognition() {
+        // Verifica suporte
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            this.showToast('❌ Seu navegador não suporta reconhecimento de voz', 'error');
+            this.settings.voiceCommands = false;
+            return;
+        }
+
+        this.speechRecognition = new SpeechRecognition();
+        this.speechRecognition.continuous = true;
+        this.speechRecognition.interimResults = false;
+        this.speechRecognition.lang = 'pt-BR';
+
+        this.speechRecognition.onstart = () => {
+            this.isListening = true;
+            this.showToast('🎙️ Ouvindo comandos... Diga "ajuda" para ver opções', 'success');
+            this.showVoiceIndicator(true);
+        };
+
+        this.speechRecognition.onresult = (event) => {
+            const last = event.results.length - 1;
+            const command = event.results[last][0].transcript.toLowerCase().trim();
+            this.processVoiceCommand(command);
+        };
+
+        this.speechRecognition.onerror = (event) => {
+            if (event.error === 'no-speech') {
+                // Silêncio, não é erro crítico
+                return;
+            }
+            console.error('Erro de reconhecimento:', event.error);
+            this.showToast(`Erro de voz: ${event.error}`, 'error');
+        };
+
+        this.speechRecognition.onend = () => {
+            // Reinicia se ainda estiver ativo
+            if (this.settings.voiceCommands && this.isListening) {
+                try {
+                    this.speechRecognition.start();
+                } catch (e) {
+                    // Ignora erro de já estar rodando
+                }
+            }
+        };
+
+        try {
+            this.speechRecognition.start();
+        } catch (e) {
+            this.showToast('Erro ao iniciar reconhecimento de voz', 'error');
+        }
+    }
+
+    stopVoiceRecognition() {
+        this.isListening = false;
+        this.showVoiceIndicator(false);
+
+        if (this.speechRecognition) {
+            try {
+                this.speechRecognition.stop();
+            } catch (e) {
+                // Ignora
+            }
+        }
+        this.showToast('🎙️ Controle por voz desativado', 'info');
+    }
+
+    processVoiceCommand(command) {
+        // Feedback visual imediato
+        this.showToast(`🗣️ "${command}"`, 'info');
+
+        // Mapear comandos com mais variações
+        const commands = {
+            // Fonte - múltiplas formas de dizer
+            'aumentar fonte': () => this.execVoice('font-increase', 'Fonte aumentada'),
+            'aumentar': () => this.execVoice('font-increase', 'Fonte aumentada'),
+            'fonte maior': () => this.execVoice('font-increase', 'Fonte aumentada'),
+            'maior': () => this.execVoice('font-increase', 'Fonte maior'),
+            'grande': () => this.execVoice('font-increase', 'Texto maior'),
+
+            'diminuir fonte': () => this.execVoice('font-decrease', 'Fonte diminuída'),
+            'diminuir': () => this.execVoice('font-decrease', 'Fonte diminuída'),
+            'fonte menor': () => this.execVoice('font-decrease', 'Fonte diminuída'),
+            'menor': () => this.execVoice('font-decrease', 'Fonte menor'),
+            'pequeno': () => this.execVoice('font-decrease', 'Texto menor'),
+
+            // Leitura
+            'ler texto': () => this.execVoice('text-reader', 'Leitor ativado'),
+            'ler': () => this.execVoice('text-reader', 'Leitor ativado'),
+            'leitor': () => this.execVoice('text-reader', 'Leitor de texto'),
+            'leia': () => this.execVoice('text-reader', 'Leitor ativado'),
+            'parar leitura': () => { speechSynthesis.cancel(); this.showToast('⏹️ Leitura parada', 'success'); },
+            'parar': () => { speechSynthesis.cancel(); this.showToast('⏹️ Parado', 'success'); },
+            'silêncio': () => { speechSynthesis.cancel(); this.showToast('🤫 Silenciado', 'success'); },
+            'calar': () => { speechSynthesis.cancel(); this.showToast('🤫 OK', 'success'); },
+
+            // Hover
+            'passar mouse': () => this.execVoice('hover-reader', 'Leitura ao passar ativada'),
+            'hover': () => this.execVoice('hover-reader', 'Hover reader'),
+
+            // Foco
+            'modo foco': () => this.execVoice('focus-mode', 'Modo foco'),
+            'foco': () => this.execVoice('focus-mode', 'Modo foco'),
+            'concentrar': () => this.execVoice('focus-mode', 'Concentração ativada'),
+            'concentração': () => this.execVoice('focus-mode', 'Modo concentração'),
+
+            // Links
+            'destacar links': () => this.execVoice('highlight-links', 'Links destacados'),
+            'mostrar links': () => this.execVoice('highlight-links', 'Links visíveis'),
+            'links': () => this.execVoice('highlight-links', 'Links'),
+
+            // Imagem
+            'descrever imagem': () => this.execVoice('describe-image', 'Clique em uma imagem'),
+            'descrever foto': () => this.execVoice('describe-image', 'Modo descrição de imagem'),
+            'imagem': () => this.execVoice('describe-image', 'Descrição de imagem'),
+            'foto': () => this.execVoice('describe-image', 'Modo foto'),
+
+            // Resumir
+            'resumir': () => this.execVoice('summarize-text', 'Selecione texto para resumir'),
+            'resumo': () => this.execVoice('summarize-text', 'Modo resumo'),
+            'resumir texto': () => this.execVoice('summarize-text', 'Resumidor ativado'),
+            'didático': () => this.execVoice('didactic-summary', 'Resumo didático'),
+
+            // Libras
+            'libras': () => this.execVoice('libras-hover', 'Libras ativado'),
+            'traduzir': () => this.execVoice('libras-hover', 'Tradução Libras'),
+            'língua de sinais': () => this.execVoice('libras-hover', 'Libras'),
+
+            // Ajuda
+            'ajuda': () => this.showVoiceHelpModal(),
+            'comandos': () => this.showVoiceHelpModal(),
+            'o que posso falar': () => this.showVoiceHelpModal(),
+            'help': () => this.showVoiceHelpModal(),
+
+            // Menu
+            'fechar menu': () => { if (this.isActive) this.togglePanel(); this.showToast('Menu fechado', 'success'); },
+            'fechar': () => { if (this.isActive) this.togglePanel(); },
+            'abrir menu': () => { if (!this.isActive) this.togglePanel(); this.showToast('Menu aberto', 'success'); },
+            'abrir': () => { if (!this.isActive) this.togglePanel(); },
+            'menu': () => { this.togglePanel(); },
+
+            // Resetar
+            'resetar': () => { this.resetSettings(); this.showToast('⚙️ Configurações resetadas', 'success'); },
+            'limpar': () => { this.resetSettings(); },
+            'reiniciar': () => { this.resetSettings(); },
+
+            // Desativar voz
+            'desativar voz': () => { this.toggleVoiceCommands(); },
+            'parar de ouvir': () => { this.toggleVoiceCommands(); }
+        };
+
+        // Procura correspondência (ordem importa - mais específicos primeiro)
+        let matched = false;
+        const sortedCommands = Object.entries(commands).sort((a, b) => b[0].length - a[0].length);
+
+        for (const [key, action] of sortedCommands) {
+            if (command.includes(key)) {
+                action();
+                matched = true;
+                break;
+            }
+        }
+
+        if (!matched) {
+            this.showToast('❓ Não entendi. Diga "ajuda" para ver comandos', 'info');
+        }
+    }
+
+    execVoice(action, feedback) {
+        const button = document.querySelector(`[data-action="${action}"]`);
+        if (button) {
+            this.handleAction(action, button);
+            this.showToast(`✅ ${feedback}`, 'success');
+        }
+    }
+
+    showVoiceHelpModal() {
+        this.showModal('🎙️ Comandos de Voz', `
+            <div style="text-align: left; line-height: 1.8;">
+                <p><strong>📏 Fonte:</strong> "maior", "menor", "aumentar", "diminuir"</p>
+                <p><strong>🔊 Leitura:</strong> "ler", "parar", "silêncio"</p>
+                <p><strong>🎯 Foco:</strong> "foco", "concentrar"</p>
+                <p><strong>🖼️ Imagem:</strong> "descrever imagem", "foto"</p>
+                <p><strong>📝 Resumo:</strong> "resumir", "didático"</p>
+                <p><strong>🔗 Links:</strong> "destacar links"</p>
+                <p><strong>🤟 Libras:</strong> "libras", "traduzir"</p>
+                <p><strong>📋 Menu:</strong> "abrir", "fechar"</p>
+                <p><strong>⚙️ Sistema:</strong> "resetar", "desativar voz"</p>
+            </div>
+        `);
+    }
+
+    showVoiceIndicator(show) {
+        let indicator = document.getElementById('inclua-voice-indicator');
+
+        if (show) {
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'inclua-voice-indicator';
+                indicator.innerHTML = `
+                    <div class="voice-pulse"></div>
+                    <span>🎙️ Ouvindo...</span>
+                `;
+                document.body.appendChild(indicator);
+            }
+            indicator.style.display = 'flex';
+        } else {
+            if (indicator) {
+                indicator.style.display = 'none';
+            }
+        }
+    }
+
+    // ==========================================================================
+    // FOCUS MODE - Modo de Concentração
+    // ==========================================================================
+
+    toggleFocusMode() {
+        this.settings.focusMode = !this.settings.focusMode;
+
+        // Atualiza visual
+        const btn = document.querySelector('[data-action="focus-mode"]');
+        if (btn) this.updateButtonVisuals(btn);
+
+        if (this.settings.focusMode) {
+            this.enableFocusMode();
+            this.showToast('🎯 Modo Foco ativado - Passe o mouse para iluminar', 'success');
+        } else {
+            this.disableFocusMode();
+            this.showToast('Modo Foco desativado', 'info');
+        }
+    }
+
+    enableFocusMode() {
+        // Cria overlay escuro
+        if (!document.getElementById('inclua-focus-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'inclua-focus-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        // Bind do handler
+        if (!this.boundFocusHandler) {
+            this.boundFocusHandler = this.handleFocusHover.bind(this);
+        }
+
+        document.addEventListener('mousemove', this.boundFocusHandler);
+        document.body.classList.add('inclua-focus-active');
+    }
+
+    disableFocusMode() {
+        const overlay = document.getElementById('inclua-focus-overlay');
+        if (overlay) overlay.remove();
+
+        if (this.boundFocusHandler) {
+            document.removeEventListener('mousemove', this.boundFocusHandler);
+        }
+
+        // Remove highlight de qualquer elemento
+        const highlighted = document.querySelector('.focus-highlighted');
+        if (highlighted) {
+            highlighted.classList.remove('focus-highlighted');
+        }
+
+        document.body.classList.remove('inclua-focus-active');
+    }
+
+    handleFocusHover(e) {
+        if (!this.settings.focusMode) return;
+        if (e.target.closest('#inclua-ai-widget')) return;
+        if (e.target.id === 'inclua-focus-overlay') return;
+
+        // Remove highlight anterior
+        const oldHighlight = document.querySelector('.focus-highlighted');
+        if (oldHighlight && oldHighlight !== e.target) {
+            oldHighlight.classList.remove('focus-highlighted');
+        }
+
+        // Encontra elemento de conteúdo mais próximo
+        const contentTags = ['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'TD', 'TH', 'BLOCKQUOTE', 'DIV', 'ARTICLE', 'SECTION'];
+        let target = e.target;
+
+        // Sobe na árvore até encontrar um elemento de conteúdo significativo
+        while (target && !contentTags.includes(target.tagName)) {
+            target = target.parentElement;
+        }
+
+        if (target && target !== document.body) {
+            target.classList.add('focus-highlighted');
         }
     }
 
@@ -2114,6 +2453,77 @@ class IncluaAIWidget {
                 box-shadow: 0 0 5px rgba(255, 255, 0, 0.8) !important;
             }
 
+            /* Voice Indicator */
+            #inclua-voice-indicator {
+                position: fixed;
+                bottom: 100px;
+                left: 20px;
+                background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 30px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 8px 25px rgba(236, 72, 153, 0.4);
+                z-index: 999998;
+                animation: voiceSlideIn 0.3s ease;
+            }
+
+            @keyframes voiceSlideIn {
+                from { transform: translateX(-100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+
+            .voice-pulse {
+                width: 12px;
+                height: 12px;
+                background: white;
+                border-radius: 50%;
+                animation: voicePulse 1s ease-in-out infinite;
+            }
+
+            @keyframes voicePulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.5); opacity: 0.5; }
+            }
+
+            /* Focus Mode */
+            #inclua-focus-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 99990;
+                pointer-events: none;
+                transition: opacity 0.3s;
+            }
+
+            body.inclua-focus-active * {
+                transition: all 0.2s ease;
+            }
+
+            .focus-highlighted {
+                position: relative;
+                z-index: 99995 !important;
+                background: white !important;
+                color: black !important;
+                box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.3), 
+                            0 0 40px rgba(255, 255, 255, 0.5),
+                            0 0 80px rgba(139, 92, 246, 0.3) !important;
+                border-radius: 8px !important;
+                padding: 16px !important;
+                margin: -8px !important;
+            }
+
+            .focus-highlighted * {
+                color: black !important;
+            }
+
             /* Responsivo */
             @media (max-width: 400px) {
                 .category-grid {
@@ -2122,6 +2532,13 @@ class IncluaAIWidget {
                 
                 .feature-card {
                     min-height: 90px;
+                }
+
+                #inclua-voice-indicator {
+                    bottom: 80px;
+                    left: 10px;
+                    padding: 8px 15px;
+                    font-size: 12px;
                 }
             }
         `;
