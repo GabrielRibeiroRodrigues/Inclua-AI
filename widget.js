@@ -195,12 +195,12 @@ class IncluaAIWidget {
     createPanelSections() {
         return `
             ${this.createCategory('visual', '', 'Deficiência Visual', '#3b82f6', [
-            { id: 'font-increase', emoji: '🔼', title: 'Aumentar', desc: 'Fonte maior', key: 'F2' },
-            { id: 'font-decrease', emoji: '🔽', title: 'Diminuir', desc: 'Fonte menor', key: 'F3' },
-            { id: 'highlight-links', emoji: '🔗', title: 'Links', desc: 'Destacar', key: 'F9' },
-            { id: 'text-reader', emoji: '🔊', title: 'Leitor', desc: 'Ler texto', key: 'F4' },
-            { id: 'hover-reader', emoji: '👆', title: 'Hover', desc: 'Ler ao passar', key: 'F5' },
-            { id: 'describe-image', emoji: '🖼️', title: 'Imagem', desc: 'Descrever com IA', key: 'F6' }
+            { id: 'font-increase', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><text x="2" y="18" font-size="14" font-weight="bold">A+</text></svg>', title: 'Aumentar', desc: 'Fonte maior', key: 'F2' },
+            { id: 'font-decrease', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><text x="2" y="18" font-size="14" font-weight="bold">A-</text></svg>', title: 'Diminuir', desc: 'Fonte menor', key: 'F3' },
+            { id: 'highlight-links', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>', title: 'Links', desc: 'Destacar', key: 'F9' },
+            { id: 'text-reader', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>', title: 'Leitor', desc: 'Ler texto', key: 'F4' },
+            { id: 'hover-reader', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>', title: 'Hover', desc: 'Ler ao passar', key: 'F5' },
+            { id: 'describe-image', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>', title: 'Imagem', desc: 'Descrever com IA', key: 'F6' }
         ])}
 
             <div class="category-colorblind">
@@ -215,23 +215,23 @@ class IncluaAIWidget {
             </div>
 
             ${this.createCategory('auditiva', '', 'Deficiência Auditiva', '#10b981', [
-            { id: 'libras-hover', emoji: '🤟', title: 'Libras', desc: 'Traduzir', key: 'F8' }
+            { id: 'libras-hover', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a6 6 0 0 0-12 0v5"/><path d="M2 16s2-4 10-4 10 4 10 4"/><path d="M8 16v5"/><path d="M16 16v5"/></svg>', title: 'Libras', desc: 'Traduzir', key: 'F8' }
         ])}
 
             ${this.createCategory('cognitiva', '', 'Dificuldades Cognitivas', '#8b5cf6', [
-            { id: 'didactic-summary', emoji: '📚', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
-            { id: 'summarize-text', emoji: '📝', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' },
-            { id: 'focus-mode', emoji: '🎯', title: 'Foco', desc: 'Destaca conteúdo', key: 'F11' }
+            { id: 'didactic-summary', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
+            { id: 'summarize-text', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' },
+            { id: 'focus-mode', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>', title: 'Foco', desc: 'Destaca conteúdo', key: 'F11' }
         ])}
 
             ${this.createSection('Assistência Virtual', [
-            { id: 'chatbot', emoji: '💬', title: 'ChatBot Assistente', desc: 'Converse com IA' },
-            { id: 'call-center', emoji: '☎️', title: 'Central de Atendimento', desc: 'Atendimento por voz' }
+            { id: 'chatbot', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/><path d="M9 14s1 2 3 2 3-2 3-2"/></svg>', title: 'ChatBot Assistente', desc: 'Converse com IA' },
+            { id: 'call-center', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>', title: 'Central de Atendimento', desc: 'Atendimento por voz' }
         ])}
 
             <div class="menu-footer">
                 <button class="reset-button" data-action="reset-settings">
-                    <span>🔄</span> Resetar Configurações
+                    <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg></span> Resetar Configurações
                 </button>
             </div>
         `;
@@ -2592,7 +2592,8 @@ class IncluaAIWidget {
 
             /* Categorias de Acessibilidade */
             .acess-category {
-                margin-bottom: 24px;
+                margin-bottom: 48px;
+                padding-bottom: 20px;
                 animation: categoryFadeIn 0.4s ease forwards;
             }
 
@@ -2605,8 +2606,8 @@ class IncluaAIWidget {
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                margin-bottom: 12px;
-                padding-bottom: 8px;
+                margin-bottom: 16px;
+                padding-bottom: 10px;
                 border-bottom: 2px solid var(--category-color);
             }
 
@@ -2625,17 +2626,18 @@ class IncluaAIWidget {
             /* Grid de Cards */
             .category-grid {
                 display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-                gap: 18px;
-                padding: 4px;
+                grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+                gap: 20px;
+                padding: 8px;
+                margin-top: 4px;
             }
 
             /* Cards de Funcionalidade - CORES SÓLIDAS & INDICADORES */
             .feature-card {
-                background: linear-gradient(145deg, #374151 0%, #1f2937 100%) !important;
-                border: 2px solid rgba(255, 255, 255, 0.2) !important;
-                border-radius: 16px;
-                padding: 16px 12px;
+                background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+                border: 2px solid #4a5568 !important;
+                border-radius: 14px;
+                padding: 18px 12px;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -2644,19 +2646,51 @@ class IncluaAIWidget {
                 cursor: pointer;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 position: relative;
-                min-height: 115px;
-                box-shadow: 0 6px 12px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
-                color: #d1d5db !important;
+                min-height: 120px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.1);
+                color: #cbd5e0 !important;
                 opacity: 1 !important;
                 visibility: visible !important;
             }
 
-            .feature-card:hover {
-                background: linear-gradient(145deg, #4b5563 0%, #374151 100%) !important;
-                border-color: rgba(255, 255, 255, 0.35) !important;
+            /* Cores específicas por categoria */
+            [data-category="visual"] .feature-card {
+                background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+                border: 2px solid #3b82f6 !important;
                 color: #ffffff !important;
-                transform: translateY(-4px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
+            }
+
+            [data-category="auditiva"] .feature-card {
+                background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+                border: 2px solid #10b981 !important;
+                color: #ffffff !important;
+            }
+
+            [data-category="cognitiva"] .feature-card {
+                background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+                border: 2px solid #8b5cf6 !important;
+                color: #ffffff !important;
+            }
+
+            .feature-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.15);
+                filter: brightness(1.15);
+            }
+
+            [data-category="visual"] .feature-card:hover {
+                box-shadow: 0 8px 24px rgba(37, 99, 235, 0.5), 0 12px 32px rgba(59, 130, 246, 0.3);
+                border-color: #60a5fa !important;
+            }
+
+            [data-category="auditiva"] .feature-card:hover {
+                box-shadow: 0 8px 24px rgba(5, 150, 105, 0.5), 0 12px 32px rgba(16, 185, 129, 0.3);
+                border-color: #34d399 !important;
+            }
+
+            [data-category="cognitiva"] .feature-card:hover {
+                box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5), 0 12px 32px rgba(139, 92, 246, 0.3);
+                border-color: #a78bfa !important;
             }
 
             /* ESTADO ATIVO - CLARAMENTE LIGADO */
@@ -2728,10 +2762,18 @@ class IncluaAIWidget {
             .card-icon {
                 font-size: 38px;
                 margin-bottom: 4px;
-                display: block !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
                 transition: all 0.3s ease;
                 filter: drop-shadow(0 3px 8px rgba(0,0,0,0.4));
                 opacity: 0.95;
+            }
+
+            .card-icon svg {
+                width: 32px;
+                height: 32px;
+                stroke-width: 2.5;
             }
 
             .feature-card:hover .card-icon {
