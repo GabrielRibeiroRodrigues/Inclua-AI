@@ -11,8 +11,7 @@ class IncluaAIWidget {
             reader: false,
             highlightLinks: false,
             imageDescriber: false,
-            textSummarizer: false,
-            hoverReader: false
+            textSummarizer: false
         };
 
         this.settings = {
@@ -169,7 +168,8 @@ class IncluaAIWidget {
 
             ${this.createSection('IA para Acessibilidade', [
             { id: 'describe-image', emoji: '🖼️', title: 'Descrever Imagem', desc: 'IA descreve imagens' },
-            { id: 'summarize-text', emoji: '📝', title: 'Resumir Texto', desc: 'IA resume conteúdo' }
+            { id: 'summarize-text', emoji: '📝', title: 'Resumir Texto', desc: 'IA resume conteúdo' },
+            { id: 'didactic-summary', emoji: '📚', title: 'Resumo Didático', desc: 'Resumo formatado e educacional' }
         ])}
 
             <div class="feature-section">
@@ -372,6 +372,7 @@ class IncluaAIWidget {
                 case 'hover-reader': this.toggleHoverReader(); break;
                 case 'describe-image': this.toggleImageDescriber(); break;
                 case 'summarize-text': this.toggleTextSummarizer(); break;
+                case 'didactic-summary': this.toggleDidacticSummary(); break;
                 case 'reset-settings': this.resetSettings(); break;
             }
         } catch (error) {
@@ -562,6 +563,13 @@ class IncluaAIWidget {
 
     toggleTextSummarizer() {
         this.features.textSummarizer = !this.features.textSummarizer;
+
+        // Se ativar resumo normal, desativar resumo didático
+        if (this.features.textSummarizer && this.features.didacticSummary) {
+            this.features.didacticSummary = false;
+            document.removeEventListener('mouseup', this.handleDidacticSummarization.bind(this));
+        }
+
         if (this.features.textSummarizer) {
             document.addEventListener('mouseup', this.boundHandleTextSummarization);
             this.showToast('Selecione texto para resumir', 'info');
@@ -571,10 +579,7 @@ class IncluaAIWidget {
         }
     }
 
-    async handleTextSummarization(e) {
-        // Evita resumir se estiver interagindo com o widget ou modal
-        if (this.activeModal || (e && e.target.closest('#inclua-ai-widget'))) return;
-
+    async handleTextSummarization() {
         const text = window.getSelection().toString().trim();
         if (text.length >= 50) {
             this.showToast('Gerando resumo...', 'info');
@@ -610,6 +615,69 @@ class IncluaAIWidget {
                 `);
             } catch (error) {
                 this.showToast('Erro ao resumir texto', 'error');
+            }
+        }
+    }
+
+    toggleDidacticSummary() {
+        this.features.didacticSummary = !this.features.didacticSummary;
+
+        // Se ativar resumo didático, desativar resumo normal
+        if (this.features.didacticSummary && this.features.textSummarizer) {
+            this.features.textSummarizer = false;
+            document.removeEventListener('mouseup', this.handleTextSummarization.bind(this));
+        }
+
+        if (this.features.didacticSummary) {
+            document.addEventListener('mouseup', this.handleDidacticSummarization.bind(this));
+            this.showToast('Selecione texto para resumo didático', 'info');
+        } else {
+            document.removeEventListener('mouseup', this.handleDidacticSummarization.bind(this));
+            this.showToast('Resumo didático desativado', 'info');
+        }
+    }
+
+    async handleDidacticSummarization() {
+        // Não gerar resumo se um modal estiver aberto
+        if (this.activeModal) {
+            return;
+        }
+
+        const text = window.getSelection().toString().trim();
+        if (text.length >= 50) {
+            this.showToast('Gerando resumo didático...', 'info');
+            try {
+                const response = await this.fetchWithRetry(`${this.getApiBaseUrl()}/didactic-summarize`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ textToSummarize: text })
+                });
+
+                if (!response.ok) throw new Error('Falha na API');
+                const data = await response.json();
+
+                this.showModal('📚 Resumo Didático', `
+                    <div class="ai-result-container">
+                        <div class="ai-result-header">
+                            <div class="ai-result-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                            </div>
+                            <div class="ai-result-meta">
+                                <h3>Resumo Educacional</h3>
+                                <span>${text.length} caracteres → Formato Didático</span>
+                            </div>
+                        </div>
+                        <div class="ai-result-content">
+                            <div class="ai-result-text" style="white-space: pre-line;">${data.didacticSummary}</div>
+                            <div class="ai-result-actions">
+                                <button onclick="window.incluaAIWidget.copyDidacticSummary(this)" data-didactic="${data.didacticSummary.replace(/"/g, '&quot;')}" class="btn btn-primary">Copiar</button>
+                                <button onclick="window.incluaAIWidget.playDidacticSummary(this)" data-didactic="${data.didacticSummary.replace(/"/g, '&quot;')}" class="btn btn-secondary">Ouvir</button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+            } catch (error) {
+                this.showToast('Erro ao gerar resumo didático', 'error');
             }
         }
     }
@@ -679,6 +747,16 @@ class IncluaAIWidget {
 
     playSummary(btn) {
         const text = btn.dataset.summary;
+        this.speak(text);
+    }
+
+    copyDidacticSummary(btn) {
+        const text = btn.dataset.didactic;
+        navigator.clipboard.writeText(text).then(() => this.showToast('Copiado!', 'success'));
+    }
+
+    playDidacticSummary(btn) {
+        const text = btn.dataset.didactic;
         this.speak(text);
     }
 

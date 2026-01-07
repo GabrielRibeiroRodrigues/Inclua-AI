@@ -81,6 +81,16 @@ const model = genAI.getGenerativeModel({
   },
 });
 
+// Modelo específico para resumos didáticos (necessita mais tokens)
+const didacticModel = genAI.getGenerativeModel({
+  model: 'gemini-flash-latest',
+  generationConfig: {
+    temperature: 0.7,
+    topP: 0.95,
+    maxOutputTokens: 2000, // Dobro do limite para acomodar resumos didáticos formatados
+  },
+});
+
 
 // 6. Função auxiliar melhorada para imagens com validação de segurança
 async function urlToGenerativePart(url) {
@@ -310,6 +320,63 @@ Responda apenas com o conteúdo resumido, sem prefixos ou explicações:`;
   } catch (error) {
     console.error('❌ Erro ao resumir texto:', error.message);
     res.status(500).json({ error: 'Falha ao gerar resumo do texto.' });
+  }
+});
+
+// Resumo didático de texto
+app.post('/didactic-summarize', rateLimitMiddleware, async (req, res) => {
+  console.log('📚 Recebida requisição para resumo didático...');
+
+  try {
+    const { textToSummarize } = req.body;
+
+    if (!textToSummarize || typeof textToSummarize !== 'string') {
+      return res.status(400).json({ error: 'Texto para resumir é obrigatório.' });
+    }
+
+    if (textToSummarize.length < 50) {
+      return res.status(400).json({ error: 'Texto muito curto para resumir (mínimo 50 caracteres).' });
+    }
+
+    if (textToSummarize.length > 10000) {
+      return res.status(400).json({ error: 'Texto muito longo (máximo 10.000 caracteres).' });
+    }
+
+    const prompt = `Analise o texto a seguir e crie um resumo DIDÁTICO em português, formatado de forma educacional e estruturada:
+
+TEXTO PARA ANÁLISE:
+"${textToSummarize}"
+
+DIRETRIZES PARA O RESUMO DIDÁTICO:
+- Organize o conteúdo em formato educacional e estruturado
+- Use tópicos numerados ou marcadores quando apropriado
+- Destaque os conceitos-chave e ideias principais
+- Apresente as informações de forma progressiva (do básico ao avançado)
+- Use linguagem clara e acessível, como se estivesse ensinando
+- Inclua exemplos ou contexto quando relevante
+- Mantenha entre 4-6 pontos bem explicados
+- Seja didático e facilitador do aprendizado
+
+FORMATO ESPERADO:
+Use uma estrutura como:
+📌 Principais Pontos:
+1. [Primeiro conceito importante]
+2. [Segundo conceito importante]
+...
+
+💡 Conceito-chave: [explicação breve]
+
+Responda apenas com o conteúdo formatado de forma didática:`;
+
+    const result = await didacticModel.generateContent(prompt);
+    const didacticSummary = result.response.text().trim();
+
+    console.log('✅ Resumo didático gerado com sucesso');
+    res.json({ didacticSummary });
+
+  } catch (error) {
+    console.error('❌ Erro ao gerar resumo didático:', error.message);
+    res.status(500).json({ error: 'Falha ao gerar resumo didático do texto.' });
   }
 });
 
