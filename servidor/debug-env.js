@@ -4,7 +4,7 @@ const fs = require('fs');
 
 const envPath = path.join(__dirname, '.env');
 console.log('Checking .env at:', envPath);
-
+ 
 if (fs.existsSync(envPath)) {
     console.log('File exists.');
     const content = fs.readFileSync(envPath, 'utf8');
