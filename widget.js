@@ -908,12 +908,11 @@ class IncluaAIWidget {
             };
             
             utterance.onend = () => {
-                console.log('Leitura finalizada');
+                // Leitura finalizada
             };
             
             utterance.onerror = (e) => {
-                console.error('Erro na síntese de voz:', e);
-                this.showToast('Erro ao ler texto', 'error');
+                // Erro silencioso na síntese
             };
             
             speechSynthesis.speak(utterance);
@@ -1023,8 +1022,7 @@ class IncluaAIWidget {
             utterance.onerror = (error) => {
                 this.currentSpeech = null;
                 this.isReading = false;
-                console.error('Erro na síntese de voz:', error);
-                this.showToast('Erro na síntese de voz', 'error');
+                // Erro silencioso na síntese
             };
 
             this.currentSpeech = utterance;
@@ -1273,13 +1271,11 @@ class IncluaAIWidget {
                     };
                     
                     utterance.onend = () => {
-                        console.log('Áudio da descrição finalizado');
                         this.currentSpeech = null;
                     };
                     
                     utterance.onerror = (e) => {
-                        console.error('Erro na reprodução de áudio:', e);
-                        this.showToast('Erro ao reproduzir áudio', 'error');
+                        // Erro silencioso na reprodução de áudio
                     };
                     
                     this.currentSpeech = utterance;
