@@ -195,12 +195,12 @@ class IncluaAIWidget {
     createPanelSections() {
         return `
             ${this.createCategory('visual', '', 'Deficiência Visual', '#3b82f6', [
-            { id: 'font-increase', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><text x="2" y="18" font-size="14" font-weight="bold">A+</text></svg>', title: 'Aumentar', desc: 'Fonte maior', key: 'F2' },
-            { id: 'font-decrease', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><text x="2" y="18" font-size="14" font-weight="bold">A-</text></svg>', title: 'Diminuir', desc: 'Fonte menor', key: 'F3' },
-            { id: 'highlight-links', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>', title: 'Links', desc: 'Destacar', key: 'F9' },
-            { id: 'text-reader', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>', title: 'Leitor', desc: 'Ler texto', key: 'F4' },
-            { id: 'hover-reader', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>', title: 'Hover', desc: 'Ler ao passar', key: 'F5' },
-            { id: 'describe-image', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>', title: 'Imagem', desc: 'Descrever com IA', key: 'F6' }
+            { id: 'font-increase', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><text x="2" y="18" font-size="14" font-weight="bold">A+</text></svg>', title: 'Aumentar Fonte', desc: 'Fonte maior', key: 'F2' },
+            { id: 'font-decrease', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><text x="2" y="18" font-size="14" font-weight="bold">A-</text></svg>', title: 'Diminuir Fonte', desc: 'Fonte menor', key: 'F3' },
+            { id: 'highlight-links', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>', title: 'Destacar Links', desc: 'Realce em links', key: 'F9' },
+            { id: 'text-reader', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>', title: 'Leitor de Texto', desc: 'Selecione para ouvir', key: 'F4' },
+            { id: 'hover-reader', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>', title: 'Leitor de Tela', desc: 'Passe o mouse para ouvir', key: 'F5' },
+            { id: 'describe-image', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>', title: 'Descrever Imagem', desc: 'IA descreve imagens', key: 'F6' }
         ])}
 
             <div class="category-colorblind">
@@ -215,13 +215,13 @@ class IncluaAIWidget {
             </div>
 
             ${this.createCategory('auditiva', '', 'Deficiência Auditiva', '#10b981', [
-            { id: 'libras-hover', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a6 6 0 0 0-12 0v5"/><path d="M2 16s2-4 10-4 10 4 10 4"/><path d="M8 16v5"/><path d="M16 16v5"/></svg>', title: 'Libras', desc: 'Traduzir', key: 'F8' }
+            { id: 'libras-hover', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 11V6a6 6 0 0 0-12 0v5"/><path d="M2 16s2-4 10-4 10 4 10 4"/><path d="M8 16v5"/><path d="M16 16v5"/></svg>', title: 'Traduzir Libras', desc: 'Conversão em Libras', key: 'F8' }
         ])}
 
             ${this.createCategory('cognitiva', '', 'Dificuldades Cognitivas', '#8b5cf6', [
-            { id: 'didactic-summary', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>', title: 'Didático', desc: 'Resumo educacional', key: 'F10' },
-            { id: 'summarize-text', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>', title: 'Resumir', desc: 'Resumo rápido', key: 'F7' },
-            { id: 'focus-mode', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>', title: 'Foco', desc: 'Destaca conteúdo', key: 'F11' }
+            { id: 'didactic-summary', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>', title: 'Resumo Didático', desc: 'Texto educacional', key: 'F10' },
+            { id: 'summarize-text', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>', title: 'Resumir Texto', desc: 'Resumo rápido', key: 'F7' },
+            { id: 'focus-mode', emoji: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>', title: 'Modo Foco', desc: 'Destaca conteúdo', key: 'F11' }
         ])}
 
             ${this.createSection('Assistência Virtual', [
