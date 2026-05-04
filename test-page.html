@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Teste - Inclua-AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .instructions {
+            background: #f0f4ff;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            margin: 30px 0;
+            border-radius: 5px;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .feature-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .test-section {
+            background: #fffacd;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Página de Teste - Inclua-AI Widget</h1>
+
+        <div class="test-section">
+            <h2>✅ Como Testar</h2>
+            <ol style="margin-left: 20px;">
+                <li>Copie o código do bookmarklet abaixo</li>
+                <li>Adicione como bookmark no seu navegador</li>
+                <li>Clique no bookmark enquanto está nesta página</li>
+                <li>Veja o widget aparecer no canto inferior direito</li>
+            </ol>
+        </div>
+
+        <div class="instructions">
+            <h3>📌 Bookmarklet (Versão LOCAL)</h3>
+            <p>Copie e cole isso como URL de um novo bookmark:</p>
+            <div class="code-block" id="bookmarklet">javascript:(function(){if(document.getElementById('inclua-ai-widget')){alert('Inclua-AI já está ativo nesta página!');return;}var css=document.createElement('link');css.rel='stylesheet';css.href='http://localhost:3000/widget.css';document.head.appendChild(css);var script=document.createElement('script');script.src='http://localhost:3000/widget.js';script.onload=function(){console.log('✅ Inclua-AI Widget carregado com sucesso!');};script.onerror=function(){alert('❌ Erro ao carregar Inclua-AI. Verifique se o servidor local está rodando em http://localhost:3000');};document.head.appendChild(script);})();</div>
+            <button onclick="copiarBookmarklet()">📋 Copiar Bookmarklet</button>
+        </div>
+
+        <h2>📝 Conteúdo de Exemplo</h2>
+        <p>Use o widget para testar as seguintes funcionalidades com este texto:</p>
+
+        <h2>🎨 O Poder da Acessibilidade</h2>
+        <p>
+            A acessibilidade na web é fundamental para garantir que todos possam desfrutar da internet,
+            independentemente de suas habilidades ou limitações. Quando desenvolvemos com acessibilidade em mente,
+            criamos experiências que funcionam para todos: pessoas com deficiências visuais, auditivas, cognitivas,
+            motoras e muito mais.
+        </p>
+
+        <h2>🤖 Inteligência Artificial na Acessibilidade</h2>
+        <p>
+            A inteligência artificial está revolucionando a forma como criamos ferramentas acessíveis.
+            Desde descrições automáticas de imagens até simplificação de texto complexo, a IA permite
+            que criemos soluções personalizadas que se adaptam às necessidades individuais de cada usuário.
+        </p>
+
+        <h2>🖼️ Imagem de Exemplo</h2>
+        <p>Clique na imagem abaixo com o botão de descrição de imagem do Inclua-AI para testar:</p>
+        <img src="https://via.placeholder.com/400x300?text=Imagem+de+Teste" alt="Imagem de teste">
+
+        <h2>📚 Recursos Adicionais</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>🎨 Modo Escuro</h3>
+                <p>Ajuste cores para conforto visual</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔊 Leitor de Texto</h3>
+                <p>Narração em português brasileiro</p>
+            </div>
+            <div class="feature-card">
+                <h3>🖱️ Destaque de Links</h3>
+                <p>Realça elementos interativos</p>
+            </div>
+            <div class="feature-card">
+                <h3>📝 Simplificador</h3>
+                <p>Reescreve em linguagem simples</p>
+            </div>
+        </div>
+
+        <h2>🔧 Teste Técnico</h2>
+        <div class="instructions">
+            <p><strong>Seu servidor está rodando em:</strong> <code style="background: #f0f0f0; padding: 5px;">http://localhost:3000</code></p>
+            <p><strong>Endpoints disponíveis:</strong></p>
+            <ul style="margin-left: 20px;">
+                <li>GET <code style="background: #f0f0f0; padding: 5px;">/health</code> - Status do servidor</li>
+                <li>GET <code style="background: #f0f0f0; padding: 5px;">/widget.js</code> - Widget JavaScript</li>
+                <li>GET <code style="background: #f0f0f0; padding: 5px;">/widget.css</code> - Widget CSS</li>
+                <li>POST <code style="background: #f0f0f0; padding: 5px;">/api/describe-image</code> - Descrever imagem</li>
+                <li>POST <code style="background: #f0f0f0; padding: 5px;">/api/summarize</code> - Simplificar texto</li>
+            </ul>
+        </div>
+
+        <h2>🐛 Console de Debug</h2>
+        <p>Pressione <strong>F12</strong> para abrir o Developer Tools e veja os logs no Console.</p>
+        <div class="instructions">
+            <p>📌 <strong>Dica:</strong> Se o widget não aparecer, verifique:</p>
+            <ul style="margin-left: 20px;">
+                <li>Se o servidor está rodando em http://localhost:3000</li>
+                <li>O console do navegador para mensagens de erro</li>
+                <li>Se a chave API do Google Gemini está configurada</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function copiarBookmarklet() {
+            const bookmarklet = document.getElementById('bookmarklet').textContent;
+            navigator.clipboard.writeText(bookmarklet).then(() => {
+                alert('✅ Bookmarklet copiado! Agora:\n1. Crie um novo bookmark\n2. Cole no campo URL\n3. Clique nele para ativar o widget');
+            });
+        }
+
+        // Verificar se servidor está rodando
+        fetch('http://localhost:3000/health')
+            .then(res => res.json())
+            .then(data => {
+                console.log('✅ Servidor Inclua-AI está online!', data);
+            })
+            .catch(err => {
+                console.warn('⚠️ Servidor não respondeu. Verifique se está rodando em http://localhost:3000');
+            });
+    </script>
+</body>
+</html>

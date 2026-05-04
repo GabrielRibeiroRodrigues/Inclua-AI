@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Inclua-AI - Acessibilidade com IA",
+  "version": "1.0.0",
+  "description": "Widget de acessibilidade inteligente com IA. Clique no ícone para ativar/desativar.",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:3000/*",
+    "https://inclua-ai-servidor.onrender.com/*",
+    "<all_urls>"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Inclua-AI - Acessibilidade com IA"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ]
+}
